@@ -1,0 +1,40 @@
+<component name="InspectionProjectProfileManager">
+  <profile version="1.0">
+    <option name="myName" value="Project Default" />
+    <inspection_tool class="Eslint" enabled="true" level="WARNING" enabled_by_default="true" />
+    <inspection_tool class="JSHint" enabled="true" level="ERROR" enabled_by_default="true" />
+    <inspection_tool class="PyPackageRequirementsInspection" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="ignoredPackages">
+        <value>
+          <list size="18">
+            <item index="0" class="java.lang.String" itemvalue="requests-html" />
+            <item index="1" class="java.lang.String" itemvalue="django-ckeditor" />
+            <item index="2" class="java.lang.String" itemvalue="djangorestframework-jwt" />
+            <item index="3" class="java.lang.String" itemvalue="django-split-settings" />
+            <item index="4" class="java.lang.String" itemvalue="SQLAlchemy" />
+            <item index="5" class="java.lang.String" itemvalue="django-freshdesk" />
+            <item index="6" class="java.lang.String" itemvalue="django-simple-captcha" />
+            <item index="7" class="java.lang.String" itemvalue="pipenv" />
+            <item index="8" class="java.lang.String" itemvalue="python-ldap" />
+            <item index="9" class="java.lang.String" itemvalue="requests-oauthlib" />
+            <item index="10" class="java.lang.String" itemvalue="django-ranged-response" />
+            <item index="11" class="java.lang.String" itemvalue="django-filter" />
+            <item index="12" class="java.lang.String" itemvalue="Django" />
+            <item index="13" class="java.lang.String" itemvalue="django-js-asset" />
+            <item index="14" class="java.lang.String" itemvalue="scapy" />
+            <item index="15" class="java.lang.String" itemvalue="djangorestframework" />
+            <item index="16" class="java.lang.String" itemvalue="django-cors-headers" />
+            <item index="17" class="java.lang.String" itemvalue="django-auth-ldap" />
+          </list>
+        </value>
+      </option>
+    </inspection_tool>
+    <inspection_tool class="PyUnresolvedReferencesInspection" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="ignoredIdentifiers">
+        <list>
+          <option value="common.management.commands.tan_critic_region.daily_max_inbound_bandwidth_utilization" />
+        </list>
+      </option>
+    </inspection_tool>
+  </profile>
+</component>
