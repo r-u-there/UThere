@@ -15,10 +15,10 @@ function RegistrationPage() {
 	function register() {
 
 		let item = {"username":username,"email": email,"password": password};
-		var jsonItem = JSON.stringify(item);
+		var jsonItem = JSON.stringify(item.item);
 		console.log(typeof(jsonItem), jsonItem);
 
-		axios.post('http://127.0.0.1:8000/api/auth/register/?"username"="biseyy"&"mail"="biseyy@gmail.com"&"password"="pass1234"',{}).then();
+		axios.post('http://127.0.0.1:8000/api/auth/register/',{"username":username,"email": email,"password": password}).then();
 		alert(item);
 	}
 
