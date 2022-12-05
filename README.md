@@ -1,4 +1,4 @@
-# UThere application first initialization
+# UThere application back-end initialization
 
 A brief guide for running the project.
 
@@ -62,7 +62,17 @@ python manage.py makemigrations
 python manage.py migrate
 ```
 
-## 3. 
+## 3.  Creating superuser
+
+```shell
+python manage.py createsuperuser
+```
+then enter your username, email and password.
+admin page is accessable through :
+http://localhost:8000/admin
+It will enable us to perform directly and easily CRUDE operations for the objects defined in the admin.py file.
+
+## 4. 
 
 ```shell
 python manage.py runserver
