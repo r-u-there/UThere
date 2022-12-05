@@ -3,17 +3,17 @@ import LoginIcon from '../Icons/LoginPageIcon3.png';
 import UThere from './UThere';
 import { Link } from 'react-router-dom';
 import {useState} from 'react';
-import API from './API.js';
+import axios from 'axios';
 
 function RegistrationPage() {
-	const [fullName, setFullName] = useState("");
+	const [username, setFullName] = useState("");
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 	const [passwordVerification, setPasswordVerification] = useState("");
 
 	function register() {
-		let item = {fullName, email, password, passwordVerification};
-		API.post("/", item).then();
+		let item = {"username": username, "email": email, "password": password};
+		axios.post('http://127.0.0.1:8000/api/auth/register/', item).then();
 	}
 
 	return (
