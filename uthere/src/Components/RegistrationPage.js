@@ -3,6 +3,7 @@ import LoginIcon from '../Icons/LoginPageIcon3.png';
 import UThere from './UThere';
 import { Link } from 'react-router-dom';
 import {useState} from 'react';
+import API from './API.js';
 import axios from 'axios';
 
 function RegistrationPage() {
@@ -12,8 +13,13 @@ function RegistrationPage() {
 	const [passwordVerification, setPasswordVerification] = useState("");
 
 	function register() {
-		let item = {"username": username, "email": email, "password": password};
-		axios.post('http://127.0.0.1:8000/api/auth/register/', item).then();
+
+		let item = {"username":username,"email": email,"password": password};
+		var jsonItem = JSON.stringify(item.item);
+		console.log(typeof(jsonItem), jsonItem);
+
+		axios.post('http://127.0.0.1:8000/api/auth/register/',{"username":username,"email": email,"password": password}).then();
+		alert(item);
 	}
 
 	return (
