@@ -50,3 +50,16 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return f"{self.email}"
+
+
+class ContactForm(models.Model):
+    message = models.CharField(max_length=250)
+    # CATEGORY_CHOICES = [
+    #     'Error',
+    #     'Request',
+    #     'Other'
+    # ]
+    category = models.CharField(max_length=250)
+
+    def __str__(self):
+        return self.message

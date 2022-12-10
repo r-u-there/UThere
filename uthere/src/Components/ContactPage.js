@@ -10,7 +10,7 @@ function ContactPage() {
 
 	function submit() {
 		let item = {category, message};
-		axios.post('http://127.0.0.1:8000/api/', item).then(response => {
+		axios.post('http://127.0.0.1:8000/api/contact/', item).then(response => {
 			console.log("success");
 			console.log(response);
 			window.location = "/Dashboard";

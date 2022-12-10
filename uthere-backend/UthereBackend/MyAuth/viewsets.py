@@ -9,13 +9,11 @@ from rest_framework.permissions import AllowAny
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
-from .serializers import UserSerializer, LoginSerializer, RegisterSerializer
+from .serializers import UserSerializer, LoginSerializer, RegisterSerializer, ContactFormSerializer
 from .models import User
 
 
-
 class UserViewSet(viewsets.ModelViewSet):
-
     http_method_names = ['get']
     serializer_class = UserSerializer
     permission_classes = (IsAuthenticated,)
@@ -56,17 +54,16 @@ class RegistrationViewSet(ModelViewSet, TokenObtainPairView):
     http_method_names = ['post']
 
     def create(self, request, *args, **kwargs):
-        print(request.data)
+        print("here", request.data, flush=True)
         serializer = self.get_serializer(data=request.data)
-
         serializer.is_valid(raise_exception=True)
+
         user = serializer.save()
         refresh = RefreshToken.for_user(user)
         res = {
             "refresh": str(refresh),
             "access": str(refresh.access_token),
         }
-
         return Response({
             "user": serializer.data,
             "refresh": res["refresh"],
@@ -89,3 +86,21 @@ class RefreshViewSet(viewsets.ViewSet, TokenRefreshView):
             raise InvalidToken(e.args[0])
 
         return Response(serializer.validated_data, status=status.HTTP_200_OK)
+
+
+class ContactViewSet(ModelViewSet, TokenObtainPairView):
+    serializer_class = ContactFormSerializer
+    permission_classes = (AllowAny,)
+    http_method_names = ['post']
+
+    def create(self, request, *args, **kwargs):
+        print(request.data)
+        data = request.data
+        serializer = self.serializer_class(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            print("saved")
+            return Response(data=serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
