@@ -6,7 +6,7 @@ import axios from 'axios';
 
 function ContactPage() {
 	const [message, setMessage] = useState("");
-	const [category, setCategory] = useState("");
+	const [category, setCategory] = useState("Select what we can help you with.");
 
 	function submit() {
 		let item = {category, message};
@@ -28,7 +28,7 @@ function ContactPage() {
 				<form className='contact-form' style={{"backgroundColor": "white"}}>
 					<h1 className="my-1 mr-2">We'd love to hear from you!</h1>
 					<div className="dropdown">
-						<button className="btn btn-light mt-3 dropdown-toggle" style={{"fontSize": "20px"}} type="button" id="dropdownMenuButton" data-toggle="dropdown" >Select what we can help you with.</button>
+						<button className="btn btn-light mt-3 dropdown-toggle" style={{"fontSize": "20px"}} type="button" id="dropdownMenuButton" data-toggle="dropdown" >{category}</button>
 						<div className="dropdown-menu">
 							<a className="dropdown-item" href="#" onClick={e => setCategory("Error Reporting")}>Error Reporting</a>
 							<a className="dropdown-item" href="#" onClick={e => setCategory("Request For A New Feature")}>Request For A New Feature</a>
