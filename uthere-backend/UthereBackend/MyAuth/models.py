@@ -63,3 +63,17 @@ class ContactForm(models.Model):
 
     def __str__(self):
         return self.message
+
+
+class Profile(models.Model):
+    full_name = models.CharField(max_length=50, null=True, blank=True)
+    GENDER_CHOICES = (
+        ('M', 'Male'),
+        ('F', 'Female'),
+    )
+    gender = models.CharField(max_length=1, choices=GENDER_CHOICES)
+    birth_date = models.DateField()
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.full_name

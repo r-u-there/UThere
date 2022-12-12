@@ -9,8 +9,10 @@ from rest_framework.permissions import AllowAny
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
-from .serializers import UserSerializer, LoginSerializer, RegisterSerializer, ContactFormSerializer
-from .models import User
+from .serializers import UserSerializer, LoginSerializer, RegisterSerializer, ContactFormSerializer, ProfileSerializer
+from .models import User, Profile
+from django.contrib.auth import authenticate
+
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -40,8 +42,12 @@ class LoginViewSet(ModelViewSet, TokenObtainPairView):
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
 
+
         try:
             serializer.is_valid(raise_exception=True)
+            username = request.data['email']
+            password = request.data['password']
+            user = authenticate(request, username=username, password=password)
         except TokenError as e:
             raise InvalidToken(e.args[0])
 
@@ -77,7 +83,7 @@ class RefreshViewSet(viewsets.ViewSet, TokenRefreshView):
     permission_classes = (AllowAny,)
     http_method_names = ['post']
 
-    def create(self, request, *args, **kwargs):
+    def create(self, request):
         serializer = self.get_serializer(data=request.data)
 
         try:
@@ -103,4 +109,35 @@ class ContactViewSet(ModelViewSet, TokenObtainPairView):
             return Response(data=serializer.data, status=status.HTTP_201_CREATED)
         else:
             return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class ProfileViewSet(ModelViewSet, TokenObtainPairView):
+    serializer_class = ProfileSerializer
+    permission_classes = (AllowAny,)
+    http_method_names = ['post', 'get']
+
+    def create(self, request):
+        data = request.data
+        serializer = self.serializer_class(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(data=serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def update(self, request):
+        data = request.data
+        serializer = self.serializer_class(data=data)
+        if serializer.is_valid():
+            serializer.update()
+            return Response(data=serializer.data, status=status.HTTP_204_NO_CONTENT)
+        else:
+            return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def get_queryset(self):
+        try:
+            return Profile.objects.filter(user=self.request.user)
+        except TokenError as e:
+            raise InvalidToken(e.args[0])
+
+
 
