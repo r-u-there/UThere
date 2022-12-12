@@ -98,6 +98,12 @@ body {
 	left: 20px;
 }
 
+.popup-close2 {
+	position: relative;
+	bottom: 120px;
+	left: 20px;
+}
+
 .vid {
 	top: 115px;
 	position: relative;

@@ -8,6 +8,8 @@ import {MdToggleOff} from 'react-icons/md';
 import {MdToggleOn} from 'react-icons/md';
 import axios from "axios";
 import {useState, useEffect} from "react";
+import EditProfilePopup from "./EditProfilePopup";
+import {Cookies} from "react-cookie";
 
 function ProfilePage() {
 	const [tabSelection, setTabSelection] = useState(0);
@@ -21,6 +23,11 @@ function ProfilePage() {
 	const [password, setPassword] = useState("");
 	const [gender, setGender] = useState("");
 	const [birthday, setBirthday] = useState("");
+	const [trigger, setTrigger] = useState(false);
+	const [changedInfo, setChangedInfo] = useState("");
+	const cookies = new Cookies();
+	const refreshToken = cookies.get(["refreshToken"]);
+	const userId = cookies.get("userId");
 
 	function displayProfile() {
 		if (tabSelection == 0) {
@@ -30,27 +37,27 @@ function ProfilePage() {
 						<tr>
 							<td><b>Full Name: &ensp;</b></td>
 							<td>{name}</td>
-							<td>&ensp;<TbEdit size={40}/></td>
+							<td>&ensp;<TbEdit onClick={() => {setTrigger(true); setChangedInfo("full name")}} size={40}/></td>
 						</tr>
 						<tr>
 							<td><b>Email: &ensp;</b></td>
 							<td>{email}</td>
-							<td>&ensp;<TbEdit size={40}/></td>
+							<td>&ensp;<TbEdit onClick={() => {setTrigger(true); setChangedInfo("email")}} size={40}/></td>
 						</tr>
 						<tr>
 							<td><b>Password: &ensp;</b></td>
 							<td>********</td>
-							<td>&ensp;<TbEdit size={40}/></td>
+							<td>&ensp;<TbEdit onClick={() => {setTrigger(true); setChangedInfo("password")}} size={40}/></td>
 						</tr>
 						<tr>
 							<td><b>Gender: &ensp;</b></td>
 							<td>{gender}</td>
-							<td>&ensp;<TbEdit size={40}/></td>
+							<td>&ensp;<TbEdit onClick={() => {setTrigger(true); setChangedInfo("gender")}} size={40}/></td>
 						</tr>
 						<tr>
 							<td><b>Date of Birth: &ensp;</b></td>
 							<td>{birthday}</td>
-							<td>&ensp;<TbEdit size={40}/></td>
+							<td>&ensp;<TbEdit onClick={() => {setTrigger(true); setChangedInfo("date of birth")}} size={40}/></td>
 						</tr>
 					</table></center>
 				</div>
@@ -108,7 +115,12 @@ function ProfilePage() {
 	}
 
 	function getProfileInfo() {
-		axios.get('\'http://127.0.0.1:8000/api/profile/').then((response) => {
+		axios.get('http://127.0.0.1:8000/api/profile/', {
+			headers: {
+				'refreshToken': refreshToken,
+				'userId': userId
+			}
+		}).then((response) => {
 			console.log(response.data);
 		}).catch(exception => {
 			console.log(exception);
@@ -139,6 +151,7 @@ function ProfilePage() {
 				</ul><hr></hr>
 				{displayProfile()}
 			</div>
+			<EditProfilePopup trigger={trigger} setTrigger={setTrigger} changedInfo={changedInfo}></EditProfilePopup>
 		</div>
 	);
 }
