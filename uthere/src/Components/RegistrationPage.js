@@ -12,22 +12,30 @@ function RegistrationPage() {
 	const [password, setPassword] = useState("");
 	const [passwordVerification, setPasswordVerification] = useState("");
 	const [loginSuccess, setLoginSuccess] = useState(0);
+	const [failureMessage, setFailureMessage] = useState("");
 
 	function register() {
 		let item = {"username": username, "email": email, "password": password};
-		axios.post('http://127.0.0.1:8000/api/auth/register/', item).then(response => {
-			console.log("success");
-			console.log(response);
-			window.location = "/Dashboard";
-		}).catch((exception) => {
-			if (password === passwordVerification) {
+		if (password !== passwordVerification) {
+			setLoginSuccess(2);
+		}
+		else {
+			axios.post('http://127.0.0.1:8000/api/auth/register/', item).then(response => {
+				console.log("success");
+				console.log(response);
+				window.location = "/Dashboard";
+			}).catch((exception) => {
 				setLoginSuccess(1);
-			}
-			else {
-				setLoginSuccess(2);
-			}
-			console.log(exception);
-		});
+				if (Object.hasOwn(exception.response.data, 'email')) {
+					setFailureMessage("Invalid email! Registration unsuccessful!");
+				} else if (Object.hasOwn(exception.response.data, 'username')) {
+					setFailureMessage("Existing username! Registration unsuccessful!");
+				} else if (Object.hasOwn(exception.response.data, 'password')) {
+					setFailureMessage("Password shorter than 8 letters! Registration unsuccessful!");
+				}
+				console.log(exception);
+			});
+		}
 	}
 
 	return (
@@ -45,7 +53,7 @@ function RegistrationPage() {
 										</div>
 									</div>
 									<div className="form-group col-sm-10">
-										{loginSuccess === 1 ? <label style={{"color": "red"}}>Invalid email, existing username or password shorter than 8 letters! Registration unsuccessful!</label> : (loginSuccess == 2 ? <label style={{"color": "red"}}>Passwords do not match!</label> : null)}
+										{loginSuccess === 1 ? <label style={{"color": "red"}}>{failureMessage}</label> : (loginSuccess == 2 ? <label style={{"color": "red"}}>Passwords do not match!</label> : null)}
 										<input type="text" className="form-control" id="inputName" placeholder="Full Name" style={{ "border-radius": "20px", "width": "70%" }} onChange={(e) => {setFullName(e.target.value); setLoginSuccess(0);}}/>
 									</div>
 									<div className="form-group col-sm-10">

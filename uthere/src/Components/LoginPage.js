@@ -5,9 +5,10 @@ import UThere from './UThere';
 import {Link} from 'react-router-dom';
 import axios from 'axios';
 import {useState} from 'react';
-
+import {useCookies} from "react-cookie";
 
 function LoginPage() {
+	const [cookies, setCookie] = useCookies(["refreshToken"])
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 	const [loginSuccess, setLoginSuccess] = useState(true);
@@ -19,6 +20,8 @@ function LoginPage() {
 		}).then(response => {
 			console.log("success");
 			console.log(response);
+			setCookie("refreshToken", response.data.refresh);
+			setCookie("userId", response.data.user.id);
 			window.location = "/Dashboard";
 		}).catch((exception) => {
 			setLoginSuccess(false);
