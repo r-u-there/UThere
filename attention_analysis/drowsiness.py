@@ -2,7 +2,17 @@ import cv2
 import time
 import numpy as np
 import mediapipe as mp
+import utils
 from mediapipe.python.solutions.drawing_utils import _normalized_to_pixel_coordinates as denormalize_coordinates
+
+CET_FRAMES = 3 # closed eyes threshold frames
+TOTAL_BLINKS = 0 # total blinks counter 
+CLOSED_EYES_FRAMAE_COUNTER = 0 # count frames while the eyes are closed.
+# Left eyes indices 
+LEFT_EYE =[ 362, 382, 381, 380, 374, 373, 390, 249, 263, 466, 388, 387, 386, 385,384, 398 ]
+
+# right eyes indices
+RIGHT_EYE=[ 33, 7, 163, 144, 145, 153, 154, 155, 133, 173, 157, 158, 159, 160, 161 , 246 ]  
 
 mp_facemesh = mp.solutions.face_mesh
 mp_drawing  = mp.solutions.drawing_utils
@@ -109,6 +119,45 @@ def distance_points(point_1, point_2):
     """Calculate l2-norm between two points"""
     dist = ((point_2.x - point_1.x)** 2 + (point_2.y - point_1.y)** 2) ** 0.5
     return dist
+def get_mesh_cords(results, img_width,img_height):
+       mesh_cord_point = [ (int(p.x*img_width) , int(p.y*img_height)) for p in results.multi_face_landmarks[0].landmark]
+       return mesh_cord_point
+
+def blinkRatio(img, landmark,right_eye, left_eye):
+    
+    # width of eye,in pixels or horizontal line.
+    
+    # Right Eye 
+    right_hx, right_hy = landmark[right_eye[0]]
+    right_hx1, right_hy1 = landmark[right_eye[8]]
+    right_eye_pixel_width = right_hx1-right_hx
+    
+    # Left Eyes
+    left_hx, left_hy = landmark[left_eye[0]]
+    left_hx1, left_hy1 = landmark[left_eye[8]]
+    left_eye_pixel_width = left_hx1-left_hx
+
+    # ---------------------------------------
+    # vertical line or height of eyes
+    
+    # Right Eyes 
+    right_vx, right_vy = landmark[right_eye[12]]
+    right_vx1, right_vy1 = landmark[right_eye[4]]
+    right_eye_pixel_height = right_vy1 - right_vy
+    
+    # Left Eye
+    left_vx, left_vy = landmark[left_eye[12]]
+    left_vx1, left_vy1 = landmark[left_eye[4]]
+    left_eye_pixel_height = left_vy1 - left_vy
+    # ---------------------------------------
+    right_ratio = 0
+    left_ratio = 0
+    if right_eye_pixel_height != 0:
+        right_ratio = right_eye_pixel_width/right_eye_pixel_height
+    if left_eye_pixel_height != 0:
+        left_ratio = left_eye_pixel_width/left_eye_pixel_height
+    eyes_ratio = (left_ratio + right_ratio) / 2
+    return eyes_ratio
 
 class VideoFrameHandler:
     def __init__(self):
@@ -164,6 +213,8 @@ class VideoFrameHandler:
         mouth_distance = 0
         if results.multi_face_landmarks:
             landmarks = results.multi_face_landmarks[0].landmark
+            mesh_cords = get_mesh_cords(results, frame_w,frame_h)
+            eyes_ratio =blinkRatio(frame,mesh_cords, RIGHT_EYE, LEFT_EYE)
             EAR, coordinates, mouth_bottom, mouth_top = calculate_avg_ear(landmarks,
                                                  self.eye_idxs["left"], 
                                                  self.eye_idxs["right"], 
@@ -211,7 +262,7 @@ class VideoFrameHandler:
             self.state_tracker["DROWSY_TIME"] = 0.0
             self.state_tracker["COLOR"] = self.GREEN
         
-        return frame, mouth_distance
+        return frame, mouth_distance, eyes_ratio
 
 # Play
 cap = cv2.VideoCapture(0)
@@ -229,7 +280,7 @@ iterator = 0
 prev_distance = 0
 while cap.isOpened():
     success, frame = cap.read()
-    res, mouth_distance = frameHandler.process(frame, thresholds)
+    res, mouth_distance, eyes_ratio = frameHandler.process(frame, thresholds)
     if iterator == 0:
         prev_distance = mouth_distance
     else:
@@ -237,6 +288,16 @@ while cap.isOpened():
             cv2.putText(img=res, text='Talking', org=(150, 250), fontFace=cv2.FONT_HERSHEY_TRIPLEX, fontScale=3, color=(0, 255, 0),thickness=3)
         prev_distance = mouth_distance
     iterator = iterator + 1
+
+    if eyes_ratio>5:
+        CLOSED_EYES_FRAMAE_COUNTER +=1
+    else:
+        if CLOSED_EYES_FRAMAE_COUNTER >CET_FRAMES:
+            CLOSED_EYES_FRAMAE_COUNTER =0
+            TOTAL_BLINKS +=1
+            print(TOTAL_BLINKS)
+    total_blink_text = 'total blinks: ' + str(TOTAL_BLINKS)
+    cv2.putText(img=res, text=total_blink_text, org=(60, 50), fontFace=cv2.FONT_HERSHEY_TRIPLEX, fontScale=1, color=(0, 0, 0),thickness=2)
     cv2.imshow('Drowsiness Detection', res)
 
     if cv2.waitKey(5) & 0xFF == 27:
