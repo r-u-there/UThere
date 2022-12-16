@@ -67,7 +67,7 @@ def calculate_avg_ear(landmarks, left_eye_idxs, right_eye_idxs, image_w, image_h
                                     )
     Avg_EAR = (left_ear + right_ear) / 2.0
  
-    return Avg_EAR, (left_lm_coordinates, right_lm_coordinates)
+    return Avg_EAR, (left_lm_coordinates, right_lm_coordinates),(landmarks[0].x * image_w,landmarks[0].y*image_h),(landmarks[17].x*image_w,landmarks[17].y*image_h)
 
 def get_mediapipe_app(
     max_num_faces=1,
@@ -85,13 +85,16 @@ def get_mediapipe_app(
  
     return face_mesh
  
-def plot_eye_landmarks(frame, left_lm_coordinates, 
-                       right_lm_coordinates, color
+def plot_landmarks(frame, left_lm_coordinates,
+                       right_lm_coordinates,  mouth_bottom, mouth_top, color
                        ):
     for lm_coordinates in [left_lm_coordinates, right_lm_coordinates]:
         if lm_coordinates:
             for coord in lm_coordinates:
                 cv2.circle(frame, coord, 2, color, -1)
+    #plot mouth landmarks
+    cv2.circle(frame, (int(mouth_bottom[0]), int(mouth_bottom[1])), 2, (100, 100, 0), -1)
+    cv2.circle(frame, (int(mouth_top[0]) , int(mouth_top[1])), 2, (100, 100, 0), -1)
     return frame
  
  
@@ -101,6 +104,11 @@ def plot_text(image, text, origin,
               ):
     image = cv2.putText(image, text, origin, font, fntScale, color, thickness)
     return image
+
+def distance_points(point_1, point_2):
+    """Calculate l2-norm between two points"""
+    dist = ((point_2.x - point_1.x)** 2 + (point_2.y - point_1.y)** 2) ** 0.5
+    return dist
 
 class VideoFrameHandler:
     def __init__(self):
@@ -153,20 +161,23 @@ class VideoFrameHandler:
         ALM_txt_pos = (10, int(frame_h // 2 * 1.85))
  
         results = self.facemesh_model.process(frame)
- 
+        mouth_distance = 0
         if results.multi_face_landmarks:
             landmarks = results.multi_face_landmarks[0].landmark
-            EAR, coordinates = calculate_avg_ear(landmarks,
+            EAR, coordinates, mouth_bottom, mouth_top = calculate_avg_ear(landmarks,
                                                  self.eye_idxs["left"], 
                                                  self.eye_idxs["right"], 
                                                  frame_w, 
                                                  frame_h
                                                  )
-            frame = plot_eye_landmarks(frame, 
+            frame = plot_landmarks(frame, 
                                        coordinates[0], 
                                        coordinates[1],
+                                       mouth_bottom,
+                                       mouth_top,
                                        self.state_tracker["COLOR"]
                                        )
+            mouth_distance = distance_points(landmarks[0], landmarks[17])
  
             if EAR < thresholds["EAR_THRESH"]:
  
@@ -199,8 +210,8 @@ class VideoFrameHandler:
             self.state_tracker["start_time"] = time.perf_counter()
             self.state_tracker["DROWSY_TIME"] = 0.0
             self.state_tracker["COLOR"] = self.GREEN
-
-        return frame
+        
+        return frame, mouth_distance
 
 # Play
 cap = cv2.VideoCapture(0)
@@ -214,10 +225,18 @@ thresholds = {
 }
 
 frameHandler = VideoFrameHandler()
-
+iterator = 0
+prev_distance = 0
 while cap.isOpened():
     success, frame = cap.read()
-    res = frameHandler.process(frame, thresholds)
+    res, mouth_distance = frameHandler.process(frame, thresholds)
+    if iterator == 0:
+        prev_distance = mouth_distance
+    else:
+        if mouth_distance != 0 and abs(mouth_distance-prev_distance) > 0.01:
+            cv2.putText(img=res, text='Talking', org=(150, 250), fontFace=cv2.FONT_HERSHEY_TRIPLEX, fontScale=3, color=(0, 255, 0),thickness=3)
+        prev_distance = mouth_distance
+    iterator = iterator + 1
     cv2.imshow('Drowsiness Detection', res)
 
     if cv2.waitKey(5) & 0xFF == 27:
