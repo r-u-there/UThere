@@ -27,6 +27,7 @@ function ProfilePage() {
 	const [changedInfo, setChangedInfo] = useState("");
 	const cookies = new Cookies();
 	const refreshToken = cookies.get(["refreshToken"]);
+	const accessToken = cookies.get(["accessToken"]);
 	const userId = cookies.get("userId");
 
 	function displayProfile() {
@@ -117,8 +118,7 @@ function ProfilePage() {
 	function getProfileInfo() {
 		axios.get('http://127.0.0.1:8000/api/profile/', {
 			headers: {
-				'refreshToken': refreshToken,
-				'userId': userId
+					Authorization: "Bearer " + cookies.get(["accessToken"]),
 			}
 		}).then((response) => {
 			console.log(response.data);
