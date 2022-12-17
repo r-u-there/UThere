@@ -66,8 +66,8 @@ class ProfileSerializer(serializers.ModelSerializer):
         model = Profile
         fields = ('full_name', 'gender', 'birth_date', 'user')
 
-    def create(self):
-        return ContactForm.objects.create(**self.validated_data)
+    def create(self, instance):
+        return Profile.objects.create(**self.validated_data)
     def update(self, instance):
         instance.full_name = validated_data.get('full_name', instance.full_name)
         instance.gender = validated_data.get('gender', instance.gender)

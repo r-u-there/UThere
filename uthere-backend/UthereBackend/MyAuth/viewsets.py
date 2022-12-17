@@ -1,4 +1,6 @@
 from rest_framework.authentication import TokenAuthentication
+from rest_framework.authentication import SessionAuthentication, BasicAuthentication
+
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import filters
@@ -11,8 +13,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
 from .serializers import UserSerializer, LoginSerializer, RegisterSerializer, ContactFormSerializer, ProfileSerializer
 from .models import User, Profile
-from django.contrib.auth import authenticate
-
+from django.contrib.auth import authenticate, login
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -42,12 +43,12 @@ class LoginViewSet(ModelViewSet, TokenObtainPairView):
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
 
-
         try:
             serializer.is_valid(raise_exception=True)
             username = request.data['email']
             password = request.data['password']
             user = authenticate(request, username=username, password=password)
+            login(request, user)
         except TokenError as e:
             raise InvalidToken(e.args[0])
 
@@ -60,7 +61,6 @@ class RegistrationViewSet(ModelViewSet, TokenObtainPairView):
     http_method_names = ['post']
 
     def create(self, request, *args, **kwargs):
-        print("here", request.data, flush=True)
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
@@ -103,6 +103,7 @@ class ContactViewSet(ModelViewSet, TokenObtainPairView):
         print(request.data)
         data = request.data
         serializer = self.serializer_class(data=data)
+
         if serializer.is_valid():
             serializer.save()
             print("saved")
@@ -112,10 +113,12 @@ class ContactViewSet(ModelViewSet, TokenObtainPairView):
 
 class ProfileViewSet(ModelViewSet, TokenObtainPairView):
     serializer_class = ProfileSerializer
+    authentication_classes = (TokenAuthentication, SessionAuthentication, BasicAuthentication)
     permission_classes = (AllowAny,)
-    http_method_names = ['post', 'get']
+    http_method_names = ['post', 'get', 'patch']
 
     def create(self, request):
+        print("inside c")
         data = request.data
         serializer = self.serializer_class(data=data)
         if serializer.is_valid():
@@ -125,6 +128,8 @@ class ProfileViewSet(ModelViewSet, TokenObtainPairView):
             return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def update(self, request):
+        print("inside u")
+
         data = request.data
         serializer = self.serializer_class(data=data)
         if serializer.is_valid():
@@ -133,8 +138,12 @@ class ProfileViewSet(ModelViewSet, TokenObtainPairView):
         else:
             return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    def retrieve(self, request, pk=None):
+        serializer = ProfileSerializer(Profile)
+        return Response(serializer.data)
     def get_queryset(self):
         try:
+            print(Profile.objects.all())
             return Profile.objects.filter(user=self.request.user)
         except TokenError as e:
             raise InvalidToken(e.args[0])
