@@ -118,7 +118,7 @@ function ProfilePage() {
 	function getProfileInfo() {
 		axios.get('http://127.0.0.1:8000/api/profile/', {
 			headers: {
-					Authorization: "Bearer " + cookies.get(["accessToken"]),
+					'Authorization': `Bearer ${accessToken}`
 			}
 		}).then((response) => {
 			console.log(response.data);

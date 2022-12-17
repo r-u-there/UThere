@@ -49,6 +49,7 @@ class LoginViewSet(ModelViewSet, TokenObtainPairView):
             password = request.data['password']
             user = authenticate(request, username=username, password=password)
             login(request, user)
+            print(request.user)
         except TokenError as e:
             raise InvalidToken(e.args[0])
 
@@ -143,6 +144,7 @@ class ProfileViewSet(ModelViewSet, TokenObtainPairView):
         return Response(serializer.data)
     def get_queryset(self):
         try:
+            print(self.request.user)
             print(Profile.objects.all())
             return Profile.objects.filter(user=self.request.user)
         except TokenError as e:
