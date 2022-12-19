@@ -27,7 +27,7 @@ function ProfilePage() {
 	const [changedInfo, setChangedInfo] = useState("");
 	const cookies = new Cookies();
 	const refreshToken = cookies.get(["refreshToken"]);
-	const userId = cookies.get("userId");
+	const emailCookie = cookies.get("email");
 
 	function displayProfile() {
 		if (tabSelection == 0) {
@@ -115,13 +115,18 @@ function ProfilePage() {
 	}
 
 	function getProfileInfo() {
+		setEmail(emailCookie);
 		axios.get('http://127.0.0.1:8000/api/profile/', {
-			headers: {
-				'refreshToken': refreshToken,
-				'userId': userId
+			params: {
+				//'refreshToken': refreshToken,
+				'email': emailCookie
 			}
 		}).then((response) => {
 			console.log(response.data);
+			setGender(response.data[0].gender);
+			setBirthday(response.data[0].birth_date);
+			setName(response.data[0].full_name);
+
 		}).catch(exception => {
 			console.log(exception);
 		});
