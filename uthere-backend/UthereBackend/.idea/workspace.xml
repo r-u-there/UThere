@@ -20,6 +20,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ad695e72-bc32-4f35-82a3-05828e205b50" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/db.sqlite3" beforeDir="false" afterPath="$PROJECT_DIR$/db.sqlite3" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../uthere/src/settings.js" beforeDir="false" afterPath="$PROJECT_DIR$/../../uthere/src/settings.js" afterDir="false" />
     </list>
@@ -89,6 +90,9 @@
       <workItem from="1670671393880" duration="3073000" />
       <workItem from="1670684616079" duration="481000" />
       <workItem from="1670761703371" duration="974000" />
+      <workItem from="1671106244171" duration="2828000" />
+      <workItem from="1671293626811" duration="260000" />
+      <workItem from="1671401027006" duration="580000" />
     </task>
     <servers />
   </component>
