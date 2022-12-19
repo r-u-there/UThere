@@ -98,6 +98,12 @@ body {
 	left: 20px;
 }
 
+.popup-close2 {
+	position: relative;
+	bottom: 120px;
+	left: 20px;
+}
+
 .vid {
 	top: 115px;
 	position: relative;
@@ -108,8 +114,8 @@ body {
 	border-width: 3px;
 	border-color: #434343;
 	border-style: solid;
-  margin: 2px;
-  float: left;
+  	margin: 2px;
+  	float: left;
 }
 
 .abc {

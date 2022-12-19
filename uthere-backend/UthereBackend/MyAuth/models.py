@@ -50,3 +50,30 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return f"{self.email}"
+
+
+class ContactForm(models.Model):
+    message = models.CharField(max_length=250)
+    # CATEGORY_CHOICES = [
+    #     'Error',
+    #     'Request',
+    #     'Other'
+    # ]
+    category = models.CharField(max_length=250)
+
+    def __str__(self):
+        return self.message
+
+
+class Profile(models.Model):
+    full_name = models.CharField(max_length=50, null=True, blank=True)
+    GENDER_CHOICES = (
+        ('M', 'Male'),
+        ('F', 'Female'),
+    )
+    gender = models.CharField(max_length=1, choices=GENDER_CHOICES)
+    birth_date = models.DateField()
+    user = models.ForeignKey(User, on_delete=models.CASCADE, unique=True)
+
+    def __str__(self):
+        return self.full_name

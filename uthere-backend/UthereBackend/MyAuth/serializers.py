@@ -5,8 +5,7 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.settings import api_settings
 from django.contrib.auth.models import update_last_login
 from django.core.exceptions import ObjectDoesNotExist
-from .models import User
-
+from .models import User, ContactForm, Profile
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -49,3 +48,30 @@ class RegisterSerializer(UserSerializer):
         except ObjectDoesNotExist:
             user = User.objects.create_user(**validated_data)
         return user
+
+
+class ContactFormSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ContactForm
+        fields = ('message', 'category')
+
+    def save(self):
+        #category = self.validated_data['category']
+        #message = self.validated_data['message']
+        #send_email(from=email, message = message)
+        return ContactForm.objects.create(**self.validated_data)
+
+class ProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Profile
+        fields = ('full_name', 'gender', 'birth_date', 'user')
+
+    def create(self, instance):
+        return Profile.objects.create(**self.validated_data)
+    def update(self, instance):
+        instance.full_name = validated_data.get('full_name', instance.full_name)
+        instance.gender = validated_data.get('gender', instance.gender)
+        instance.birth_date = validated_data.get('birth_date', instance.birth_date)
+        return instance
+
+
