@@ -44,12 +44,13 @@ class LoginViewSet(ModelViewSet, TokenObtainPairView):
         serializer = self.get_serializer(data=request.data)
 
         try:
+            print(request.data)
+
             serializer.is_valid(raise_exception=True)
             username = request.data['email']
             password = request.data['password']
             user = authenticate(request, username=username, password=password)
             login(request, user)
-            print(request.user)
         except TokenError as e:
             raise InvalidToken(e.args[0])
 
@@ -144,9 +145,9 @@ class ProfileViewSet(ModelViewSet, TokenObtainPairView):
         return Response(serializer.data)
     def get_queryset(self):
         try:
-            print(self.request.user)
-            print(Profile.objects.all())
-            return Profile.objects.filter(user=self.request.user)
+            print(Profile.objects.filter(user__email=self.request.GET.get('email')))
+            #context = {}
+            return Profile.objects.filter(user__email=self.request.GET.get('email'))
         except TokenError as e:
             raise InvalidToken(e.args[0])
 
