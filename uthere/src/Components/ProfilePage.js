@@ -116,6 +116,8 @@ function ProfilePage() {
 	}
 
 	function getProfileInfo() {
+		console.log(accessToken)
+		console.log(refreshToken)
 		axios.get('http://127.0.0.1:8000/api/profile/', {
 			headers: {
 					'Authorization': `Bearer ${accessToken}`
