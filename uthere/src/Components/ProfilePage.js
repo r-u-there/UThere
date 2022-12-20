@@ -114,6 +114,24 @@ function ProfilePage() {
 		}
 	}
 
+	function setProfileInfo() {
+		// url sonuna user id eklenecek
+		// http://127.0.0.1:8000/api/profile_all/4 <-- gibi
+		// suan 3unu de almasi zorunlu, ayristirmaya zaman yetmedii
+		axios.patch('http://127.0.0.1:8000/api/profile/', {
+			// valuelar eklenecek
+			"full_name": 'asddsdda@gmail.com',
+			"gender": 'F',
+			"birth_date":'1901-10-12'
+		}).then(response => {
+			console.log("success");
+			console.log(response);
+			alert("info updated")
+			window.location = "/Profile";
+		}).catch((exception) => {
+			console.log(exception);
+		});
+	}
 	function getProfileInfo() {
 		setEmail(emailCookie);
 		axios.get('http://127.0.0.1:8000/api/profile/', {

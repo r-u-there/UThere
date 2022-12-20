@@ -64,14 +64,9 @@ class ContactFormSerializer(serializers.ModelSerializer):
 class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
-        fields = ('full_name', 'gender', 'birth_date', 'user')
+        fields = ('full_name', 'gender', 'birth_date')
 
-    def create(self, instance):
-        return Profile.objects.create(**self.validated_data)
-    def update(self, instance):
-        instance.full_name = validated_data.get('full_name', instance.full_name)
-        instance.gender = validated_data.get('gender', instance.gender)
-        instance.birth_date = validated_data.get('birth_date', instance.birth_date)
-        return instance
+
+
 
 
