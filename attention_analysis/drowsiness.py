@@ -289,7 +289,7 @@ while cap.isOpened():
         prev_distance = mouth_distance
     iterator = iterator + 1
 
-    if eyes_ratio>5:
+    if eyes_ratio>5.5:
         CLOSED_EYES_FRAMAE_COUNTER +=1
     else:
         if CLOSED_EYES_FRAMAE_COUNTER >CET_FRAMES:
