@@ -4,6 +4,7 @@ import RegistrationPage from './Components/RegistrationPage';
 import LoginPage from './Components/LoginPage';
 import ContactPage from './Components/ContactPage';
 import Dashboard from './Components/Dashboard';
+import CalibrationPage from './Components/CalibrationPage'
 import './App.css';
 import ProfilePage from './Components/ProfilePage';
 import MeetingPage from './Components/MeetingPage';
@@ -17,6 +18,7 @@ function App() {
 			<Route path="/Dashboard" element={<Dashboard/>} />
 			<Route path="/Profile" element={<ProfilePage/>} />
 			<Route path="/Meeting" element={<MeetingPage/>} />
+			<Route path="/Calibration" element={<CalibrationPage/>} />
 		</Routes>
 	);
 }

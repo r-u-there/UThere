@@ -10,13 +10,15 @@ import Controls from "./Controls";
 import React from 'react';
 
 function VideoCall(props) {
-	const { setInCall } = props;
+	const  setInCall  = props.setInCall;
+	const ready = props.ready;
+	const tracks = props.tracks;
+	const webgazer = props.webgazer;
 	const [users, setUsers] = useState([]);
 	const [start, setStart] = useState(false);
 	const client = useClient();
-	const { ready, tracks } = useMicrophoneAndCameraTracks();
-	
-	useEffect(() => {
+	console.log("tracks " + tracks)
+	useEffect(() => { 
 		let init = async (name) => {
 			client.on("user-published", async (user, mediaType) => {
 				await client.subscribe(user, mediaType);
@@ -54,7 +56,7 @@ function VideoCall(props) {
 				console.log("error");
 			}
 
-			if (tracks) {
+			if (props.tracks) {
 				await client.publish([tracks[0], tracks[1]]);
 			}
 			setStart(true);
@@ -63,7 +65,6 @@ function VideoCall(props) {
 		if (ready && tracks) {
 			try {
 				init(channelName);
-				console.log("bbaabb");
 			} catch (error) {
 				console.log(error);
 			}
@@ -76,7 +77,9 @@ function VideoCall(props) {
 				{ready && tracks && (<Controls tracks={tracks} setStart={setStart} setInCall={setInCall} />)}
 			</div>
 			<div>
-				{start && tracks && <Videos tracks={tracks} users={users} />}
+				{start && tracks 
+				 && <Videos webgazer={webgazer} tracks={tracks} users={users} />
+			}
 			</div>
 		</div>
 	);

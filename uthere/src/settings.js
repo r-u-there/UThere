@@ -1,8 +1,8 @@
 import {createClient, createMicrophoneAndCameraTracks } from "agora-rtc-react";
 
-const appId = "8e18069b8cd34fc699421190d903f30b";
-const token = "007eJxTYNitcuGg5FJD71SvRqN5X6OEX22Ovi/zqF8gqf7xSouzN54pMBiamidaJpsZJKWZpJgkW5hamBqaWJglJhklm6UYJBsbFU6an9wQyMiwgHcVMyMDBIL4LAy5iZl5DAwAhYkgLw==";
+const appId = "dcef728fd51845709fc10a140ff1760f";
+const token = "007eJxTYJCo+m2nPtvv6W2n1l0Gk68+WK6roaes98Aw9PqG2k0RhlcVGFKSU9PMjSzSUkwNLUxMzQ0s05INDRINTQzS0gzNzQzS1lQcSG4IZGTYVlnIwAiFID4HQ3JGYl5eao4hAwMA3UshLw==";
 export const config = { mode: "rtc", codec: "vp8", appId: appId, token: token };
 export const useClient = createClient(config);
 export const useMicrophoneAndCameraTracks = createMicrophoneAndCameraTracks();
-export const channelName = "main";
+export const channelName = "channel1";

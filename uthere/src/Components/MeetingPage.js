@@ -1,5 +1,5 @@
 import { useState } from "react";
-import VideoCall from "./VideoCall";
+import Calibration from "./CalibrationPage";
 import React from 'react';
 import UThere from "./UThere";
 
@@ -9,7 +9,7 @@ function MeetingPage() {
 		<div>
 			<UThere></UThere>
 			<div className='page-background'></div>
-			<VideoCall setInCall={setInCall} />
+			<Calibration setInCall={setInCall} />
 		</div>
 	);
 }
