@@ -306,3 +306,8 @@ body {
 	max-width: 850px;
 }
 
+.label-terms{
+	color: blue;
+	text-decoration: underline;
+}
+

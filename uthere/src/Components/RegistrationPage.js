@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import {useState} from 'react';
 import API from './API.js';
 import axios from 'axios';
+import TermsConditionsPopup from './TermsConditionsPopup';
 
 function RegistrationPage() {
 	const [username, setFullName] = useState("");
@@ -13,11 +14,21 @@ function RegistrationPage() {
 	const [passwordVerification, setPasswordVerification] = useState("");
 	const [loginSuccess, setLoginSuccess] = useState(0);
 	const [failureMessage, setFailureMessage] = useState("");
+	const [trigger, setTrigger] = React.useState(false);
+	const [agree, setAgree] = React.useState(false);
+
+	function handleAgreeCheckbox(){
+		setAgree(!agree)
+		console.log(agree)
+	}
 
 	function register() {
 		let item = {"username": username, "email": email, "password": password};
 		if (password !== passwordVerification) {
 			setLoginSuccess(2);
+		}
+		else if(!agree){
+			setLoginSuccess(3);
 		}
 		else {
 			axios.post('http://127.0.0.1:8000/api/auth/register/', item).then(response => {
@@ -53,7 +64,7 @@ function RegistrationPage() {
 										</div>
 									</div>
 									<div className="form-group col-sm-10">
-										{loginSuccess === 1 ? <label style={{"color": "red"}}>{failureMessage}</label> : (loginSuccess == 2 ? <label style={{"color": "red"}}>Passwords do not match!</label> : null)}
+									{loginSuccess === 1 ? <label style={{"color": "red"}}>{failureMessage}</label> : (loginSuccess == 2 ? <label style={{"color": "red"}}>Passwords do not match!</label> : (loginSuccess == 3 ?  <label style={{"color": "red"}}>Please Agree Terms & Conditions</label> :null))}
 										<input type="text" className="form-control" id="inputName" placeholder="Full Name" style={{ "border-radius": "20px", "width": "70%" }} onChange={(e) => {setFullName(e.target.value); setLoginSuccess(0);}}/>
 									</div>
 									<div className="form-group col-sm-10">
@@ -65,6 +76,13 @@ function RegistrationPage() {
 									<div className="form-group col-sm-10">
 										<input type="password" className="form-control" id="inputPassword" placeholder="Password Verification" style={{ "border-radius": "20px", "width": "70%" }} onChange={(e) => {setPasswordVerification(e.target.value); setLoginSuccess(0);}}/>
 									</div>
+									<div>
+										<td>
+											<label>
+												<input type="checkbox" onChange={handleAgreeCheckbox}/> Agree <label className="label-terms" onClick={() => setTrigger(true)} >Terms & Conditions</label>
+											</label>
+										</td>
+									</div>
 									<div className="form-group col-sm-10">
 										<center><button type="button" className="btn rounded-pill" style={{ "background-color": "#ffb84d", "color": "white" }} onClick={register}>Sign Up</button></center>
 									</div>
@@ -73,6 +91,7 @@ function RegistrationPage() {
 									</div>
 								</form>
 							</div>
+							<TermsConditionsPopup trigger={trigger} setTrigger={setTrigger}></TermsConditionsPopup>
 						</center>
 					</td>
 					<td className='row'><img src={LoginIcon} /></td>
