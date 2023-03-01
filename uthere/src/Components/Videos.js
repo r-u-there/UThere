@@ -6,7 +6,6 @@ import useEffect from 'react';
 function Videos(props) {
 	const users = props.users;
 	const tracks = props.tracks;
-	const webgazer = props.webgazer;
 	console.log("tracks " + tracks)
 	return (
 		<div>

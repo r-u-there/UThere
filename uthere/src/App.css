@@ -287,7 +287,7 @@ body {
 }
 
 .meeting-control-panel {
-	position: absolute;
+	position: bottom;
 	width: 100%;
 	top: 88.2%;
 	padding-top: 30px;

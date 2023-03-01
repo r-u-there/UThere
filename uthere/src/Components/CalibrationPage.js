@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import VideoCall from "./VideoCall";
 import React from 'react';
 import UThere from "./UThere";
@@ -11,17 +11,26 @@ function CalibrationPage(props) {
 	const [ videocallstate, setVideoCall] = useState(false)
 	const counts = [0,0,0,0,0,0,0,0,0]
 	var sumBoolean = false
-	const { ready, tracks} = useMicrophoneAndCameraTracks();
-	const webgazer = window.webgazer
+	const { tracks} = useMicrophoneAndCameraTracks();
+	const ready =true;
+    const webgazer = window.webgazer
 	webgazer.videoStreams =  tracks
-	webgazer.params.showVideo= false
-	webgazer.params.mirrorVideo= false
-	webgazer.params.showFaceOverlay= false
-	webgazer.params.showFaceFeedbackBox= false
-	webgazer.params.showVideoPreview=false
 	webgazer.setGazeListener((data,clock)=>{
 		//console.log(data,clock)
 	}).begin();
+	console.log("webgazer is created")
+	//webgazer.setVideoElementPosition(0, 0);
+	useEffect(() => {
+		// Perform the side effect
+		if(videocallstate){
+			webgazer.params.showVideo= false
+			webgazer.params.mirrorVideo= false
+			webgazer.params.showFaceOverlay= false
+			webgazer.params.showFaceFeedbackBox= false
+			webgazer.params.showVideoPreview=false
+			console.log(webgazer.params.showVideo)
+		}
+	  }, [videocallstate]);
 	const  setInCall = props;
 	const buttonChange = async (buttonNum) => {
 		var button = document.getElementById(buttonNum.toString());
@@ -51,10 +60,10 @@ function CalibrationPage(props) {
 			button.style.disabled=true
 			button.style.backgroundColor = "#000000"
 		}
-		var sum = counts[0] + counts[1] + counts [2]
+		var sum =  counts[1] + counts [2]
 					+ counts[3] + counts[4] + counts [5]
 					+ counts[6] + counts[7] + counts [8]
-		sumBoolean = (sum == 45)
+		sumBoolean = (sum == 40)
 		if(sumBoolean)
 			setState([...state,sumBoolean])
 	};
@@ -66,12 +75,9 @@ function CalibrationPage(props) {
 			<div className='page-background'>
 				<div>
 					{
-						videocallstate ? <VideoCall setInCall={setInCall} webgazer={webgazer} ready={ready} tracks={tracks}/>:
+						videocallstate ? <VideoCall setInCall={setInCall} ready={ready} tracks={tracks}/>:
 						sumBoolean != state ? <button onClick={videocall}>Continue</button> :	
 						<div class="grid-container">
-							<div class="grid-item">
-								<button id= "1" class="calibration-button-1" onClick={() => buttonChange(1)}></button>
-							</div>
 							<div class="grid-item">
 								<button id="2" class="calibration-button-2" onClick={() => buttonChange(2)}></button>
 							</div>

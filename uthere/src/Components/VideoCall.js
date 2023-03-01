@@ -17,7 +17,7 @@ function VideoCall(props) {
 	const [users, setUsers] = useState([]);
 	const [start, setStart] = useState(false);
 	const client = useClient();
-	console.log("tracks " + tracks)
+	console.log(" hereee tracks " + tracks)
 	useEffect(() => { 
 		let init = async (name) => {
 			client.on("user-published", async (user, mediaType) => {
@@ -60,26 +60,29 @@ function VideoCall(props) {
 				await client.publish([tracks[0], tracks[1]]);
 			}
 			setStart(true);
+			console.log("start is" + start);
 		};
 
 		if (ready && tracks) {
+			console.log("ready is" + ready)
 			try {
 				init(channelName);
 			} catch (error) {
 				console.log(error);
 			}
 		}
-	}, [channelName, client, ready, tracks]);
+		
+	}, []);
 
 	return (
 		<div>
 			<div>
-				{ready && tracks && (<Controls tracks={tracks} setStart={setStart} setInCall={setInCall} />)}
+				{ready && tracks && (<Controls tracks={tracks} setStart={setStart} setInCall={setInCall} webgazer={webgazer} />)}
 			</div>
 			<div>
 				{start && tracks 
-				 && <Videos webgazer={webgazer} tracks={tracks} users={users} />
-			}
+				 && <Videos  tracks={tracks} users={users} />
+				}
 			</div>
 		</div>
 	);
