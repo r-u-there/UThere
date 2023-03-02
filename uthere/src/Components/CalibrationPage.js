@@ -6,7 +6,7 @@ import {
 	useMicrophoneAndCameraTracks,
 } from "../settings";
 
-function CalibrationPage(props) {
+function CalibrationPage() {
 	const [ state, setState] = useState([])
 	const [ videocallstate, setVideoCall] = useState(false)
 	const [ webgazerstate, setWebGazerState ] = useState(true)
@@ -26,7 +26,6 @@ function CalibrationPage(props) {
 		setWebGazerState(false)
 	  }, [webgazerstate]);
 	
-	const  setInCall = props;
 	const buttonChange = async (buttonNum) => {
 		var button = document.getElementById(buttonNum.toString());
 		if(counts[buttonNum-1] < 5 && !button.style.disabled){ //change the color of the button
@@ -86,7 +85,7 @@ function CalibrationPage(props) {
 			<div className='page-background'>
 				<div>
 					{
-						videocallstate ? <VideoCall setInCall={setInCall} webgazer= {webgazer} ready={ready} tracks={tracks}/>:
+						videocallstate ? <VideoCall webgazer= {webgazer} ready={ready} tracks={tracks}/>:
 						sumBoolean != state ? <button onClick={videocall}>Continue</button> :	
 						<div class="grid-container">
 							<div class="grid-item">

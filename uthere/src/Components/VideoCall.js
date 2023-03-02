@@ -10,7 +10,6 @@ import Controls from "./Controls";
 import React from 'react';
 
 function VideoCall(props) {
-	const  setInCall  = props.setInCall;
 	const ready = props.ready;
 	const tracks = props.tracks;
 	const webgazer = props.webgazer;
@@ -77,7 +76,7 @@ function VideoCall(props) {
 	return (
 		<div>
 			<div>
-				{ready && tracks && (<Controls tracks={tracks} setStart={setStart} setInCall={setInCall} webgazer={webgazer} />)}
+				{ready && tracks && (<Controls tracks={tracks} setStart={setStart}  webgazer={webgazer} />)}
 			</div>
 			<div>
 				{start && tracks 
