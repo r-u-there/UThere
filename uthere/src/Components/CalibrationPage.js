@@ -9,28 +9,23 @@ import {
 function CalibrationPage(props) {
 	const [ state, setState] = useState([])
 	const [ videocallstate, setVideoCall] = useState(false)
+	const [ webgazerstate, setWebGazerState ] = useState(true)
 	const counts = [0,0,0,0,0,0,0,0,0]
 	var sumBoolean = false
 	const { tracks} = useMicrophoneAndCameraTracks();
 	const ready =true;
     const webgazer = window.webgazer
 	webgazer.videoStreams =  tracks
-	webgazer.setGazeListener((data,clock)=>{
-		//console.log(data,clock)
-	}).begin();
-	console.log("webgazer is created")
-	//webgazer.setVideoElementPosition(0, 0);
 	useEffect(() => {
-		// Perform the side effect
-		if(videocallstate){
-			webgazer.params.showVideo= false
-			webgazer.params.mirrorVideo= false
-			webgazer.params.showFaceOverlay= false
-			webgazer.params.showFaceFeedbackBox= false
-			webgazer.params.showVideoPreview=false
-			console.log(webgazer.params.showVideo)
+		if(webgazerstate){
+			webgazer.setGazeListener((data,clock)=>{
+				//console.log(data,clock)
+			}).begin();
+			console.log("webgazer is created in" + window.location)
 		}
-	  }, [videocallstate]);
+		setWebGazerState(false)
+	  }, [webgazerstate]);
+	
 	const  setInCall = props;
 	const buttonChange = async (buttonNum) => {
 		var button = document.getElementById(buttonNum.toString());
@@ -68,14 +63,30 @@ function CalibrationPage(props) {
 			setState([...state,sumBoolean])
 	};
 	function videocall(){
-		setVideoCall(true)
+			webgazer.params.showVideo= false
+			webgazer.params.mirrorVideo= false
+			webgazer.params.showFaceOverlay= false
+			webgazer.params.showFaceFeedbackBox= false
+			webgazer.params.showVideoPreview=false
+			const videocontainer = document.getElementById("webgazerVideoContainer");
+			const video = document.getElementById("webgazerVideoFeed");
+			const faceOverlay = document.getElementById("webgazerFaceOverlay");
+			const feedbackBox = document.getElementById("webgazerFaceFeedbackBox");
+			videocontainer.style.display = "none"
+			video.style.display = "none";
+			faceOverlay.style.display = "none"
+			feedbackBox.style.display = "none"
+			webgazer.pause();
+			webgazer.resume();
+			console.log("show video"+webgazer.params.showVideo)
+			setVideoCall(true)
 	}
 	return (
 		<div>
 			<div className='page-background'>
 				<div>
 					{
-						videocallstate ? <VideoCall setInCall={setInCall} ready={ready} tracks={tracks}/>:
+						videocallstate ? <VideoCall setInCall={setInCall} webgazer= {webgazer} ready={ready} tracks={tracks}/>:
 						sumBoolean != state ? <button onClick={videocall}>Continue</button> :	
 						<div class="grid-container">
 							<div class="grid-item">

@@ -3,25 +3,22 @@ import Calibration from "./CalibrationPage";
 import React from 'react';
 import UThere from "./UThere";
 import { useNavigate } from 'react-router-dom';
+import {Link} from 'react-router-dom';
 function MeetingPage() {
 	const [inCall, setInCall] = useState(true);
 	const navigate = useNavigate();
 	const [eyeTracking, setEyeTracking] = useState(true);
-	console.log("more than one?")
-	useEffect(() => {
-		if(eyeTracking){
-			navigate("/Calibration");
-		}
-		else{
-			navigate("/VideoCall");	
-		}
-		
-	  });
+	if(eyeTracking){
+		window.location = "/Calibration"
+	}
+	else{
+		window.location = "/VideoCall"
+	}
 	
 	return (
 		<div>
 			<UThere></UThere>
-			<div className='page-background'></div>
+			<div className='page-background'></div>	
 		</div>
 	);
 }
