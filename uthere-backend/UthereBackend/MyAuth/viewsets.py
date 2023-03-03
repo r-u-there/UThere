@@ -14,6 +14,7 @@ from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
 from .serializers import UserSerializer, LoginSerializer, RegisterSerializer, ContactFormSerializer, ProfileSerializer
 from .models import User, Profile
 from django.contrib.auth import authenticate, login
+from django.shortcuts import get_object_or_404
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -35,6 +36,23 @@ class UserViewSet(viewsets.ModelViewSet):
         return obj
 
 
+class UserInfoViewSet(ModelViewSet, TokenObtainPairView):
+    print("hereee")
+
+    http_method_names = ['get']
+    serializer_class = UserSerializer
+    permission_classes = (AllowAny,)
+    print("hereee")
+
+    def retrieve(self, request, pk=None):
+        print("primary key" +pk)
+        queryset = self.get_queryset()
+        print("primary key" +pk)
+        my_model = get_object_or_404(queryset, pk=pk)
+        serializer = self.get_serializer(my_model)
+        return Response(serializer.data)
+
+
 class LoginViewSet(ModelViewSet, TokenObtainPairView):
     serializer_class = LoginSerializer
     permission_classes = (AllowAny,)
@@ -50,11 +68,11 @@ class LoginViewSet(ModelViewSet, TokenObtainPairView):
             user = authenticate(request, username=username, password=password)
             login(request, user)
             print(request.user)
+            print(username)
         except TokenError as e:
             raise InvalidToken(e.args[0])
 
         return Response(serializer.validated_data, status=status.HTTP_200_OK)
-
 
 class RegistrationViewSet(ModelViewSet, TokenObtainPairView):
     serializer_class = RegisterSerializer

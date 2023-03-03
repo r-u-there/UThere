@@ -1,6 +1,6 @@
 # core/routers.py
 from rest_framework.routers import SimpleRouter
-from .viewsets import LoginViewSet, RegistrationViewSet, RefreshViewSet, UserViewSet, ContactViewSet, ProfileViewSet
+from .viewsets import LoginViewSet, RegistrationViewSet, RefreshViewSet, UserViewSet, ContactViewSet, ProfileViewSet, UserInfoViewSet
 
 routes = SimpleRouter()
 
@@ -14,6 +14,7 @@ routes.register(r'profile', ProfileViewSet, basename='profile')
 
 # USER
 routes.register(r'user', UserViewSet, basename='user')
+routes.register(r'user/info', UserInfoViewSet, basename='user-info')
 
 
 urlpatterns = [

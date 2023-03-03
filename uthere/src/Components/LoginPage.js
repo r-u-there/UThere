@@ -23,6 +23,8 @@ function LoginPage() {
 			setCookie("refreshToken", response.data.refresh);
 			setCookie("accessToken", response.data.access);
 			setCookie("userId", response.data.user.id);
+			setCookie("username", response.data.user.username);
+			setCookie("email", response.data.user.email);
 			window.location = "/Dashboard";
 		}).catch((exception) => {
 			setLoginSuccess(false);

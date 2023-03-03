@@ -7,17 +7,20 @@ import {BsQuestionCircle} from 'react-icons/bs';
 import {Link} from 'react-router-dom';
 import Logout from './Logout';
 import JoinMeetingPopup from './JoinMeetingPopup';
+import {useCookies} from "react-cookie";
+import axios from 'axios';
 
 function Dashboard() {
 	const [trigger, setTrigger] = React.useState(false);
-
+	const [cookies] = useCookies(["refreshToken"]);
+	
 	return (
 		<div>
 			<UThere></UThere>
 			<div className='page-background'></div>
 			<Logout></Logout>
 			<div className='dashboard' style={{"background-color": "white"}}>
-				<center><h1>Welcome Jane</h1></center>
+				<center><h1>Welcome {cookies.username}</h1></center>
 				<hr></hr>
 				<table className='dashboard-table-columns'>
 					<tr>

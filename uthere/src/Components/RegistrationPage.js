@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import {useState} from 'react';
 import API from './API.js';
 import axios from 'axios';
+import {useCookies} from "react-cookie";
 import TermsConditionsPopup from './TermsConditionsPopup';
 
 function RegistrationPage() {
@@ -16,6 +17,7 @@ function RegistrationPage() {
 	const [failureMessage, setFailureMessage] = useState("");
 	const [trigger, setTrigger] = React.useState(false);
 	const [agree, setAgree] = React.useState(false);
+	const [cookies, setCookie] = useCookies(["refreshToken"])
 
 	function handleAgreeCheckbox(){
 		setAgree(!agree)
@@ -34,6 +36,9 @@ function RegistrationPage() {
 			axios.post('http://127.0.0.1:8000/api/auth/register/', item).then(response => {
 				console.log("success");
 				console.log(response);
+				setCookie("refreshToken", response.data.refresh);
+				setCookie("accessToken", response.data.access);
+				setCookie("userId", response.data.user.id);
 				window.location = "/Dashboard";
 			}).catch((exception) => {
 				setLoginSuccess(1);
