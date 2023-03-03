@@ -7,12 +7,29 @@ import {BsQuestionCircle} from 'react-icons/bs';
 import {Link} from 'react-router-dom';
 import Logout from './Logout';
 import JoinMeetingPopup from './JoinMeetingPopup';
-import {useCookies} from "react-cookie";
+import {Cookies} from "react-cookie";
 import axios from 'axios';
+import {useState, useEffect} from "react";
 
 function Dashboard() {
 	const [trigger, setTrigger] = React.useState(false);
-	const [cookies] = useCookies(["refreshToken"]);
+	const cookies = new Cookies();
+	const userId = cookies.get("userId");
+	const [name, setName] = React.useState("");
+	useEffect(() => {
+		function getUserInfo() {
+			axios.get(`http://127.0.0.1:8000/api/user/info/${userId}/`).then(response => {
+					console.log("success");
+					console.log("userid is" + userId)
+					console.log(response);
+					setName(response.data.username)
+				}).catch((exception) => {
+					console.log(exception);
+				});
+			}
+			getUserInfo()
+	  }, []);
+
 	
 	return (
 		<div>
@@ -20,7 +37,7 @@ function Dashboard() {
 			<div className='page-background'></div>
 			<Logout></Logout>
 			<div className='dashboard' style={{"background-color": "white"}}>
-				<center><h1>Welcome {cookies.username}</h1></center>
+				<center><h1>Welcome, {name}</h1></center>
 				<hr></hr>
 				<table className='dashboard-table-columns'>
 					<tr>

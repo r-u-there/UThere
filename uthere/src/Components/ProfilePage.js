@@ -31,7 +31,7 @@ function ProfilePage() {
 	const userId = cookies.get("userId");
 
 	useEffect(() => {
-		function getUserEmail() {
+		function getUserInfo() {
 			axios.get(`http://127.0.0.1:8000/api/user/info/${userId}/`).then(response => {
 					console.log("success");
 					console.log("userid is" + userId)
@@ -43,7 +43,7 @@ function ProfilePage() {
 					console.log(exception);
 				});
 			}
-			getUserEmail()
+			getUserInfo()
 	  }, []);
 
 	function displayProfile() {
