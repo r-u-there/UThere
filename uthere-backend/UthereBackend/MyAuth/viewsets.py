@@ -11,6 +11,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
+from rest_framework.decorators import action
 from .serializers import UserSerializer, LoginSerializer, RegisterSerializer, ContactFormSerializer, ProfileSerializer
 from .models import User, Profile
 from django.contrib.auth import authenticate, login
@@ -37,20 +38,22 @@ class UserViewSet(viewsets.ModelViewSet):
 
 
 class UserInfoViewSet(ModelViewSet, TokenObtainPairView):
-    print("hereee")
-
-    http_method_names = ['get']
     serializer_class = UserSerializer
     permission_classes = (AllowAny,)
-    print("hereee")
+    http_method_names = ['get']
+    queryset = User.objects.all()
 
     def retrieve(self, request, pk=None):
-        print("primary key" +pk)
-        queryset = self.get_queryset()
-        print("primary key" +pk)
-        my_model = get_object_or_404(queryset, pk=pk)
-        serializer = self.get_serializer(my_model)
+        print("primary key is " + pk)
+        queryset = User.objects.filter(id=pk, is_active=True)
+        my_object = queryset.first()
+
+        if my_object is None:
+            return Response(status=404)
+
+        serializer = UserSerializer(my_object)
         return Response(serializer.data)
+       
 
 
 class LoginViewSet(ModelViewSet, TokenObtainPairView):

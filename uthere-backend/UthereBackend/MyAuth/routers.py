@@ -13,10 +13,11 @@ routes.register(r'profile', ProfileViewSet, basename='profile')
 
 
 # USER
-routes.register(r'user', UserViewSet, basename='user')
+#routes.register(r'user', UserViewSet, basename='user')
 routes.register(r'user/info', UserInfoViewSet, basename='user-info')
 
 
 urlpatterns = [
     *routes.urls
 ]
+

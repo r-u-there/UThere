@@ -29,19 +29,22 @@ function ProfilePage() {
 	const refreshToken = cookies.get(["refreshToken"]);
 	const accessToken = cookies.get(["accessToken"]);
 	const userId = cookies.get("userId");
-	const userName = cookies.get("username");
 
-	function getUserEmail() {
-		axios.post('http://127.0.0.1:8000/api/user/info/', {
-			"email": cookies.email,
-		}).then(response => {
-			console.log("success");
-			console.log(response);
-		}).catch((exception) => {
-			console.log(exception);
-		});
-		return "@gmail.com";
-	}
+	useEffect(() => {
+		function getUserEmail() {
+			axios.get(`http://127.0.0.1:8000/api/user/info/${userId}/`).then(response => {
+					console.log("success");
+					console.log("userid is" + userId)
+					console.log(response);
+					setName(response.data.username)
+					setEmail(response.data.email)
+					setPassword(response.data.password)
+				}).catch((exception) => {
+					console.log(exception);
+				});
+			}
+			getUserEmail()
+	  }, []);
 
 	function displayProfile() {
 		if (tabSelection == 0) {
@@ -50,12 +53,12 @@ function ProfilePage() {
 					<center><table>
 						<tr>
 							<td><b>Full Name: &ensp;</b></td>
-							<td>{userName}</td>
+							<td>{name}</td>
 							<td>&ensp;<TbEdit onClick={() => {setTrigger(true); setChangedInfo("full name")}} size={40}/></td>
 						</tr>
 						<tr>
 							<td><b>Email: &ensp;</b></td>
-							<td>{cookies.get("email")}</td>
+							<td>{email}</td>
 							<td>&ensp;<TbEdit onClick={() => {setTrigger(true); setChangedInfo("email")}} size={40}/></td>
 						</tr>
 						<tr>
@@ -147,3 +150,4 @@ function ProfilePage() {
 }
 
 export default ProfilePage;
+
