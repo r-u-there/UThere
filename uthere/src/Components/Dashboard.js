@@ -30,8 +30,6 @@ function Dashboard() {
 			  const createMeetingResponse = await axios.post('http://127.0.0.1:8000/api/create_meeting/', {
 				"agora_token" : config.token,
 			  });
-			  console.log("success");
-			  console.log("bir bakk" + createMeetingResponse.data.id);
 			  setMeetingId(createMeetingResponse.data.id);
 
 			  const createMeetingUserResponse = await axios.post('http://127.0.0.1:8000/api/create_meeting_user/', {
@@ -73,7 +71,7 @@ function Dashboard() {
 						<td><Link to="/Contact"><BsQuestionCircle color="orange" size={100}/></Link></td>
 					</tr>
 					<tr>
-						<td><center><Link onClick={createMeetingAndUser}><label style={{"color": "black"}}>New Meeting</label></Link></center></td>
+						<td><center><Link onClick={createMeetingAndUser}>New Meeting</Link></center></td>
 						<td><center><label onClick={() => setTrigger(true)}>Join Meeting</label></center></td>
 						<td><center><Link to="/Profile"><label style={{"color": "black"}}>Profile</label></Link></center></td>
 						<td><center><Link to="/Contact"><label style={{"color": "black"}}>Contact Us</label></Link></center></td>
