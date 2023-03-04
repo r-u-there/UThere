@@ -5,7 +5,7 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.settings import api_settings
 from django.contrib.auth.models import update_last_login
 from django.core.exceptions import ObjectDoesNotExist
-from .models import User, ContactForm, Profile, Settings
+from .models import User, ContactForm, Profile, Settings, Meeting, MeetingUser
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -77,5 +77,20 @@ class ProfileSerializer(serializers.ModelSerializer):
         instance.gender = validated_data.get('gender', instance.gender)
         instance.birth_date = validated_data.get('birth_date', instance.birth_date)
         return instance
+    
+class MeetingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Meeting
+        fields = ['id','agora_token','start_time','end_time']
+    def create(self, instance):
+        return Meeting.objects.create(**self.validated_data)
+    
+class MeetingUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MeetingUser
+        fields = ['id','is_host','is_presenter','join_time','left_time', 'meeting','user']
+    def create(self, instance):
+        return MeetingUser.objects.create(**self.validated_data)
+
 
 

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
 	config,
 	useClient,
@@ -8,6 +8,8 @@ import {
 import Videos from "./Videos";
 import Controls from "./Controls";
 import React from 'react';
+import {Cookies} from "react-cookie";
+import axios from 'axios';
 
 function VideoCall(props) {
 	const ready = props.ready;
@@ -16,7 +18,13 @@ function VideoCall(props) {
 	const [users, setUsers] = useState([]);
 	const [start, setStart] = useState(false);
 	const client = useClient();
-	console.log(" hereee tracks " + tracks)
+	const rtc = useRef(null);
+	const [token, setToken] = useState('');
+	const cookies = new Cookies();
+	const userId = cookies.get("userId");
+	const expirationTimeInSeconds = 3600;
+
+
 	useEffect(() => { 
 		let init = async (name) => {
 			client.on("user-published", async (user, mediaType) => {
@@ -50,7 +58,7 @@ function VideoCall(props) {
 
 			try {
 				let uid = await client.join(config.appId, name, config.token, null);
-				console.log(uid); // The user id defined by Agora
+				console.log("agora user id"+uid); // The user id defined by Agora
 			} catch (error) {
 				console.log("error");
 			}
