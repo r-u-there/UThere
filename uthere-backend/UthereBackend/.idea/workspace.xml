@@ -20,9 +20,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ad695e72-bc32-4f35-82a3-05828e205b50" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MyAuth/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/MyAuth/admin.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MyAuth/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/MyAuth/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MyAuth/serializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/MyAuth/serializers.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/db.sqlite3" beforeDir="false" afterPath="$PROJECT_DIR$/db.sqlite3" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../uthere/src/settings.js" beforeDir="false" afterPath="$PROJECT_DIR$/../../uthere/src/settings.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -42,11 +46,14 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">
-    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
-    <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
-  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  }
+}</component>
   <component name="RunManager">
     <configuration name="UthereBackend" type="Python.DjangoServer" factoryName="Django server">
       <module name="UthereBackend" />
@@ -93,6 +100,8 @@
       <workItem from="1671106244171" duration="2828000" />
       <workItem from="1671293626811" duration="260000" />
       <workItem from="1671401027006" duration="580000" />
+      <workItem from="1677929387762" duration="53000" />
+      <workItem from="1677929449447" duration="330000" />
     </task>
     <servers />
   </component>
@@ -109,28 +118,5 @@
         </entry>
       </map>
     </option>
-    <option name="oldMeFiltersMigrated" value="true" />
-  </component>
-  <component name="WindowStateProjectService">
-    <state x="496" y="205" key="#Plugins" timestamp="1670426651771">
-      <screen x="0" y="0" width="1792" height="1120" />
-    </state>
-    <state x="496" y="205" key="#Plugins/0.0.1792.1120@0.0.1792.1120" timestamp="1670426651771" />
-    <state x="496" y="222" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1670578714692">
-      <screen x="0" y="0" width="1792" height="1120" />
-    </state>
-    <state x="496" y="222" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1792.1120@0.0.1792.1120" timestamp="1670578714692" />
-    <state width="228" height="457" key="HiddenNamespacesPopup" timestamp="1670578702492">
-      <screen x="0" y="0" width="1792" height="1120" />
-    </state>
-    <state width="228" height="457" key="HiddenNamespacesPopup/0.0.1792.1120@0.0.1792.1120" timestamp="1670578702492" />
-    <state x="405" y="196" key="SettingsEditor" timestamp="1670671581798">
-      <screen x="0" y="0" width="1792" height="1120" />
-    </state>
-    <state x="405" y="196" key="SettingsEditor/0.0.1792.1120@0.0.1792.1120" timestamp="1670671581798" />
-    <state x="561" y="251" width="670" height="676" key="search.everywhere.popup" timestamp="1670501272828">
-      <screen x="0" y="0" width="1792" height="1120" />
-    </state>
-    <state x="561" y="251" width="670" height="676" key="search.everywhere.popup/0.0.1792.1120@0.0.1792.1120" timestamp="1670501272828" />
   </component>
 </project>

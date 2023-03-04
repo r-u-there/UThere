@@ -18,16 +18,33 @@ function ProfilePage() {
 	const [toggle3, setToggle3] = useState(false);
 	const [toggle4, setToggle4] = useState(false);
 	const [toggle5, setToggle5] = useState(false);
+	const [toggle6, setToggle6] = useState(false);
 	const [name, setName] = useState("");
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
-	const [gender, setGender] = useState("");
-	const [birthday, setBirthday] = useState("");
 	const [trigger, setTrigger] = useState(false);
 	const [changedInfo, setChangedInfo] = useState("");
+	const [attentionLimit, setAttentionLimit] = useState("");
 	const cookies = new Cookies();
 	const refreshToken = cookies.get(["refreshToken"]);
-	const emailCookie = cookies.get("email");
+	const accessToken = cookies.get(["accessToken"]);
+	const userId = cookies.get("userId");
+
+	useEffect(() => {
+		function getUserInfo() {
+			axios.get(`http://127.0.0.1:8000/api/user/info/${userId}/`).then(response => {
+					console.log("success");
+					console.log("userid is" + userId)
+					console.log(response);
+					setName(response.data.username)
+					setEmail(response.data.email)
+					setPassword(response.data.password)
+				}).catch((exception) => {
+					console.log(exception);
+				});
+			}
+			getUserInfo()
+	  }, []);
 
 	function displayProfile() {
 		if (tabSelection == 0) {
@@ -48,16 +65,6 @@ function ProfilePage() {
 							<td><b>Password: &ensp;</b></td>
 							<td>********</td>
 							<td>&ensp;<TbEdit onClick={() => {setTrigger(true); setChangedInfo("password")}} size={40}/></td>
-						</tr>
-						<tr>
-							<td><b>Gender: &ensp;</b></td>
-							<td>{gender}</td>
-							<td>&ensp;<TbEdit onClick={() => {setTrigger(true); setChangedInfo("gender")}} size={40}/></td>
-						</tr>
-						<tr>
-							<td><b>Date of Birth: &ensp;</b></td>
-							<td>{birthday}</td>
-							<td>&ensp;<TbEdit onClick={() => {setTrigger(true); setChangedInfo("date of birth")}} size={40}/></td>
 						</tr>
 					</table></center>
 				</div>
@@ -81,7 +88,7 @@ function ProfilePage() {
 						<tr>
 							<td><BiChevronRightCircle size={30}/></td>
 							<td>&ensp;Attention Rating Limit: 75%</td>
-							<td>&emsp;&emsp;<TbEdit size={40}/></td>
+							<td>&emsp;&emsp;<TbEdit onClick={() => {setTrigger(true); setChangedInfo("attention rate")}} size={40}/></td>
 						</tr>
 						<tr>
 							<td><BiChevronRightCircle size={30}/></td>
@@ -108,53 +115,16 @@ function ProfilePage() {
 							<td>&ensp;Hide "Who Left" Information</td>
 							<td>&emsp;&emsp;{!toggle5 ? <MdToggleOff onClick={() => setToggle5(!toggle5)} size={40}/> : <MdToggleOn onClick={() => setToggle5(!toggle5)} size={40} color="green"/>}</td>
 						</tr>
+						<tr>
+							<td><BiChevronRightCircle size={30}/></td>
+							<td>&ensp;Hide Eye Tracking</td>
+							<td>&emsp;&emsp;{!toggle6 ? <MdToggleOff onClick={() => setToggle6(!toggle6)} size={40}/> : <MdToggleOn onClick={() => setToggle6(!toggle6)} size={40} color="green"/>}</td>
+						</tr>
 					</table>
 				</div>
 			);
 		}
 	}
-
-	function setProfileInfo() {
-		// url sonuna user id eklenecek
-		// http://127.0.0.1:8000/api/profile_all/4 <-- gibi
-		// suan 3unu de almasi zorunlu, ayristirmaya zaman yetmedii
-		axios.patch('http://127.0.0.1:8000/api/profile/', {
-			// valuelar eklenecek
-			"full_name": 'asddsdda@gmail.com',
-			"gender": 'F',
-			"birth_date":'1901-10-12'
-		}).then(response => {
-			console.log("success");
-			console.log(response);
-			alert("info updated")
-			window.location = "/Profile";
-		}).catch((exception) => {
-			console.log(exception);
-		});
-	}
-	function getProfileInfo() {
-		setEmail(emailCookie);
-		axios.get('http://127.0.0.1:8000/api/profile/', {
-			params: {
-				//'refreshToken': refreshToken,
-				'email': emailCookie
-			}
-		}).then((response) => {
-			console.log(response.data);
-			setGender(response.data[0].gender);
-			setBirthday(response.data[0].birth_date);
-			setName(response.data[0].full_name);
-
-		}).catch(exception => {
-			console.log(exception);
-		});
-	}
-
-	useEffect( () => {
-		getProfileInfo();
-		displayProfile();
-	}, []);
-
 	return (
 		<div>
 			<UThere></UThere>
@@ -180,3 +150,4 @@ function ProfilePage() {
 }
 
 export default ProfilePage;
+

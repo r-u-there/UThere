@@ -5,12 +5,13 @@ import { BsCameraVideo, BsCameraVideoOff } from 'react-icons/bs';
 import { BsMic, BsMicMute } from 'react-icons/bs';
 import { IoCloseCircleOutline } from 'react-icons/io5';
 import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 function Controls(props) {
 	const client = useClient();
-	const { tracks, setStart, setInCall } = props;
+	const { tracks, setStart } = props;
 	const [trackState, setTrackState] = useState({ video: true, audio: true });
-
+	const navigate = useNavigate();
 	const mute = async (type) => {
 		if (type === "audio") {
 			await tracks[0].setEnabled(!trackState.audio);
@@ -26,12 +27,28 @@ function Controls(props) {
 	};
 
 	const leaveChannel = async () => {
-		await client.leave();
+		props.webgazer.pause();
+        props.webgazer.end();
+        window.localStorage.removeItem('webgazerGlobalData');
+        window.localStorage.removeItem('webgazerUserdata');
+		window.localStorage.removeItem('webgazerVideoContainer');
+		console.log("closed")
 		client.removeAllListeners();
+		if (tracks) {
+			tracks[0].stop();
+			tracks[1].stop();
+			// Get the camera device
+			const cameras = await navigator.mediaDevices.enumerateDevices();
+			const camera = cameras.find((device) => device.kind === "videoinput");
+		
+			// Turn off the camera by setting the deviceId to null
+			await navigator.mediaDevices.getUserMedia({
+			  video: { deviceId: camera ? { exact: camera.deviceId } : undefined, enabled: false },
+			});
+		}
 		tracks[0].close();
 		tracks[1].close();
 		setStart(false);
-		setInCall(false);
 	};
 
 	return (
