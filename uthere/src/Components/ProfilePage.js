@@ -36,7 +36,7 @@ function ProfilePage() {
 					<center><table>
 						<tr>
 							<td><b>Full Name: &ensp;</b></td>
-							<td>{name}</td>
+							<td>demo</td>
 							<td>&ensp;<TbEdit onClick={() => {setTrigger(true); setChangedInfo("full name")}} size={40}/></td>
 						</tr>
 						<tr>
@@ -51,12 +51,12 @@ function ProfilePage() {
 						</tr>
 						<tr>
 							<td><b>Gender: &ensp;</b></td>
-							<td>{gender}</td>
+							<td></td>
 							<td>&ensp;<TbEdit onClick={() => {setTrigger(true); setChangedInfo("gender")}} size={40}/></td>
 						</tr>
 						<tr>
 							<td><b>Date of Birth: &ensp;</b></td>
-							<td>{birthday}</td>
+							<td></td>
 							<td>&ensp;<TbEdit onClick={() => {setTrigger(true); setChangedInfo("date of birth")}} size={40}/></td>
 						</tr>
 					</table></center>

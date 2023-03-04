@@ -7,7 +7,7 @@ function MeetingPage() {
 	const [inCall, setInCall] = useState(true);
 	return (
 		<div>
-			<UThere></UThere>
+			<UThere notClickable={false}></UThere>
 			<div className='page-background'></div>
 			<VideoCall setInCall={setInCall} />
 		</div>

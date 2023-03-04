@@ -139,8 +139,8 @@ body {
 .meeting-controls {
 	margin: -20px auto;
 	display: grid;
-	grid-template-columns: repeat(3, 33%);
-	max-width: 35vw;
+	grid-template-columns: repeat(4, 25%);
+	max-width: 50vw;
 }
 
 .meeting-window {

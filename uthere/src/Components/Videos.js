@@ -7,7 +7,7 @@ function Videos(props) {
 
 	return (
 		<div>
-			<div className="meeting-window ">
+			<div>
 				<AgoraVideoPlayer videoTrack={tracks[1]} className='vid' />
 				{users.length > 0 &&
 					users.map((user) => {
@@ -15,7 +15,16 @@ function Videos(props) {
 							return (
 								<AgoraVideoPlayer videoTrack={user.videoTrack} key={user.uid} className='vid' />
 							);
-						} else return null;
+						}
+						else {
+							console.log(user.uid);
+							return (
+								<div key={user.uid} className='vid'>
+									<center><h3 style={{color:"white"}}>{user.uid}</h3></center>
+								</div>
+							);
+							console.log("no video");
+						}
 					})}
 			</div>
 		</div>

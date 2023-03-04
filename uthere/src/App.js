@@ -7,6 +7,7 @@ import Dashboard from './Components/Dashboard';
 import './App.css';
 import ProfilePage from './Components/ProfilePage';
 import MeetingPage from './Components/MeetingPage';
+import MeetingEnding from "./Components/MeetingEnding";
 
 function App() {
 	return (
@@ -17,7 +18,8 @@ function App() {
 			<Route path="/Dashboard" element={<Dashboard/>} />
 			<Route path="/Profile" element={<ProfilePage/>} />
 			<Route path="/Meeting" element={<MeetingPage/>} />
-		</Routes>
+			<Route path="/MeetingEnding" element={<MeetingEnding/>} />
+ 		</Routes>
 	);
 }
 

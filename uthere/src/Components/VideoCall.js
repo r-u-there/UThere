@@ -12,16 +12,17 @@ import React from 'react';
 function VideoCall(props) {
 	const { setInCall } = props;
 	const [users, setUsers] = useState([]);
+	const [usersWithCam, setUsersWithCam] = useState([]);
 	const [start, setStart] = useState(false);
 	const client = useClient();
 	const { ready, tracks } = useMicrophoneAndCameraTracks();
-	
+
 	useEffect(() => {
 		let init = async (name) => {
 			client.on("user-published", async (user, mediaType) => {
 				await client.subscribe(user, mediaType);
 				if (mediaType === "video") {
-					setUsers((prevUsers) => {
+					setUsersWithCam((prevUsers) => {
 						return [...prevUsers, user];
 					});
 				}
@@ -35,11 +36,18 @@ function VideoCall(props) {
 					if (user.audioTrack) user.audioTrack.stop();
 				}
 				if (mediaType === "video") {
-					setUsers((prevUsers) => {
+					setUsersWithCam((prevUsers) => {
 						return prevUsers.filter((User) => User.uid !== user.uid);
 					});
 				}
 			});
+
+			client.on("user-joined", (user) => {
+				setUsers((prevUsers) => {
+					return [...prevUsers, user];
+				});
+			});
+
 
 			client.on("user-left", (user) => {
 				setUsers((prevUsers) => {
@@ -73,10 +81,10 @@ function VideoCall(props) {
 	return (
 		<div>
 			<div>
-				{ready && tracks && (<Controls tracks={tracks} setStart={setStart} setInCall={setInCall} />)}
+				{ready && tracks && (<Controls tracks={tracks} setStart={setStart} setInCall={setInCall} users={users}/>)}
 			</div>
 			<div>
-				{start && tracks && <Videos tracks={tracks} users={users} />}
+				{start && tracks && <Videos tracks={tracks} users={users} usersWithCam={usersWithCam} />}
 			</div>
 		</div>
 	);
