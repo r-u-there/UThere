@@ -33,7 +33,166 @@ body {
 	padding-right: 50px;
 	padding-bottom: 25px;
 }
-
+.grid-container {
+	position:absolute;
+	top:0px;
+	right:0px;
+	bottom:0px;
+	left:0px;
+	display: grid;
+	background-color: rgb(242, 242, 242);
+	grid-template-columns: auto auto auto;
+  }
+  .grid-item {
+	background-color: rgb(242, 242, 242);
+	font-size: 30px;
+	text-align: center;
+  }
+  .calibration-button-1 {
+	position: absolute;
+  	top:0;
+  	left: 0;
+	background-color: #fff0d5;
+	border: solid black;
+	color: white;
+	padding: 20px;
+	display: inline-block;
+	font-size: 16px;
+	margin: 4px 2px;
+	cursor: pointer;
+	border-radius: 50%;
+	width: 20px;
+	height: 20px;
+	font-size: 15px;
+  }
+  .calibration-button-2 {
+	position: absolute;
+  	top:0;
+  	left: 50%;
+	background-color: #fff0d5;
+	border: solid black;
+	color: white;
+	padding: 20px;
+	display: inline-block;
+	font-size: 16px;
+	margin: 4px 2px;
+	cursor: pointer;
+	border-radius: 50%;
+	width: 2px;
+	height: 2px;
+  }
+  .calibration-button-3 {
+	position: absolute;
+  	top:0;
+  	right: 0;
+	background-color: #fff0d5; 
+	border: solid black;
+	color: white;
+	padding: 20px;
+	display: inline-block;
+	font-size: 16px;
+	margin: 4px 2px;
+	cursor: pointer;
+	border-radius: 50%;
+	width: 2px;
+	height: 2px;
+  }
+  .calibration-button-4 {
+	position: absolute;
+  	top:42%;
+  	left: 0;
+	background-color: #fff0d5;
+	border: solid black;
+	color: white;
+	padding: 20px;
+	display: inline-block;
+	font-size: 16px;
+	margin: 4px 2px;
+	cursor: pointer;
+	border-radius: 50%;
+	width: 2px;
+	height: 2px;
+  }
+  .calibration-button-5 {
+	position: absolute;
+  	top:84%;
+  	left: 0;
+	background-color: #fff0d5;
+	border: solid black;
+	color: white;
+	padding: 20px;
+	display: inline-block;
+	font-size: 16px;
+	margin: 4px 2px;
+	cursor: pointer;
+	border-radius: 50%;
+	width: 2px;
+	height: 2px;
+  }
+  .calibration-button-6 {
+	position: absolute;
+  	top:84%;
+  	left: 50%;
+	background-color: #fff0d5;
+	border: solid black;
+	color: white;
+	padding: 20px;
+	display: inline-block;
+	font-size: 16px;
+	margin: 4px 2px;
+	cursor: pointer;
+	border-radius: 50%;
+	width: 2px;
+	height: 2px;
+  }
+  .calibration-button-7 {
+	position: absolute;
+  	top:84%;
+  	right: 0;
+	background-color: #fff0d5;
+	border: solid black;
+	color: white;
+	padding: 20px;
+	display: inline-block;
+	font-size: 16px;
+	margin: 4px 2px;
+	cursor: pointer;
+	border-radius: 50%;
+	width: 2px;
+	height: 2px;
+  }
+  .calibration-button-8 {
+	position: absolute;
+  	top:42%;
+  	right:0;
+	background-color: #fff0d5;
+	border: solid black;
+	color: white;
+	padding: 20px;
+	display: inline-block;
+	font-size: 16px;
+	margin: 4px 2px;
+	cursor: pointer;
+	border-radius: 50%;
+	width: 2px;
+	height: 2px;
+  }
+  .calibration-button-9 {
+	position: absolute;
+  	top:42%;
+  	left:50%;
+	background-color: #fff0d5; 
+	border: solid black;
+	color: white;
+	padding: 20px;
+	display: inline-block;
+	font-size: 16px;
+	margin: 4px 2px;
+	cursor: pointer;
+	border-radius: 50%;
+	width: 2px;
+	height: 2px;
+  }
 .page-background {
 	position: fixed;
 	top: 110px;
@@ -128,7 +287,7 @@ body {
 }
 
 .meeting-control-panel {
-	position: absolute;
+	position: bottom;
 	width: 100%;
 	top: 88.2%;
 	padding-top: 30px;
@@ -145,5 +304,10 @@ body {
 
 .meeting-window {
 	max-width: 850px;
+}
+
+.label-terms{
+	color: blue;
+	text-decoration: underline;
 }
 

@@ -8,6 +8,7 @@ import './App.css';
 import ProfilePage from './Components/ProfilePage';
 import MeetingPage from './Components/MeetingPage';
 import MeetingEnding from "./Components/MeetingEnding";
+import CalibrationPage from './Components/CalibrationPage'
 
 function App() {
 	return (
@@ -19,7 +20,9 @@ function App() {
 			<Route path="/Profile" element={<ProfilePage/>} />
 			<Route path="/Meeting" element={<MeetingPage/>} />
 			<Route path="/MeetingEnding" element={<MeetingEnding/>} />
- 		</Routes>
+			<Route path="/Calibration" element={<CalibrationPage/>} />
+
+		</Routes>
 	);
 }
 

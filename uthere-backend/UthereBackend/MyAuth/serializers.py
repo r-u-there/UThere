@@ -5,7 +5,7 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.settings import api_settings
 from django.contrib.auth.models import update_last_login
 from django.core.exceptions import ObjectDoesNotExist
-from .models import User, ContactForm, Profile
+from .models import User, ContactForm, Profile, Settings, Meeting, MeetingUser
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -38,7 +38,7 @@ class RegisterSerializer(UserSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'password', 'is_active']
+        fields = ['id', 'username', 'email', 'password', 'is_active','settings']
 
     def create(self, validated_data):
         try:
@@ -47,6 +47,14 @@ class RegisterSerializer(UserSerializer):
             instance.is_active = True
         except ObjectDoesNotExist:
             user = User.objects.create_user(**validated_data)
+            settings = Settings()
+            user.settings = settings
+            settings.save()
+            user.save()
+            settings = Settings()
+            user.settings = settings
+            settings.save()
+            user.save()
         return user
 
 
@@ -64,9 +72,35 @@ class ContactFormSerializer(serializers.ModelSerializer):
 class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
-        fields = ('full_name', 'gender', 'birth_date')
+        fields = ('full_name', 'gender', 'birth_date', 'user')
 
+    def create(self, instance):
+        return Profile.objects.create(**self.validated_data)
 
+    def update(self, instance):
+        instance.full_name = validated_data.get('full_name', instance.full_name)
+        instance.gender = validated_data.get('gender', instance.gender)
+        instance.birth_date = validated_data.get('birth_date', instance.birth_date)
+        return instance
+
+class SettingsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Settings
+        fields = '__all__'
+
+class MeetingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Meeting
+        fields = ['id','agora_token','start_time','end_time']
+    def create(self, instance):
+        return Meeting.objects.create(**self.validated_data)
+
+class MeetingUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MeetingUser
+        fields = ['id','is_host','is_presenter','join_time','left_time', 'meeting','user']
+    def create(self, instance):
+        return MeetingUser.objects.create(**self.validated_data)
 
 
 
