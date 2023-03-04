@@ -4,13 +4,14 @@ import React from 'react';
 import UThere from "./UThere";
 import { useNavigate } from 'react-router-dom';
 import {Link} from 'react-router-dom';
+
 function MeetingPage() {
 	const navigate = useNavigate();
 	const [eyeTracking, setEyeTracking] = useState(true);
-	if(eyeTracking){
+	if (eyeTracking) {
 		window.location = "/Calibration"
 	}
-	else{
+	else {
 		window.location = "/VideoCall"
 	}
 	

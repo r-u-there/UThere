@@ -53,7 +53,7 @@ function ProfilePage() {
 					<center><table>
 						<tr>
 							<td><b>Full Name: &ensp;</b></td>
-							<td>demo</td>
+							<td>{name}</td>
 							<td>&ensp;<TbEdit onClick={() => {setTrigger(true); setChangedInfo("full name")}} size={40}/></td>
 						</tr>
 						<tr>
