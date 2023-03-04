@@ -53,6 +53,40 @@ class UserInfoViewSet(ModelViewSet, TokenObtainPairView):
 
         serializer = UserSerializer(my_object)
         return Response(serializer.data)
+    
+class UserUpdateViewSet(ModelViewSet, TokenObtainPairView):
+    serializer_class = UserSerializer
+    permission_classes = (AllowAny,)
+    http_method_names = ['put']
+    queryset = User.objects.all()
+
+    def put(self, request, *args, **kwargs):
+     
+        user_id = request.data.get("userId")
+        changed_info = request.data.get("changedInfo")
+        user = User.objects.get(pk=user_id)
+        print("changed Info is " + changed_info)
+        if(changed_info =="full name"):
+            new_username = request.data.get("newInfo")
+            user.username = new_username
+            user.save()
+            return Response({'status': 'username updated'})
+        elif( changed_info == "email"):
+            new_email = request.data.get("newInfo")
+            user.email = new_email
+            user.save()
+            return Response({'status': 'email updated'})
+        elif( changed_info == "password"):
+            new_password = request.data.get("newInfo")
+            user.password = new_password
+            user.save()
+            return Response({'status': 'password updated'})
+        return Response({'status': 'ERROR'})
+
+        
+        
+        
+        
        
 
 

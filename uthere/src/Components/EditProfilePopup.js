@@ -1,12 +1,28 @@
 import React from 'react';
 import { useState } from 'react';
+import {Cookies} from "react-cookie";
+import axios from 'axios';
 
 function EditProfilePopup(props) {
 	const [newInfo, setNewInfo] = useState("");
-
+	const cookies = new Cookies();
+	const userId = cookies.get("userId");
 	function submitNewInfo() {
-		
+		axios.put(`http://127.0.0.1:8000/api/user/update/`, {
+			"userId": userId,
+			"newInfo": newInfo,
+			"changedInfo" : props.changedInfo
+		}).then(response => {
+					console.log("success");
+					console.log("userid is" + userId)
+					console.log(response);
+				}).catch((exception) => {
+					console.log(exception);
+				});
+			
 	}
+		
+	
 
   function insidePopup() {
 		return (
