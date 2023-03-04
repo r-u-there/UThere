@@ -1,3 +1,5 @@
+/*jshint esversion: 8 */
+
 import React from 'react';
 import UThere from './UThere';
 import {BsCameraVideo} from 'react-icons/bs';
@@ -24,34 +26,34 @@ function Dashboard() {
 	const [name, setName] = React.useState("");
 	const [meetingId, setMeetingId] = React.useState("");
 	async function createMeetingAndUser() {
-		try {
-		  const createMeetingResponse = await axios.post('http://127.0.0.1:8000/api/create_meeting/', {
-			"agora_token" : config.token,
-		  });
-		  console.log("success");
-		  console.log("bir bakk" + createMeetingResponse.data.id);
-		  setMeetingId(createMeetingResponse.data.id);
-	  
-		  const createMeetingUserResponse = await axios.post('http://127.0.0.1:8000/api/create_meeting_user/', {
-			"meeting_id" : createMeetingResponse.data.id,
-			"user_id": userId
-		  });
-		  console.log("success");
-		  console.log(createMeetingUserResponse);
-		} catch (exception) {
-		  console.log(exception);
-		}
-	  }
+			try {
+			  const createMeetingResponse = await axios.post('http://127.0.0.1:8000/api/create_meeting/', {
+				"agora_token" : config.token,
+			  });
+			  console.log("success");
+			  console.log("bir bakk" + createMeetingResponse.data.id);
+			  setMeetingId(createMeetingResponse.data.id);
+
+			  const createMeetingUserResponse = await axios.post('http://127.0.0.1:8000/api/create_meeting_user/', {
+				"meeting" : createMeetingResponse.data.id,
+				"user": userId
+			  });
+			  console.log("success");
+			  console.log(createMeetingUserResponse);
+			} catch (exception) {
+			  console.log(exception);
+			}
+		  }
 	
 	useEffect(() => {
 		function getUserInfo() {
 			axios.get(`http://127.0.0.1:8000/api/user/info/${userId}/`).then(response => {
-					setName(response.data.username)
+					setName(response.data.username);
 				}).catch((exception) => {
 					console.log(exception);
 				});
 			}
-			getUserInfo()
+			getUserInfo();
 	  }, []);
 
 	
@@ -71,7 +73,7 @@ function Dashboard() {
 						<td><Link to="/Contact"><BsQuestionCircle color="orange" size={100}/></Link></td>
 					</tr>
 					<tr>
-						<td><center><Link><label onClick={() =>{createMeetingAndUser();}}>New Meeting</label></Link></center></td>
+						<td><center><Link onClick={createMeetingAndUser}><label style={{"color": "black"}}>New Meeting</label></Link></center></td>
 						<td><center><label onClick={() => setTrigger(true)}>Join Meeting</label></center></td>
 						<td><center><Link to="/Profile"><label style={{"color": "black"}}>Profile</label></Link></center></td>
 						<td><center><Link to="/Contact"><label style={{"color": "black"}}>Contact Us</label></Link></center></td>

@@ -36,9 +36,10 @@ class UserManager(BaseUserManager):
         user.save(using=self._db)
 
         return user
-    
+
+
 class Settings(models.Model):
-    attention_limit = models.DecimalField(max_digits=10, decimal_places= 2, default= 50)
+    attention_limit = models.DecimalField(max_digits=10, decimal_places=2, default=50)
     get_analysis_report = models.BooleanField(default=True)
     hide_real_time_emotion_analysis = models.BooleanField(default=False)
     hide_real_time_attention_analysis = models.BooleanField(default=False)
@@ -46,13 +47,13 @@ class Settings(models.Model):
     hide_who_left = models.BooleanField(default=False)
     hide_eye_tracking = models.BooleanField(default=False)
 
+
 class User(AbstractBaseUser, PermissionsMixin):
-    
     username = models.CharField(db_index=True, max_length=300, unique=True)
     email = models.EmailField(db_index=True, unique=True, null=True, blank=True)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
-    settings =  models.ForeignKey(Settings, on_delete=models.CASCADE, related_name="user_settings" , unique=True, null=True)
+    settings = models.OneToOneField(Settings, on_delete=models.CASCADE, related_name="user_settings", null=True)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
@@ -75,41 +76,48 @@ class ContactForm(models.Model):
     def __str__(self):
         return self.message
 
+
 class Profile(models.Model):
     full_name = models.CharField(max_length=50, null=True, blank=True)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, unique=True)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.full_name
-    
+
+
 class Meeting(models.Model):
     agora_token = models.TextField(max_length=500)
     start_time = models.DateField(auto_now_add=True)
     end_time = models.DateField(null=True)
 
+
 class MeetingUser(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    meeting =  models.ForeignKey(Meeting, on_delete=models.CASCADE)
+    meeting = models.ForeignKey(Meeting, on_delete=models.CASCADE)
     is_host = models.BooleanField(default=False)
     is_presenter = models.BooleanField(default=False)
-    join_time = models.DateField(auto_now_add=True,)
-    left_time = models.DateField(null=True)
+    join_time = models.DateField(auto_now_add=True)
+    left_time = models.DateField(blank=True, null=True, auto_now_add=False)
+
 
 class Presenter(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    meeting =  models.ForeignKey(Meeting, on_delete=models.CASCADE)
+    meeting = models.ForeignKey(Meeting, on_delete=models.CASCADE)
     start_time = models.DateField(auto_now_add=True)
     end_time = models.DateField(null=True)
 
+
 class AttentionScores(models.Model):
-    meeting =  models.ForeignKey(Meeting, on_delete=models.CASCADE)
+    meeting = models.ForeignKey(Meeting, on_delete=models.CASCADE)
     time = models.DateField()
-    attention_score = models.DecimalField(max_digits=10, decimal_places= 2, default= 0)
+    attention_score = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+
 
 class Poll(models.Model):
-    meeting =  models.ForeignKey(Meeting, on_delete=models.CASCADE)
+    meeting = models.ForeignKey(Meeting, on_delete=models.CASCADE)
     creator = models.ForeignKey(Presenter, on_delete=models.CASCADE)
     question_body = models.TextField(max_length=500, default="")
+
 
 class Options(models.Model):
     poll = models.ForeignKey(Poll, on_delete=models.CASCADE)

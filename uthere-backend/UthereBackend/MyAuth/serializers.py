@@ -51,6 +51,10 @@ class RegisterSerializer(UserSerializer):
             user.settings = settings
             settings.save()
             user.save()
+            settings = Settings()
+            user.settings = settings
+            settings.save()
+            user.save()
         return user
 
 
@@ -72,19 +76,25 @@ class ProfileSerializer(serializers.ModelSerializer):
 
     def create(self, instance):
         return Profile.objects.create(**self.validated_data)
+
     def update(self, instance):
         instance.full_name = validated_data.get('full_name', instance.full_name)
         instance.gender = validated_data.get('gender', instance.gender)
         instance.birth_date = validated_data.get('birth_date', instance.birth_date)
         return instance
-    
+
+class SettingsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Settings
+        fields = '__all__'
+
 class MeetingSerializer(serializers.ModelSerializer):
     class Meta:
         model = Meeting
         fields = ['id','agora_token','start_time','end_time']
     def create(self, instance):
         return Meeting.objects.create(**self.validated_data)
-    
+
 class MeetingUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = MeetingUser
