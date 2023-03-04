@@ -1,6 +1,7 @@
 from django.db import models
 
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
+import uuid
 
 
 class UserManager(BaseUserManager):
@@ -35,7 +36,15 @@ class UserManager(BaseUserManager):
         user.save(using=self._db)
 
         return user
-
+    
+class Settings(models.Model):
+    attention_limit = models.DecimalField(max_digits=10, decimal_places= 2, default= 50)
+    get_analysis_report = models.BooleanField(default=True)
+    hide_real_time_emotion_analysis = models.BooleanField(default=False)
+    hide_real_time_attention_analysis = models.BooleanField(default=False)
+    hide_real_time_analysis = models.BooleanField(default=False)
+    hide_who_left = models.BooleanField(default=False)
+    hide_eye_tracking = models.BooleanField(default=False)
 
 class User(AbstractBaseUser, PermissionsMixin):
     
@@ -43,6 +52,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(db_index=True, unique=True, null=True, blank=True)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
+    settings =  models.ForeignKey(Settings, on_delete=models.CASCADE, related_name="user_settings" , unique=True, null=True)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
@@ -65,16 +75,43 @@ class ContactForm(models.Model):
     def __str__(self):
         return self.message
 
-
 class Profile(models.Model):
     full_name = models.CharField(max_length=50, null=True, blank=True)
-    GENDER_CHOICES = (
-        ('M', 'Male'),
-        ('F', 'Female'),
-    )
-    gender = models.CharField(max_length=1, choices=GENDER_CHOICES)
-    birth_date = models.DateField()
     user = models.ForeignKey(User, on_delete=models.CASCADE, unique=True)
 
     def __str__(self):
         return self.full_name
+    
+class Meeting(models.Model):
+    agora_token = models.TextField(max_length=500)
+    start_time = models.DateField(auto_now_add=True)
+    end_time = models.DateField(null=True)
+
+class MeetingUser(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    meeting =  models.ForeignKey(Meeting, on_delete=models.CASCADE)
+    is_host = models.BooleanField(default=False)
+    is_presenter = models.BooleanField(default=False)
+    join_time = models.DateField(auto_now_add=True,)
+    left_time = models.DateField(null=True)
+
+class Presenter(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    meeting =  models.ForeignKey(Meeting, on_delete=models.CASCADE)
+    start_time = models.DateField(auto_now_add=True)
+    end_time = models.DateField(null=True)
+
+class AttentionScores(models.Model):
+    meeting =  models.ForeignKey(Meeting, on_delete=models.CASCADE)
+    time = models.DateField()
+    attention_score = models.DecimalField(max_digits=10, decimal_places= 2, default= 0)
+
+class Poll(models.Model):
+    meeting =  models.ForeignKey(Meeting, on_delete=models.CASCADE)
+    creator = models.ForeignKey(Presenter, on_delete=models.CASCADE)
+    question_body = models.TextField(max_length=500, default="")
+
+class Options(models.Model):
+    poll = models.ForeignKey(Poll, on_delete=models.CASCADE)
+    option_body =  models.CharField( max_length= 250, default="")
+    count = models.IntegerField(default=0)

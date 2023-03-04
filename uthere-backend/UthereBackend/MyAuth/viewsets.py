@@ -83,13 +83,6 @@ class UserUpdateViewSet(ModelViewSet, TokenObtainPairView):
             return Response({'status': 'password updated'})
         return Response({'status': 'ERROR'})
 
-        
-        
-        
-        
-       
-
-
 class LoginViewSet(ModelViewSet, TokenObtainPairView):
     serializer_class = LoginSerializer
     permission_classes = (AllowAny,)
