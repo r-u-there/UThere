@@ -92,6 +92,21 @@ class SettingsViewSet(ModelViewSet):
     http_method_names = ['put']
 
 
+class GetSettingsViewSet(ModelViewSet, TokenObtainPairView):
+    serializer_class = SettingsSerializer
+    permission_classes = (AllowAny,)
+    queryset = Settings.objects.all()
+
+    def retrieve(self, request, pk=None):
+        user = User.objects.get(id=pk, is_active=True)
+
+        if user is None:
+            return Response(status=404)
+        serializer = SettingsSerializer(user.settings)
+        print(serializer.data)
+        return Response(serializer.data)
+
+
 class LoginViewSet(ModelViewSet, TokenObtainPairView):
     serializer_class = LoginSerializer
     permission_classes = (AllowAny,)
