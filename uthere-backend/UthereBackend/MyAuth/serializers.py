@@ -91,14 +91,15 @@ class SettingsSerializer(serializers.ModelSerializer):
 class MeetingSerializer(serializers.ModelSerializer):
     class Meta:
         model = Meeting
-        fields = ['id','agora_token','start_time','end_time']
+        fields = ['id', 'agora_token', 'start_time', 'end_time']
     def create(self, instance):
         return Meeting.objects.create(**self.validated_data)
 
 class MeetingUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = MeetingUser
-        fields = ['id','is_host','is_presenter','join_time','left_time', 'meeting','user']
+        fields = ['id', 'is_host', 'is_presenter', 'join_time', 'left_time', 'meeting',' user']
+
     def create(self, instance):
         return MeetingUser.objects.create(**self.validated_data)
 
