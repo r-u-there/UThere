@@ -6,7 +6,7 @@ function JoinMeetingPopup(props) {
 
  	function joinMeeting() {
 		// TODO: this will be a meeting id, for now it is meeting's token
-    	if (document.querySelector(".form-control").value === "007eJxTYNitcuGg5FJD71SvRqN5X6OEX22Ovi/zqF8gqf7xSouzN54pMBiamidaJpsZJKWZpJgkW5hamBqaWJglJhklm6UYJBsbFU6an9wQyMiwgHcVMyMDBIL4LAy5iZl5DAwAhYkgLw==") {
+    	if (document.querySelector(".form-control").value === "007eJxTYCj6dt6If3V7voaYzXaxMvm+u08iyo8+DAvQnPNua3gxr4ACg0WqoYWBmWWSRXKKsUlaspmlpYmRoaGlQYqlgXGasUFSU8zC5IZARoYvvvdZGRkgEMRnYchNzMxjYAAA+EEegQ==") {
 			navigate("/Meeting");
     	}
 		else {

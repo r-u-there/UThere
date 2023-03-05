@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
 	config,
 	useClient,
@@ -8,15 +8,19 @@ import {
 import Videos from "./Videos";
 import Controls from "./Controls";
 import React from 'react';
+import {Cookies} from "react-cookie";
+import axios from 'axios';
 
 function VideoCall(props) {
-	const { setInCall } = props;
+	const ready = props.ready;
+	const tracks = props.tracks;
+	const webgazer = props.webgazer;
 	const [users, setUsers] = useState([]);
 	const [start, setStart] = useState(false);
 	const client = useClient();
-	const { ready, tracks } = useMicrophoneAndCameraTracks();
-	
-	useEffect(() => {
+	const [token, setToken] = useState('');
+	console.log("geldimmm")
+	useEffect(() => { 
 		let init = async (name) => {
 			client.on("user-published", async (user, mediaType) => {
 				await client.subscribe(user, mediaType);
@@ -49,34 +53,38 @@ function VideoCall(props) {
 
 			try {
 				let uid = await client.join(config.appId, name, config.token, null);
-				console.log(uid); // The user id defined by Agora
+				console.log("agora user id"+uid); // The user id defined by Agora
 			} catch (error) {
 				console.log("error");
 			}
 
-			if (tracks) {
+			if (props.tracks) {
 				await client.publish([tracks[0], tracks[1]]);
 			}
 			setStart(true);
+			console.log("start is" + start);
 		};
 
 		if (ready && tracks) {
+			console.log("ready is" + ready)
 			try {
 				init(channelName);
-				console.log("bbaabb");
 			} catch (error) {
 				console.log(error);
 			}
 		}
-	}, [channelName, client, ready, tracks]);
+		
+	}, [config.channelName, client, ready, tracks]);
 
 	return (
 		<div>
 			<div>
-				{ready && tracks && (<Controls tracks={tracks} setStart={setStart} setInCall={setInCall} />)}
+				{ready && tracks && (<Controls tracks={tracks} setStart={setStart} webgazer={webgazer} users={users} />)}
 			</div>
 			<div>
-				{start && tracks && <Videos tracks={tracks} users={users} />}
+				{start && tracks 
+				 && <Videos  tracks={tracks} users={users} />
+				}
 			</div>
 		</div>
 	);

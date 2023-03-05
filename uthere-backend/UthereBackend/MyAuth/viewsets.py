@@ -11,9 +11,12 @@ from rest_framework.permissions import AllowAny
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
-from .serializers import UserSerializer, LoginSerializer, RegisterSerializer, ContactFormSerializer, ProfileSerializer
-from .models import User, Profile
+from rest_framework.decorators import action
+from .serializers import UserSerializer, LoginSerializer, RegisterSerializer, ContactFormSerializer, ProfileSerializer, \
+    MeetingSerializer, MeetingUserSerializer, SettingsSerializer
+from .models import User, Profile, Meeting, Settings
 from django.contrib.auth import authenticate, login
+from django.shortcuts import get_object_or_404
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -35,6 +38,80 @@ class UserViewSet(viewsets.ModelViewSet):
         return obj
 
 
+class UserInfoViewSet(ModelViewSet, TokenObtainPairView):
+    serializer_class = UserSerializer
+    permission_classes = (AllowAny,)
+    http_method_names = ['get']
+    queryset = User.objects.all()
+
+    def retrieve(self, request, pk=None):
+        print("primary key is " + pk)
+        queryset = User.objects.filter(id=pk, is_active=True)
+        my_object = queryset.first()
+
+        if my_object is None:
+            return Response(status=404)
+
+        serializer = UserSerializer(my_object)
+        return Response(serializer.data)
+    
+class UserUpdateViewSet(ModelViewSet, TokenObtainPairView):
+    serializer_class = UserSerializer
+    permission_classes = (AllowAny,)
+    http_method_names = ['put']
+    queryset = User.objects.all()
+
+    def put(self, request, *args, **kwargs):
+     
+        user_id = request.data.get("userId")
+        changed_info = request.data.get("changedInfo")
+        user = User.objects.get(pk=user_id)
+        print("changed Info is " + changed_info)
+        if(changed_info =="full name"):
+            new_username = request.data.get("newInfo")
+            user.username = new_username
+            user.save()
+            return Response({'status': 'username updated'})
+        elif( changed_info == "email"):
+            new_email = request.data.get("newInfo")
+            user.email = new_email
+            user.save()
+            return Response({'status': 'email updated'})
+        elif( changed_info == "password"):
+            new_password = request.data.get("newInfo")
+            user.password = new_password
+            user.save()
+            return Response({'status': 'password updated'})
+        return Response({'status': 'ERROR'})
+
+
+class SettingsViewSet(ModelViewSet):
+    serializer_class = SettingsSerializer
+    permission_classes = (AllowAny,)
+    queryset = Settings.objects.all()
+    http_method_names = ['put']
+
+    def update(self, request, *args, **kwargs):
+        data = request.data
+        print(data)
+        return super().update(request, *args, **kwargs)
+
+
+class GetSettingsViewSet(ModelViewSet, TokenObtainPairView):
+    serializer_class = SettingsSerializer
+    permission_classes = (AllowAny,)
+    queryset = Settings.objects.all()
+
+    def retrieve(self, request, pk=None):
+        user = User.objects.get(id=pk, is_active=True)
+
+        if user is None:
+            return Response(status=404)
+        serializer = SettingsSerializer(user.settings)
+        print(serializer.data)
+        return Response(serializer.data)
+
+
 class LoginViewSet(ModelViewSet, TokenObtainPairView):
     serializer_class = LoginSerializer
     permission_classes = (AllowAny,)
@@ -49,11 +126,41 @@ class LoginViewSet(ModelViewSet, TokenObtainPairView):
             password = request.data['password']
             user = authenticate(request, username=username, password=password)
             login(request, user)
-            print(request.user)
         except TokenError as e:
             raise InvalidToken(e.args[0])
 
         return Response(serializer.validated_data, status=status.HTTP_200_OK)
+    
+class CreateMeetingViewSet(ModelViewSet, TokenObtainPairView):
+    serializer_class = MeetingSerializer
+    permission_classes = (AllowAny,)
+    http_method_names = ['post']
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        try:
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+        except TokenError as e:
+            raise InvalidToken(e.args[0])
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+class CreateMeetingUserViewSet(ModelViewSet, TokenObtainPairView):
+    serializer_class = MeetingUserSerializer
+    permission_classes = (AllowAny,)
+    http_method_names = ['post']
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        try:
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+
+        except TokenError as e:
+            raise InvalidToken(e.args[0])
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class RegistrationViewSet(ModelViewSet, TokenObtainPairView):

@@ -1,7 +1,6 @@
 from django.urls import path, include
-from . import views
+from .viewsets import UserInfoViewSet
 
 urlpatterns = [
     path('api/', include(('MyAuth.routers', 'MyAuth'), namespace='auth-api')),
-
 ]
