@@ -10,7 +10,7 @@ import ParticipantsPopup from "./ParticipantsPopup";
 
 function Controls(props) {
 	const client = useClient();
-	const { tracks, setStart, setInCall, users } = props;
+	const { tracks, setStart,  webgazer, users } = props;
 	const [trackState, setTrackState] = useState({ video: true, audio: true });
 	const [trigger, setTrigger] = useState(false);
 	const navigate = useNavigate();

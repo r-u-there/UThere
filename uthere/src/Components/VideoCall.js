@@ -18,13 +18,8 @@ function VideoCall(props) {
 	const [users, setUsers] = useState([]);
 	const [start, setStart] = useState(false);
 	const client = useClient();
-	const rtc = useRef(null);
 	const [token, setToken] = useState('');
-	const cookies = new Cookies();
-	const userId = cookies.get("userId");
-	const expirationTimeInSeconds = 3600;
-
-
+	console.log("geldimmm")
 	useEffect(() => { 
 		let init = async (name) => {
 			client.on("user-published", async (user, mediaType) => {
@@ -79,12 +74,12 @@ function VideoCall(props) {
 			}
 		}
 		
-	}, []);
+	}, [config.channelName, client, ready, tracks]);
 
 	return (
 		<div>
 			<div>
-				{ready && tracks && (<Controls tracks={tracks} setStart={setStart}  webgazer={webgazer} />)}
+				{ready && tracks && (<Controls tracks={tracks} setStart={setStart} webgazer={webgazer} users={users} />)}
 			</div>
 			<div>
 				{start && tracks 
