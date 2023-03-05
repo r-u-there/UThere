@@ -91,6 +91,11 @@ class SettingsViewSet(ModelViewSet):
     queryset = Settings.objects.all()
     http_method_names = ['put']
 
+    def update(self, request, *args, **kwargs):
+        data = request.data
+        print(data)
+        return super().update(request, *args, **kwargs)
+
 
 class GetSettingsViewSet(ModelViewSet, TokenObtainPairView):
     serializer_class = SettingsSerializer

@@ -29,6 +29,8 @@ function ProfilePage() {
 	const refreshToken = cookies.get(["refreshToken"]);
 	const accessToken = cookies.get(["accessToken"]);
 	const userId = cookies.get("userId");
+	const [settingsId, setSettingsId] = useState(0);
+	const [attentionRatingLimit, setAttentionRatingLimit] = useState("")
 
 	useEffect(() => {
 		function getUserInfo() {
@@ -43,86 +45,46 @@ function ProfilePage() {
 				console.log(exception);
 			});
 		}
-		getUserInfo()
-	}, []);
+		function getProfileSettings() {
+			axios.get(`http://127.0.0.1:8000/api/getsettings/${userId}/`).then(response => {
+				console.log("success");
+				console.log("user id is" + userId)
+				console.log(response);
+				setAttentionRatingLimit(response.data.attention_limit)
+				setToggle1(response.data.get_analysis_report)
+				setToggle2(response.data.hide_real_time_emotion_analysis)
+				setToggle3(response.data.hide_real_time_attention_analysis)
+				setToggle4(response.data.hide_real_time_analysis)
+				setToggle5(response.data.hide_who_left)
+				setToggle6(response.data.hide_eye_tracking)
+				setSettingsId(response.data.id)
+			}).catch((exception) => {
+				console.log(exception);
+			});
+		}
+		function setProfilePreferences() {
+			axios.put(`http://127.0.0.1:8000/api/settings/${settingsId}/`, {
+				"get_analysis_report" : toggle1,
+				"hide_real_time_emotion_analysis" : toggle2,
+				"hide_real_time_attention_analysis" : toggle3,
+				"hide_real_time_analysis" : toggle4,
+				"hide_who_left" : toggle5,
+				"hide_eye_tracking" : toggle6
+			}).then(response => {
+				console.log("success");
+				console.log("user id is" + userId)
+				console.log(response);
+			}).catch((exception) => {
+				console.log(exception);
+			});
+		}
+		getUserInfo();
+		getProfileSettings();
+		setProfilePreferences();
+	}, [toggle1, toggle2, toggle3, toggle4, toggle5, toggle6, settingsId, userId]);
 
-	function setAnalysisReportPreference() {
-		axios.put(`http://127.0.0.1:8000/api/settings/`, {
-			"userId": userId,
-			"get_analysis_report" : toggle1
-		}).then(response => {
-			console.log("success");
-			console.log("user id is" + userId)
-			console.log(response);
-		}).catch((exception) => {
-			console.log(exception);
-		});
-	}
 
-	function setRealTimeEmotionAnalysisPreference() {
-		axios.put(`http://127.0.0.1:8000/api/settings/`, {
-			"userId": userId,
-			"hide_real_time_emotion_analysis" : toggle2
-		}).then(response => {
-			console.log("success");
-			console.log("user id is" + userId)
-			console.log(response);
-		}).catch((exception) => {
-			console.log(exception);
-		});
-	}
 
-	function setRealTimeAttentionAnalysisPreference() {
-		axios.put(`http://127.0.0.1:8000/api/settings/`, {
-			"userId": userId,
-			"hide_real_time_attention_analysis" : toggle3
-		}).then(response => {
-			console.log("success");
-			console.log("user id is" + userId)
-			console.log(response);
-		}).catch((exception) => {
-			console.log(exception);
-		});
-	}
-
-	function setRealTimeAnalysisPreference() {
-		axios.put(`http://127.0.0.1:8000/api/settings/`, {
-			"userId": userId,
-			"hide_real_time_attention_analysis" : toggle4
-		}).then(response => {
-			console.log("success");
-			console.log("user id is" + userId)
-			console.log(response);
-		}).catch((exception) => {
-			console.log(exception);
-		});
-	}
-
-	function setWhoLeftInformationPreference() {
-		axios.put(`http://127.0.0.1:8000/api/settings/`, {
-			"userId": userId,
-			"hide_who_left" : toggle5
-		}).then(response => {
-			console.log("success");
-			console.log("user id is" + userId)
-			console.log(response);
-		}).catch((exception) => {
-			console.log(exception);
-		});
-	}
-
-	function setEyeTrackingPreference() {
-		axios.put(`http://127.0.0.1:8000/api/settings/`, {
-			"userId": userId,
-			"hide_eye_tracking" : toggle6
-		}).then(response => {
-			console.log("success");
-			console.log("user id is" + userId)
-			console.log(response);
-		}).catch((exception) => {
-			console.log(exception);
-		});
-	}
 
 	function displayProfile() {
 		if (tabSelection == 0) {
@@ -166,38 +128,38 @@ function ProfilePage() {
 					<table>
 						<tr>
 							<td><BiChevronRightCircle size={30}/></td>
-							<td>&ensp;Attention Rating Limit: 75%</td>
+							<td>&ensp;Attention Rating Limit: {attentionRatingLimit}</td>
 							<td>&emsp;&emsp;<TbEdit onClick={() => {setTrigger(true); setChangedInfo("attention rate")}} size={40}/></td>
 						</tr>
 						<tr>
 							<td><BiChevronRightCircle size={30}/></td>
 							<td>&ensp;Get Analysis Report</td>
-							<td>&emsp;&emsp;{!toggle1 ? <MdToggleOff onClick={() => {setToggle1(!toggle1); setAnalysisReportPreference();}} size={40}/> : <MdToggleOn onClick={() => {setToggle1(!toggle1); setAnalysisReportPreference();}} size={40} color="green"/>}</td>
+							<td>&emsp;&emsp;{!toggle1 ? <MdToggleOff onClick={() => {setToggle1(!toggle1);}} size={40}/> : <MdToggleOn onClick={() => {setToggle1(!toggle1);}} size={40} color="green"/>}</td>
 						</tr>
 						<tr>
 							<td><BiChevronRightCircle size={30}/></td>
 							<td>&ensp;Hide Real-Time Emotion Analysis</td>
-							<td>&emsp;&emsp;{!toggle2 ? <MdToggleOff onClick={() => {setToggle2(!toggle2); setRealTimeEmotionAnalysisPreference();}} size={40}/> : <MdToggleOn onClick={() => {setToggle2(!toggle2); setRealTimeEmotionAnalysisPreference();}} size={40} color="green"/>}</td>
+							<td>&emsp;&emsp;{!toggle2 ? <MdToggleOff onClick={() => {setToggle2(!toggle2); }} size={40}/> : <MdToggleOn onClick={() => {setToggle2(!toggle2);}} size={40} color="green"/>}</td>
 						</tr>
 						<tr>
 							<td><BiChevronRightCircle size={30}/></td>
 							<td>&ensp;Hide Real-Time Attention Analysis</td>
-							<td>&emsp;&emsp;{!toggle3 ? <MdToggleOff onClick={() => {setToggle3(!toggle3); setRealTimeAttentionAnalysisPreference();}} size={40}/> : <MdToggleOn onClick={() => {setToggle3(!toggle3); setRealTimeAttentionAnalysisPreference();}} size={40} color="green"/>}</td>
+							<td>&emsp;&emsp;{!toggle3 ? <MdToggleOff onClick={() => {setToggle3(!toggle3); }} size={40}/> : <MdToggleOn onClick={() => {setToggle3(!toggle3);}} size={40} color="green"/>}</td>
 						</tr>
 						<tr>
 							<td><BiChevronRightCircle size={30}/></td>
 							<td>&ensp;Hide Real-Time Analysis</td>
-							<td>&emsp;&emsp;{!toggle4? <MdToggleOff onClick={() => {setToggle4(!toggle4); setRealTimeAnalysisPreference();}} size={40}/> : <MdToggleOn onClick={() => {setToggle4(!toggle4); setRealTimeAnalysisPreference();}} size={40} color="green"/>}</td>
+							<td>&emsp;&emsp;{!toggle4? <MdToggleOff onClick={() => {setToggle4(!toggle4); }} size={40}/> : <MdToggleOn onClick={() => {setToggle4(!toggle4); }} size={40} color="green"/>}</td>
 						</tr>
 						<tr>
 							<td><BiChevronRightCircle size={30}/></td>
 							<td>&ensp;Hide "Who Left" Information</td>
-							<td>&emsp;&emsp;{!toggle5 ? <MdToggleOff onClick={() => {setToggle5(!toggle5); setWhoLeftInformationPreference();}} size={40}/> : <MdToggleOn onClick={() => {setToggle5(!toggle5); setWhoLeftInformationPreference();}} size={40} color="green"/>}</td>
+							<td>&emsp;&emsp;{!toggle5 ? <MdToggleOff onClick={() => {setToggle5(!toggle5); }} size={40}/> : <MdToggleOn onClick={() => {setToggle5(!toggle5); }} size={40} color="green"/>}</td>
 						</tr>
 						<tr>
 							<td><BiChevronRightCircle size={30}/></td>
 							<td>&ensp;Hide Eye Tracking</td>
-							<td>&emsp;&emsp;{!toggle6 ? <MdToggleOff onClick={() => {setToggle6(!toggle6); setEyeTrackingPreference();}} size={40}/> : <MdToggleOn onClick={() => {setToggle6(!toggle6); setEyeTrackingPreference();}} size={40} color="green"/>}</td>
+							<td>&emsp;&emsp;{!toggle6 ? <MdToggleOff onClick={() => {setToggle6(!toggle6); }} size={40}/> : <MdToggleOn onClick={() => {setToggle6(!toggle6); }} size={40} color="green"/>}</td>
 						</tr>
 					</table>
 				</div>
@@ -223,7 +185,7 @@ function ProfilePage() {
 				</ul><hr></hr>
 				{displayProfile()}
 			</div>
-			<EditProfilePopup trigger={trigger} setTrigger={setTrigger} changedInfo={changedInfo}></EditProfilePopup>
+			<EditProfilePopup trigger={trigger} setTrigger={setTrigger} settingsId={settingsId} changedInfo={changedInfo}></EditProfilePopup>
 		</div>
 	);
 }

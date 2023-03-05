@@ -84,6 +84,7 @@ class ProfileSerializer(serializers.ModelSerializer):
         return instance
 
 class SettingsSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Settings
         fields = '__all__'

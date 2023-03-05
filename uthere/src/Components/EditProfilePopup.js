@@ -24,8 +24,7 @@ function EditProfilePopup(props) {
 
 
 	function setAttentionRatingLimit() {
-		axios.put(`http://127.0.0.1:8000/api/settings/`, {
-			"userId": userId,
+		axios.put(`http://127.0.0.1:8000/api/settings/${props.settingsId}/`, {
 			"attention_limit" : newInfo
 		}).then(response => {
 			console.log("success");
