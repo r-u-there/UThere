@@ -6,10 +6,10 @@ import {BiChevronRightCircle} from 'react-icons/bi'
 import {TbEdit} from 'react-icons/tb';
 import {MdToggleOff} from 'react-icons/md';
 import {MdToggleOn} from 'react-icons/md';
-import axios from "axios";
 import {useState, useEffect} from "react";
 import EditProfilePopup from "./EditProfilePopup";
 import {Cookies} from "react-cookie";
+import axios from "axios";
 
 function ProfilePage() {
 	const [tabSelection, setTabSelection] = useState(0);
@@ -33,18 +33,96 @@ function ProfilePage() {
 	useEffect(() => {
 		function getUserInfo() {
 			axios.get(`http://127.0.0.1:8000/api/user/info/${userId}/`).then(response => {
-					console.log("success");
-					console.log("userid is" + userId)
-					console.log(response);
-					setName(response.data.username)
-					setEmail(response.data.email)
-					setPassword(response.data.password)
-				}).catch((exception) => {
-					console.log(exception);
-				});
-			}
-			getUserInfo()
-	  }, []);
+				console.log("success");
+				console.log("userid is" + userId)
+				console.log(response);
+				setName(response.data.username)
+				setEmail(response.data.email)
+				setPassword(response.data.password)
+			}).catch((exception) => {
+				console.log(exception);
+			});
+		}
+		getUserInfo()
+	}, []);
+
+	function setAnalysisReportPreference() {
+		axios.put(`http://127.0.0.1:8000/api/settings/`, {
+			"userId": userId,
+			"get_analysis_report" : toggle1
+		}).then(response => {
+			console.log("success");
+			console.log("user id is" + userId)
+			console.log(response);
+		}).catch((exception) => {
+			console.log(exception);
+		});
+	}
+
+	function setRealTimeEmotionAnalysisPreference() {
+		axios.put(`http://127.0.0.1:8000/api/settings/`, {
+			"userId": userId,
+			"hide_real_time_emotion_analysis" : toggle2
+		}).then(response => {
+			console.log("success");
+			console.log("user id is" + userId)
+			console.log(response);
+		}).catch((exception) => {
+			console.log(exception);
+		});
+	}
+
+	function setRealTimeAttentionAnalysisPreference() {
+		axios.put(`http://127.0.0.1:8000/api/settings/`, {
+			"userId": userId,
+			"hide_real_time_attention_analysis" : toggle3
+		}).then(response => {
+			console.log("success");
+			console.log("user id is" + userId)
+			console.log(response);
+		}).catch((exception) => {
+			console.log(exception);
+		});
+	}
+
+	function setRealTimeAnalysisPreference() {
+		axios.put(`http://127.0.0.1:8000/api/settings/`, {
+			"userId": userId,
+			"hide_real_time_attention_analysis" : toggle4
+		}).then(response => {
+			console.log("success");
+			console.log("user id is" + userId)
+			console.log(response);
+		}).catch((exception) => {
+			console.log(exception);
+		});
+	}
+
+	function setWhoLeftInformationPreference() {
+		axios.put(`http://127.0.0.1:8000/api/settings/`, {
+			"userId": userId,
+			"hide_who_left" : toggle5
+		}).then(response => {
+			console.log("success");
+			console.log("user id is" + userId)
+			console.log(response);
+		}).catch((exception) => {
+			console.log(exception);
+		});
+	}
+
+	function setEyeTrackingPreference() {
+		axios.put(`http://127.0.0.1:8000/api/settings/`, {
+			"userId": userId,
+			"hide_eye_tracking" : toggle6
+		}).then(response => {
+			console.log("success");
+			console.log("user id is" + userId)
+			console.log(response);
+		}).catch((exception) => {
+			console.log(exception);
+		});
+	}
 
 	function displayProfile() {
 		if (tabSelection == 0) {
@@ -94,32 +172,32 @@ function ProfilePage() {
 						<tr>
 							<td><BiChevronRightCircle size={30}/></td>
 							<td>&ensp;Get Analysis Report</td>
-							<td>&emsp;&emsp;{!toggle1 ? <MdToggleOff onClick={() => setToggle1(!toggle1)} size={40}/> : <MdToggleOn onClick={() => setToggle1(!toggle1)} size={40} color="green"/>}</td>
+							<td>&emsp;&emsp;{!toggle1 ? <MdToggleOff onClick={() => {setToggle1(!toggle1); setAnalysisReportPreference();}} size={40}/> : <MdToggleOn onClick={() => {setToggle1(!toggle1); setAnalysisReportPreference();}} size={40} color="green"/>}</td>
 						</tr>
 						<tr>
 							<td><BiChevronRightCircle size={30}/></td>
 							<td>&ensp;Hide Real-Time Emotion Analysis</td>
-							<td>&emsp;&emsp;{!toggle2 ? <MdToggleOff onClick={() => setToggle2(!toggle2)} size={40}/> : <MdToggleOn onClick={() => setToggle2(!toggle2)} size={40} color="green"/>}</td>
+							<td>&emsp;&emsp;{!toggle2 ? <MdToggleOff onClick={() => {setToggle2(!toggle2); setRealTimeEmotionAnalysisPreference();}} size={40}/> : <MdToggleOn onClick={() => {setToggle2(!toggle2); setRealTimeEmotionAnalysisPreference();}} size={40} color="green"/>}</td>
 						</tr>
 						<tr>
 							<td><BiChevronRightCircle size={30}/></td>
 							<td>&ensp;Hide Real-Time Attention Analysis</td>
-							<td>&emsp;&emsp;{!toggle3 ? <MdToggleOff onClick={() => setToggle3(!toggle3)} size={40}/> : <MdToggleOn onClick={() => setToggle3(!toggle3)} size={40} color="green"/>}</td>
+							<td>&emsp;&emsp;{!toggle3 ? <MdToggleOff onClick={() => {setToggle3(!toggle3); setRealTimeAttentionAnalysisPreference();}} size={40}/> : <MdToggleOn onClick={() => {setToggle3(!toggle3); setRealTimeAttentionAnalysisPreference();}} size={40} color="green"/>}</td>
 						</tr>
 						<tr>
 							<td><BiChevronRightCircle size={30}/></td>
 							<td>&ensp;Hide Real-Time Analysis</td>
-							<td>&emsp;&emsp;{!toggle4? <MdToggleOff onClick={() => setToggle4(!toggle4)} size={40}/> : <MdToggleOn onClick={() => setToggle4(!toggle4)} size={40} color="green"/>}</td>
+							<td>&emsp;&emsp;{!toggle4? <MdToggleOff onClick={() => {setToggle4(!toggle4); setRealTimeAnalysisPreference();}} size={40}/> : <MdToggleOn onClick={() => {setToggle4(!toggle4); setRealTimeAnalysisPreference();}} size={40} color="green"/>}</td>
 						</tr>
 						<tr>
 							<td><BiChevronRightCircle size={30}/></td>
 							<td>&ensp;Hide "Who Left" Information</td>
-							<td>&emsp;&emsp;{!toggle5 ? <MdToggleOff onClick={() => setToggle5(!toggle5)} size={40}/> : <MdToggleOn onClick={() => setToggle5(!toggle5)} size={40} color="green"/>}</td>
+							<td>&emsp;&emsp;{!toggle5 ? <MdToggleOff onClick={() => {setToggle5(!toggle5); setWhoLeftInformationPreference();}} size={40}/> : <MdToggleOn onClick={() => {setToggle5(!toggle5); setWhoLeftInformationPreference();}} size={40} color="green"/>}</td>
 						</tr>
 						<tr>
 							<td><BiChevronRightCircle size={30}/></td>
 							<td>&ensp;Hide Eye Tracking</td>
-							<td>&emsp;&emsp;{!toggle6 ? <MdToggleOff onClick={() => setToggle6(!toggle6)} size={40}/> : <MdToggleOn onClick={() => setToggle6(!toggle6)} size={40} color="green"/>}</td>
+							<td>&emsp;&emsp;{!toggle6 ? <MdToggleOff onClick={() => {setToggle6(!toggle6); setEyeTrackingPreference();}} size={40}/> : <MdToggleOn onClick={() => {setToggle6(!toggle6); setEyeTrackingPreference();}} size={40} color="green"/>}</td>
 						</tr>
 					</table>
 				</div>

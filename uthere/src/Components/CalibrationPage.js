@@ -17,7 +17,7 @@ function CalibrationPage() {
 	const webgazer = window.webgazer
 	webgazer.videoStreams =  tracks
 	useEffect(() => {
-		if(webgazerstate){
+		if (webgazerstate) {
 			webgazer.setGazeListener((data,clock)=>{
 				//console.log(data,clock)
 			}).begin();
@@ -29,7 +29,7 @@ function CalibrationPage() {
 	const buttonChange = async (buttonNum) => {
 		var button = document.getElementById(buttonNum.toString());
 		if (counts[buttonNum-1] < 5 && !button.style.disabled){ //change the color of the button
-			switch(counts[buttonNum-1]) {
+			switch (counts[buttonNum-1]) {
 				case 0:
 					button.style.backgroundColor = "#ffe2ae"
 					break;
@@ -58,7 +58,7 @@ function CalibrationPage() {
 			+ counts[3] + counts[4] + counts [5]
 			+ counts[6] + counts[7] + counts [8]
 		sumBoolean = (sum == 40)
-		if(sumBoolean)
+		if (sumBoolean)
 			setState([...state,sumBoolean])
 	};
 	function videocall() {
@@ -77,7 +77,7 @@ function CalibrationPage() {
 		feedbackBox.style.display = "none"
 		webgazer.pause();
 		webgazer.resume();
-		console.log("show video"+webgazer.params.showVideo)
+		console.log("show video" + webgazer.params.showVideo)
 		setVideoCall(true)
 	}
 	return (

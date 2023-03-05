@@ -21,7 +21,20 @@ function EditProfilePopup(props) {
 				});
 		window.location.reload();			
 	}
-		
+
+
+	function setAttentionRatingLimit() {
+		axios.put(`http://127.0.0.1:8000/api/settings/`, {
+			"userId": userId,
+			"attention_limit" : newInfo
+		}).then(response => {
+			console.log("success");
+			console.log("user id is" + userId)
+			console.log(response);
+		}).catch((exception) => {
+			console.log(exception);
+		});
+	}
 	
 
   function insidePopup() {
@@ -32,7 +45,7 @@ function EditProfilePopup(props) {
 					<center>
 						<label><b>Enter the new {props.changedInfo}:</b></label>
 						<input onChange={(e) => {setNewInfo(e.target.value)}} className="form-control"/>
-						<button type="button" onClick={() => {submitNewInfo(); props.setTrigger(false)}} className="btn btn-warning mt-3">Edit</button>
+						<button type="button" onClick={() => { if (props.changedInfo === "attention rate") {setAttentionRatingLimit(); props.setTrigger(false)} else { submitNewInfo(); props.setTrigger(false)}}} className="btn btn-warning mt-3">Edit</button>
 						<button type="button" onClick={() => {window.location.reload()}} className="close popup-close2" aria-label="Close"><span aria-hidden="true">&times;</span></button>
 					</center>
 				</div>
