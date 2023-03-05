@@ -13,13 +13,13 @@ function EditProfilePopup(props) {
 			"newInfo": newInfo,
 			"changedInfo" : props.changedInfo
 		}).then(response => {
-					console.log("success");
-					console.log("userid is" + userId)
-					console.log(response);
-				}).catch((exception) => {
-					console.log(exception);
-				});
-		window.location.reload();			
+			console.log("success");
+			console.log("userid is" + userId)
+			console.log(response);
+		}).catch((exception) => {
+			console.log(exception);
+		});
+		window.location.reload();
 	}
 
 
@@ -33,10 +33,11 @@ function EditProfilePopup(props) {
 		}).catch((exception) => {
 			console.log(exception);
 		});
+		window.location.reload();
 	}
-	
 
-  function insidePopup() {
+
+	function insidePopup() {
 		return (
 			<div className="popup">
 				<div className="popup-inner">
@@ -56,7 +57,7 @@ function EditProfilePopup(props) {
 		<div>
 			{props.trigger === true ? insidePopup() : null}
 		</div>
-  );
+	);
 }
 
 export default EditProfilePopup;

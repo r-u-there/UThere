@@ -31,9 +31,9 @@ function Controls(props) {
 
 	const leaveChannel = async () => {
 		props.webgazer.pause();
-        props.webgazer.end();
-        window.localStorage.removeItem('webgazerGlobalData');
-        window.localStorage.removeItem('webgazerUserdata');
+		props.webgazer.end();
+		window.localStorage.removeItem('webgazerGlobalData');
+		window.localStorage.removeItem('webgazerUserdata');
 		window.localStorage.removeItem('webgazerVideoContainer');
 		console.log("closed")
 		client.removeAllListeners();
@@ -43,10 +43,10 @@ function Controls(props) {
 			// Get the camera device
 			const cameras = await navigator.mediaDevices.enumerateDevices();
 			const camera = cameras.find((device) => device.kind === "videoinput");
-		
+
 			// Turn off the camera by setting the deviceId to null
 			await navigator.mediaDevices.getUserMedia({
-			  video: { deviceId: camera ? { exact: camera.deviceId } : undefined, enabled: false },
+				video: { deviceId: camera ? { exact: camera.deviceId } : undefined, enabled: false },
 			});
 		}
 		tracks[0].close();
@@ -59,8 +59,8 @@ function Controls(props) {
 	}
 
 	return (
-		<div className="meeting-control-panel">
-			<div className="meeting-controls">
+		<div className="meeting-controls">
+			<div className="meeting-control">
 				<button onClick={() => {setTrigger(true)}}><div><IoPeople size={30} /><br></br><label>Participants ({users.length + 1})</label></div></button>
 				<button onClick={() => mute("video")}>
 					{trackState.video ? <div><BsCameraVideo size={30} /><br></br><label>Turn Off</label></div> :

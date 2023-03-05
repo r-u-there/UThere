@@ -11,7 +11,7 @@ function Videos(props) {
 		<div>
 			<div>
 				<AgoraVideoPlayer videoTrack={tracks[1]} className='vid' />
-				{               
+				{
 					users.length > 0 &&
 					users.map((user) => {
 						console.log("here")

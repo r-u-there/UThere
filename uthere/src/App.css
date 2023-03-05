@@ -42,16 +42,16 @@ body {
 	display: grid;
 	background-color: rgb(242, 242, 242);
 	grid-template-columns: auto auto auto;
-  }
-  .grid-item {
+}
+.grid-item {
 	background-color: rgb(242, 242, 242);
 	font-size: 30px;
 	text-align: center;
-  }
-  .calibration-button-1 {
+}
+.calibration-button-1 {
 	position: absolute;
-  	top:0;
-  	left: 0;
+	top:0;
+	left: 0;
 	background-color: #fff0d5;
 	border: solid black;
 	color: white;
@@ -64,11 +64,11 @@ body {
 	width: 20px;
 	height: 20px;
 	font-size: 15px;
-  }
-  .calibration-button-2 {
+}
+.calibration-button-2 {
 	position: absolute;
-  	top:0;
-  	left: 50%;
+	top:0;
+	left: 50%;
 	background-color: #fff0d5;
 	border: solid black;
 	color: white;
@@ -80,27 +80,11 @@ body {
 	border-radius: 50%;
 	width: 2px;
 	height: 2px;
-  }
-  .calibration-button-3 {
+}
+.calibration-button-3 {
 	position: absolute;
-  	top:0;
-  	right: 0;
-	background-color: #fff0d5; 
-	border: solid black;
-	color: white;
-	padding: 20px;
-	display: inline-block;
-	font-size: 16px;
-	margin: 4px 2px;
-	cursor: pointer;
-	border-radius: 50%;
-	width: 2px;
-	height: 2px;
-  }
-  .calibration-button-4 {
-	position: absolute;
-  	top:42%;
-  	left: 0;
+	top:0;
+	right: 0;
 	background-color: #fff0d5;
 	border: solid black;
 	color: white;
@@ -112,11 +96,11 @@ body {
 	border-radius: 50%;
 	width: 2px;
 	height: 2px;
-  }
-  .calibration-button-5 {
+}
+.calibration-button-4 {
 	position: absolute;
-  	top:84%;
-  	left: 0;
+	top:42%;
+	left: 0;
 	background-color: #fff0d5;
 	border: solid black;
 	color: white;
@@ -128,11 +112,11 @@ body {
 	border-radius: 50%;
 	width: 2px;
 	height: 2px;
-  }
-  .calibration-button-6 {
+}
+.calibration-button-5 {
 	position: absolute;
-  	top:84%;
-  	left: 50%;
+	top:84%;
+	left: 0;
 	background-color: #fff0d5;
 	border: solid black;
 	color: white;
@@ -144,11 +128,11 @@ body {
 	border-radius: 50%;
 	width: 2px;
 	height: 2px;
-  }
-  .calibration-button-7 {
+}
+.calibration-button-6 {
 	position: absolute;
-  	top:84%;
-  	right: 0;
+	top:84%;
+	left: 50%;
 	background-color: #fff0d5;
 	border: solid black;
 	color: white;
@@ -160,11 +144,11 @@ body {
 	border-radius: 50%;
 	width: 2px;
 	height: 2px;
-  }
-  .calibration-button-8 {
+}
+.calibration-button-7 {
 	position: absolute;
-  	top:42%;
-  	right:0;
+	top:84%;
+	right: 0;
 	background-color: #fff0d5;
 	border: solid black;
 	color: white;
@@ -176,12 +160,12 @@ body {
 	border-radius: 50%;
 	width: 2px;
 	height: 2px;
-  }
-  .calibration-button-9 {
+}
+.calibration-button-8 {
 	position: absolute;
-  	top:42%;
-  	left:50%;
-	background-color: #fff0d5; 
+	top:42%;
+	right:0;
+	background-color: #fff0d5;
 	border: solid black;
 	color: white;
 	padding: 20px;
@@ -192,7 +176,23 @@ body {
 	border-radius: 50%;
 	width: 2px;
 	height: 2px;
-  }
+}
+.calibration-button-9 {
+	position: absolute;
+	top:42%;
+	left:50%;
+	background-color: #fff0d5;
+	border: solid black;
+	color: white;
+	padding: 20px;
+	display: inline-block;
+	font-size: 16px;
+	margin: 4px 2px;
+	cursor: pointer;
+	border-radius: 50%;
+	width: 2px;
+	height: 2px;
+}
 .page-background {
 	position: fixed;
 	top: 110px;
@@ -263,9 +263,14 @@ body {
 	left: 20px;
 }
 
-.vid {
-	top: 115px;
+.vid-container {
 	position: relative;
+}
+
+.vid {
+	position: absolute;
+	top: 0;
+	left: 0;
 	width: 270px;
 	height: 270px;
 	background-color: black;
@@ -273,9 +278,42 @@ body {
 	border-width: 3px;
 	border-color: #434343;
 	border-style: solid;
-  	margin: 2px;
-  	float: left;
+	margin: 2px;
 }
+
+.vid:nth-child(2) {
+	left: 276px;
+}
+
+.vid:nth-child(3) {
+	left: 552px;
+}
+
+.vid:nth-child(4) {
+	left: 828px;
+}
+
+.vid:nth-child(5) {
+	left: 0;
+	top: 273px;
+}
+
+.vid:nth-child(6) {
+	left: 276px;
+	top: 273px;
+}
+
+.vid:nth-child(7) {
+	left: 552px;
+	top: 273px;
+}
+
+.vid:nth-child(8) {
+	left: 828px;
+	top: 273px;
+}
+/* add more rules for each additional video */
+
 
 .abc {
 	position: relative;
@@ -286,21 +324,53 @@ body {
 	height: 90vh;
 }
 
-.meeting-control-panel {
-	position: bottom;
-	width: 100%;
-	top: 88.2%;
-	padding-top: 30px;
-	padding-bottom: 30px;
-	background-color: #a5a5a5;
+.meeting-controls {
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	display: flex;
+	justify-content: space-evenly;
+	padding: 8px;
+	background-color: white;
+	box-shadow: 0px -2px 8px rgba(0, 0, 0, 0.15);
 }
 
-.meeting-controls {
-	margin: -20px auto;
-	display: grid;
+.meeting-control {
+	margin: 0px auto;
 	grid-template-columns: repeat(4, 25%);
-	max-width: 50vw;
+	max-width: 80vw;
+	display: flex;
+	width: 100%;
+	align-items: center;
+	gap: 50px;
+	cursor: pointer;
+	color: #555;
+	flex: 1;
 }
+
+
+.meeting-control button {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	width: 100%;
+	height: 50px;
+	padding: 40px;
+	border: none;
+	background-color: transparent;
+	color: #555;
+}
+
+.meeting-control button:hover {
+	color: #0884ff;
+}
+
+.meeting-control button i {
+	font-size: 20px;
+}
+
 
 .meeting-window {
 	max-width: 850px;
