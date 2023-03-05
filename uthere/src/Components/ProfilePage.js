@@ -6,7 +6,7 @@ import {BiChevronRightCircle} from 'react-icons/bi'
 import {TbEdit} from 'react-icons/tb';
 import {MdToggleOff} from 'react-icons/md';
 import {MdToggleOn} from 'react-icons/md';
-import {useState, useEffect} from "react";
+import {useState, useEffect, useCallback} from "react";
 import EditProfilePopup from "./EditProfilePopup";
 import {Cookies} from "react-cookie";
 import axios from "axios";
@@ -24,7 +24,6 @@ function ProfilePage() {
 	const [password, setPassword] = useState("");
 	const [trigger, setTrigger] = useState(false);
 	const [changedInfo, setChangedInfo] = useState("");
-	const [attentionLimit, setAttentionLimit] = useState("");
 	const cookies = new Cookies();
 	const refreshToken = cookies.get(["refreshToken"]);
 	const accessToken = cookies.get(["accessToken"]);
@@ -32,58 +31,64 @@ function ProfilePage() {
 	const [settingsId, setSettingsId] = useState(0);
 	const [attentionRatingLimit, setAttentionRatingLimit] = useState("")
 
+	const getUserInfo = useCallback(() => {
+		axios.get(`http://127.0.0.1:8000/api/user/info/${userId}/`).then(response => {
+			console.log("success");
+			console.log("userid is" + userId);
+			console.log(response);
+			setName(response.data.username);
+			setEmail(response.data.email);
+			setPassword(response.data.password);
+		}).catch((exception) => {
+			console.log(exception);
+		});
+	}, [userId]);
+
+
+	const getProfileSettings = useCallback(() => {
+		axios.get(`http://127.0.0.1:8000/api/getsettings/${userId}/`).then(response => {
+			console.log("success");
+			console.log("user id is" + userId);
+			console.log(response);
+			setAttentionRatingLimit(response.data.attention_limit);
+			setToggle1(response.data.get_analysis_report);
+			setToggle2(response.data.hide_real_time_emotion_analysis);
+			setToggle3(response.data.hide_real_time_attention_analysis);
+			setToggle4(response.data.hide_real_time_analysis);
+			setToggle5(response.data.hide_who_left);
+			setToggle6(response.data.hide_eye_tracking);
+			setSettingsId(response.data.id);
+		}).catch((exception) => {
+			console.log(exception);
+		});
+	}, [userId]);
+
+
+	const setProfilePreferences = useCallback(() => {
+		axios.put(`http://127.0.0.1:8000/api/settings/${settingsId}/`, {
+			"get_analysis_report" : toggle1,
+			"hide_real_time_emotion_analysis" : toggle2,
+			"hide_real_time_attention_analysis" : toggle3,
+			"hide_real_time_analysis" : toggle4,
+			"hide_who_left" : toggle5,
+			"hide_eye_tracking" : toggle6
+		}).then(response => {
+			console.log("success");
+			console.log("user id is" + userId);
+			console.log(response);
+		}).catch((exception) => {
+			console.log(exception);
+		});
+	}, [settingsId, toggle1, toggle2, toggle3, toggle4, toggle5, toggle6, userId]);
+
 	useEffect(() => {
-		function getUserInfo() {
-			axios.get(`http://127.0.0.1:8000/api/user/info/${userId}/`).then(response => {
-				console.log("success");
-				console.log("userid is" + userId)
-				console.log(response);
-				setName(response.data.username)
-				setEmail(response.data.email)
-				setPassword(response.data.password)
-			}).catch((exception) => {
-				console.log(exception);
-			});
-		}
-		function getProfileSettings() {
-			axios.get(`http://127.0.0.1:8000/api/getsettings/${userId}/`).then(response => {
-				console.log("success");
-				console.log("user id is" + userId)
-				console.log(response);
-				setAttentionRatingLimit(response.data.attention_limit)
-				setToggle1(response.data.get_analysis_report)
-				setToggle2(response.data.hide_real_time_emotion_analysis)
-				setToggle3(response.data.hide_real_time_attention_analysis)
-				setToggle4(response.data.hide_real_time_analysis)
-				setToggle5(response.data.hide_who_left)
-				setToggle6(response.data.hide_eye_tracking)
-				setSettingsId(response.data.id)
-			}).catch((exception) => {
-				console.log(exception);
-			});
-		}
-		function setProfilePreferences() {
-			axios.put(`http://127.0.0.1:8000/api/settings/${settingsId}/`, {
-				"get_analysis_report" : toggle1,
-				"hide_real_time_emotion_analysis" : toggle2,
-				"hide_real_time_attention_analysis" : toggle3,
-				"hide_real_time_analysis" : toggle4,
-				"hide_who_left" : toggle5,
-				"hide_eye_tracking" : toggle6
-			}).then(response => {
-				console.log("success");
-				console.log("user id is" + userId)
-				console.log(response);
-			}).catch((exception) => {
-				console.log(exception);
-			});
-		}
 		getUserInfo();
 		getProfileSettings();
+	}, [getUserInfo, getProfileSettings]);
+
+	useEffect(() => {
 		setProfilePreferences();
-	}, [toggle1, toggle2, toggle3, toggle4, toggle5, toggle6, settingsId, userId]);
-
-
+	}, [setProfilePreferences]);
 
 
 	function displayProfile() {
