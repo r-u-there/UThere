@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from "react";
 import {
 	config,
 	useClient,
-	useMicrophoneAndCameraTracks,
 	channelName
 } from "../settings";
 import Videos from "./Videos";
