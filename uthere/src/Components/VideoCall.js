@@ -18,8 +18,7 @@ function VideoCall(props) {
 	const [start, setStart] = useState(false);
 	const client = useClient();
 	const [token, setToken] = useState('');
-	console.log("geldimmm")
-	useEffect(() => { 
+	useEffect(() => {
 		let init = async (name) => {
 			client.on("user-published", async (user, mediaType) => {
 				await client.subscribe(user, mediaType);

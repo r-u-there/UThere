@@ -13,19 +13,20 @@ import VideoCall from "./VideoCall";
 function MeetingWithoutCalibration() {
 	const cookies = new Cookies();
 	const userId = cookies.get("userId");
-    const { tracks} = useMicrophoneAndCameraTracks();
+	const { tracks} = useMicrophoneAndCameraTracks();
 	const ready =true;
 
-		return (
-			<div>
-				<UThere notClickable={false}></UThere>
-				<div className='page-background'></div>
-				<div>	
-                    <VideoCall webgazer= {null} ready={ready} tracks={tracks}/> 
+	return (
+		<div>
+			<UThere notClickable={false}></UThere>
+			<div className='page-background'>
+				<div>
+					<VideoCall webgazer={null} ready={ready} tracks={tracks}/>
 				</div>
-		
 			</div>
-		);
+
+		</div>
+	);
 
 }
 
