@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback } from "react";
-import Calibration from "./CalibrationPage";
 import React from 'react';
 import UThere from "./UThere";
 import { useNavigate } from 'react-router-dom';
@@ -11,31 +10,23 @@ import {
 } from "../settings";
 import VideoCall from "./VideoCall";
 
-function MeetingPage() {
-	const [hideEyeTracking, setHideEyeTracking] = React.useState(false);
+function MeetingWithoutCalibration() {
 	const cookies = new Cookies();
 	const userId = cookies.get("userId");
-	useEffect(() => {
-		axios.get(`http://127.0.0.1:8000/api/getsettings/${userId}/`)
-		  .then(response => {
-			setHideEyeTracking(response.data.hide_eye_tracking);
-		  })
-		  .catch((exception) => {
-			console.log(exception);
-		  });
-	  }, []);
+    const { tracks} = useMicrophoneAndCameraTracks();
+	const ready =true;
 
 		return (
 			<div>
 				<UThere notClickable={false}></UThere>
 				<div className='page-background'></div>
-				<div>	{
-					hideEyeTracking ? window.location='/MeetingWithoutCalibration': window.location='/Calibration'
-				}</div>
-			
+				<div>	
+                    <VideoCall webgazer= {null} ready={ready} tracks={tracks}/> 
+				</div>
+		
 			</div>
 		);
 
 }
 
-export default MeetingPage;
+export default MeetingWithoutCalibration;
