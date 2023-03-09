@@ -12,19 +12,14 @@ import JoinMeetingPopup from './JoinMeetingPopup';
 import {Cookies} from "react-cookie";
 import axios from 'axios';
 import {useState, useEffect} from "react";
-import {
-	config,
-	useClient,
-	useMicrophoneAndCameraTracks,
-	channelName
-} from "../settings";
+import {config} from "../settings";
 
 function Dashboard() {
-	const [trigger, setTrigger] = React.useState(false);
+	const [trigger, setTrigger] = useState(false);
 	const cookies = new Cookies();
 	const userId = cookies.get("userId");
-	const [name, setName] = React.useState("");
-	const [meetingId, setMeetingId] = React.useState("");
+	const [name, setName] = useState("");
+	const [meetingId, setMeetingId] = useState("");
 	async function createMeetingAndUser() {
 			try {
 			  const createMeetingResponse = await axios.post('http://127.0.0.1:8000/api/create_meeting/', {
