@@ -43,11 +43,11 @@ function RegistrationPage() {
 			}).catch((exception) => {
 				setLoginSuccess(1);
 				if (Object.hasOwn(exception.response.data, 'email')) {
-					setFailureMessage("Invalid email! Registration unsuccessful!");
+					setFailureMessage("Invalid email address! Registration unsuccessful!");
 				} else if (Object.hasOwn(exception.response.data, 'username')) {
 					setFailureMessage("Existing username! Registration unsuccessful!");
 				} else if (Object.hasOwn(exception.response.data, 'password')) {
-					setFailureMessage("Password shorter than 8 letters! Registration unsuccessful!");
+					setFailureMessage("Password shorter than 8 characters! Registration unsuccessful!");
 				}
 				console.log(exception);
 			});
