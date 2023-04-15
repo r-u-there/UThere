@@ -1,26 +1,35 @@
-import { useState, useEffect } from "react";
-import Calibration from "./CalibrationPage";
+import { useState} from "react";
 import React from 'react';
 import UThere from "./UThere";
-import { useNavigate } from 'react-router-dom';
-import {Link} from 'react-router-dom';
+import {Cookies} from "react-cookie";
+import axios from "axios";
 
 function MeetingPage() {
-	const navigate = useNavigate();
-	const [eyeTracking, setEyeTracking] = useState(true);
-	if (eyeTracking) {
-		window.location = "/Calibration"
+	const cookies = new Cookies();
+	const userId = cookies.get("userId");
+	var response;
+	async function isEyeTrackingHidden() {
+		try {
+			response = await axios.get(`http://127.0.0.1:8000/api/getsettings/${userId}/`)
+		} catch(exception) {
+			console.log(exception);
+		};
+		if (response.data.hide_eye_tracking) {
+			window.location = "/MeetingWithoutCalibration";
+		}
+		else {
+			window.location = "/Calibration"
+		}
 	}
-	else {
-		window.location = "/VideoCall"
-	}
-	
+
 	return (
 		<div>
 			<UThere notClickable={false}></UThere>
 			<div className='page-background'></div>
+			<div>{isEyeTrackingHidden()}</div>
 		</div>
 	);
+
 }
 
 export default MeetingPage;
