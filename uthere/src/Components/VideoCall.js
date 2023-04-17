@@ -26,6 +26,7 @@ function VideoCall(props) {
 					setUsers((prevUsers) => {
 						return [...prevUsers, user];
 					});
+					user.videoTrack.play();
 				}
 				if (mediaType === "audio") {
 					user.audioTrack.play();
@@ -40,6 +41,7 @@ function VideoCall(props) {
 					setUsers((prevUsers) => {
 						return prevUsers.filter((User) => User.uid !== user.uid);
 					});
+					if (user.videoTrack) user.videoTrack.stop();
 				}
 			});
 
@@ -50,7 +52,7 @@ function VideoCall(props) {
 			});
 
 			try {
-				let uid = await client.join(config.appId, name, config.token, null);
+				let uid = await client.join(config.appId, name, config.token, 1);
 				console.log("agora user id"+uid); // The user id defined by Agora
 			} catch (error) {
 				console.log("error");
