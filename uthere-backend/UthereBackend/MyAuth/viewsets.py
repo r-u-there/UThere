@@ -17,7 +17,7 @@ from .serializers import UserSerializer, LoginSerializer, RegisterSerializer, Co
 from .models import User, Profile, Meeting, Settings
 from django.contrib.auth import authenticate, login
 from django.shortcuts import get_object_or_404
-
+from .sendmail import send_email
 
 class UserViewSet(viewsets.ModelViewSet):
     http_method_names = ['get']
@@ -215,6 +215,12 @@ class ContactViewSet(ModelViewSet, TokenObtainPairView):
         if serializer.is_valid():
             serializer.save()
             print("saved")
+            message = request.data.get("message")
+            category = request.data.get("category")
+            print("message is " + message)
+            print("category is " + category)
+            send_email(category,message)
+
             return Response(data=serializer.data, status=status.HTTP_201_CREATED)
         else:
             return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)

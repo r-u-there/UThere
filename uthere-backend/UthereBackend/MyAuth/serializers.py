@@ -8,6 +8,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from .models import User, ContactForm, Profile, Settings, Meeting, MeetingUser
 
 
+
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -62,11 +63,7 @@ class ContactFormSerializer(serializers.ModelSerializer):
     class Meta:
         model = ContactForm
         fields = ('message', 'category')
-
-    def save(self):
-        #category = self.validated_data['category']
-        #message = self.validated_data['message']
-        #send_email(from=email, message = message)
+    def create(self, instance):
         return ContactForm.objects.create(**self.validated_data)
 
 class ProfileSerializer(serializers.ModelSerializer):
