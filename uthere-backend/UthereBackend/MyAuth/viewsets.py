@@ -18,6 +18,9 @@ from .models import User, Profile, Meeting, Settings
 from django.contrib.auth import authenticate, login
 from django.shortcuts import get_object_or_404
 from .sendmail import send_email
+from agora_token_builder import RtcTokenBuilder
+import secrets
+import string
 
 class UserViewSet(viewsets.ModelViewSet):
     http_method_names = ['get']
@@ -137,7 +140,23 @@ class CreateMeetingViewSet(ModelViewSet, TokenObtainPairView):
     http_method_names = ['post']
 
     def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
+        print("girdiiiii")
+        appId = request.data.get("appId")
+        certificate = request.data.get("certificate")
+        uid = request.data.get("uid")
+        print("uid is " + str(uid))
+        role = request.data.get("role")
+        #create random channel name
+        alphabet = string.ascii_letters + string.digits
+        channelName = ''.join(secrets.choice(alphabet) for i in range(16))
+        print("channel name is " + channelName)
+        privilegeExpiredTs = request.data.get("privilegeExpiredTs")
+        token = RtcTokenBuilder.buildTokenWithUid(appId, certificate, channelName, uid, role, privilegeExpiredTs)
+        print("token is " + token)
+        print( request.data)
+        new_data = {'agora_token': token}
+        serializer = self.get_serializer(data=new_data)
+        print("burda mı patladı")
         try:
             serializer.is_valid(raise_exception=True)
             serializer.save()
@@ -147,10 +166,11 @@ class CreateMeetingViewSet(ModelViewSet, TokenObtainPairView):
         return Response(serializer.data, status=status.HTTP_200_OK)
     
 class CreateMeetingUserViewSet(ModelViewSet, TokenObtainPairView):
+    print("createmeetinguserviewswtee girdi")
     serializer_class = MeetingUserSerializer
     permission_classes = (AllowAny,)
     http_method_names = ['post']
-
+    print("createmeetinguserviewswtee girdi")
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         try:

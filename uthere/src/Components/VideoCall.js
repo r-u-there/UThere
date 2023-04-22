@@ -7,8 +7,9 @@ import {
 import Videos from "./Videos";
 import Controls from "./Controls";
 import React from 'react';
-import {Cookies} from "react-cookie";
+
 import axios from 'axios';
+
 
 function VideoCall(props) {
 	const ready = props.ready;

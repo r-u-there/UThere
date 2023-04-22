@@ -20,19 +20,28 @@ function Dashboard() {
 	const userId = cookies.get("userId");
 	const [name, setName] = useState("");
 	const [meetingId, setMeetingId] = useState("");
+	console.log(userId)
 	async function createMeetingAndUser() {
+		console.log(userId)
 			try {
 			  const createMeetingResponse = await axios.post('http://127.0.0.1:8000/api/create_meeting/', {
-				"agora_token" : config.token,
+				"appId" : config.appId,
+				"certificate" : config.certificate,
+				"uid": userId,
+				"role": "1",
+				"privilegeExpiredTs": "3600"
 			  });
+			  console.log(createMeetingResponse)
 			  setMeetingId(createMeetingResponse.data.id);
-
+			  console.log("1- " + createMeetingResponse.data.id)
+			
 			  const createMeetingUserResponse = await axios.post('http://127.0.0.1:8000/api/create_meeting_user/', {
 				"meeting" : createMeetingResponse.data.id,
 				"user": userId
 			  });
 			  console.log("success");
 			  console.log(createMeetingUserResponse);
+			
 			} catch (exception) {
 			  console.log(exception);
 			}
