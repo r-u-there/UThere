@@ -253,6 +253,20 @@ body {
 	padding: 30px;
 	font-size: 1.1rem;
 }
+.popup-inner-clipboard {
+	position: center;
+	width: 15%;
+	height: 8%;
+	max-width: 400px;
+	max-height: 80%;
+	border-radius: 15px;
+	background-color: #FFF;
+	opacity: 0.8;
+	box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3);
+	overflow: auto;
+	padding: 1px;
+	font-size: 1.1rem;
+}
 .popup-inner button {
   background-color: #ff0003;
   color: #f8fff9;

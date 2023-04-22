@@ -1,21 +1,25 @@
 import {useRef, useState} from "react";
-import { useClient } from "../settings";
+import { channelName, useClient } from "../settings";
 import React from 'react';
 import { BsCameraVideo, BsCameraVideoOff } from 'react-icons/bs';
 import { BsMic, BsMicMute } from 'react-icons/bs';
 import { IoCloseCircleOutline } from 'react-icons/io5';
 import { IoPeople } from 'react-icons/io5'
+import {Cookies} from "react-cookie";
 import {Link, useNavigate} from 'react-router-dom';
 import ParticipantsPopup from "./ParticipantsPopup";
-import {MdScreenShare, MdStopScreenShare} from "react-icons/md"
+import ClipBoardPopup from "./ClipBoardPopup";
+import {MdScreenShare, MdStopScreenShare,MdOutlineContentCopy} from "react-icons/md"
 
 function Controls(props) {
 	const client = useClient();
 	const { tracks, setStart,  webgazer, users } = props;
 	const [trackState, setTrackState] = useState({ video: true, audio: true });
 	const [trigger, setTrigger] = useState(false);
+	const [trigger2, setTrigger2] = useState(false);
 	const navigate = useNavigate();
 	const videoRef = useRef()
+	const cookies = new Cookies();
 	const [screenSharing, setScreenSharing] = useState(0);
 	let stream;
 
@@ -42,6 +46,14 @@ function Controls(props) {
 		let tracks = videoRef.current.srcObject.getTracks();
 		tracks.forEach((t) => {t.stop();})
 		videoRef.current.srcObject = null;
+	}
+
+	const copyLink = () => {
+		const channelName = cookies.get("channel_name")
+		const token = cookies.get("token")
+		const text = "Channel Name: " + channelName + "\nToken: " + token
+		navigator.clipboard.writeText(text);
+		setTrigger2(true)
 	}
 
 	const mute = async (type) => {
@@ -88,8 +100,9 @@ function Controls(props) {
 			<video width={800} height={800} ref={videoRef} autoPlay/>
 			<div className="meeting-controls">
 				<div className="meeting-control">
-					{screenSharing === 0 ? <button onClick={() => {shareScreen()}}><div><MdScreenShare size={30} /><br></br><label>Share Screen</label></div></button> :
-						<button onClick={() => {stopShareScreen()}}><div><MdStopScreenShare size={30} /><br></br><label>Stop Sharing</label></div></button>}
+					{screenSharing === 0 ? 
+					<button onClick={() => {shareScreen()}}><div><MdScreenShare size={30} /><br></br><label>Share Screen</label></div></button> :
+					<button onClick={() => {stopShareScreen()}}><div><MdStopScreenShare size={30} /><br></br><label>Stop Sharing</label></div></button>}
 					<button onClick={() => {setTrigger(true)}}><div><IoPeople size={30} /><br></br><label>Participants ({users.length + 1})</label></div></button>
 					<button onClick={() => mute("video")}>
 						{trackState.video ? <div><BsCameraVideo size={30} /><br></br><label>Turn Off</label></div> :
@@ -99,6 +112,8 @@ function Controls(props) {
 						{trackState.audio ? <div><BsMic size={30} /><br></br><label>Mute</label></div> :
 							<div><BsMicMute size={30} /><br></br><label>Unmute</label></div>}
 					</button>
+					<button onClick={() => {copyLink()}}><div><MdOutlineContentCopy size={30} /><br></br><label>Copy Link</label></div></button>
+
 					{/*
 					The following line of code will be changed.
 					For now, it directs the user to Dashboard page, but it should direct to MeetingEnding page.
@@ -107,6 +122,7 @@ function Controls(props) {
 					<Link to="/Dashboard" state={{data: users}}><button onClick={() => {leaveChannel()}}><div><IoCloseCircleOutline size={30} /><br></br><label>Leave Meeting</label></div></button></Link>
 				</div>
 				<ParticipantsPopup trigger={trigger} users={users} setTrigger={setTrigger}></ParticipantsPopup>
+				<ClipBoardPopup trigger2={trigger2} setTrigger2={setTrigger2}></ClipBoardPopup>
 			</div>
 		</div>
 	);
