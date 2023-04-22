@@ -28,10 +28,14 @@ function Dashboard() {
 				"appId" : config.appId,
 				"certificate" : config.certificate,
 				"uid": userId,
-				"role": "1",
-				"privilegeExpiredTs": "3600"
+				"role": 1,
+				"privilegeExpiredTs": 36000000
 			  });
-			  console.log(createMeetingResponse)
+			  console.log(createMeetingResponse.data)
+			  console.log(createMeetingResponse.data.agora_token)
+			  console.log("channel name is " + createMeetingResponse.data.channel_name)
+			  cookies.set("token",createMeetingResponse.data.agora_token)
+			  cookies.set("channel_name",createMeetingResponse.data.channel_name)
 			  setMeetingId(createMeetingResponse.data.id);
 			  console.log("1- " + createMeetingResponse.data.id)
 			
@@ -75,7 +79,7 @@ function Dashboard() {
 						<td><Link to="/Contact"><BsQuestionCircle color="orange" size={100}/></Link></td>
 					</tr>
 					<tr>
-						<td><center><Link to="/Meeting"><label onClick={createMeetingAndUser}>New Meeting</label></Link></center></td>
+					<td><center><Link to="/Meeting"><label onClick={createMeetingAndUser}>New Meeting</label></Link></center></td>
 						<td><center><label onClick={() => setTrigger(true)}>Join Meeting</label></center></td>
 						<td><center><Link to="/Profile"><label style={{"color": "black"}}>Profile</label></Link></center></td>
 						<td><center><Link to="/Contact"><label style={{"color": "black"}}>Contact Us</label></Link></center></td>

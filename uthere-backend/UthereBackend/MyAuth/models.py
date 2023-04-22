@@ -87,6 +87,7 @@ class Profile(models.Model):
 
 class Meeting(models.Model):
     agora_token = models.TextField(max_length=500)
+    channel_name = models.TextField(max_length=500, default = "")
     start_time = models.DateField(auto_now_add=True)
     end_time = models.DateField(null=True)
 

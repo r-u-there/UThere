@@ -89,7 +89,7 @@ class SettingsSerializer(serializers.ModelSerializer):
 class MeetingSerializer(serializers.ModelSerializer):
     class Meta:
         model = Meeting
-        fields = ['id', 'agora_token', 'start_time', 'end_time']
+        fields = ['id', 'agora_token', 'start_time', 'end_time','channel_name']
     def create(self, instance):
         return Meeting.objects.create(**self.validated_data)
 
