@@ -73,7 +73,7 @@ function Dashboard() {
 				<hr></hr>
 				<table className='dashboard-table-columns'>
 					<tr>
-						<td><Link to="/Meeting"><BsCameraVideo color="#6666ff" size={100}/></Link></td>
+						<td><Link to="/Meeting"><label onClick={createMeetingAndUser}><BsCameraVideo color="#6666ff" size={100}/></label></Link></td>
 						<td><AiOutlinePlusCircle onClick={() => setTrigger(true)} color="#ffb3e6" size={100}/></td>
 						<td><Link to="/Profile"><CgProfile color="gray" size={100}/></Link></td>
 						<td><Link to="/Contact"><BsQuestionCircle color="orange" size={100}/></Link></td>
