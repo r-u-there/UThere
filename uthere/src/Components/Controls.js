@@ -1,4 +1,4 @@
-import {useRef, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import { channelName, useClient } from "../settings";
 import React from 'react';
 import { BsCameraVideo, BsCameraVideoOff } from 'react-icons/bs';
@@ -9,6 +9,7 @@ import {Cookies} from "react-cookie";
 import {Link, useNavigate} from 'react-router-dom';
 import ParticipantsPopup from "./ParticipantsPopup";
 import ClipBoardPopup from "./ClipBoardPopup";
+import LeaveMeetingPopup from "./LeaveMeetingPopup";
 import {MdScreenShare, MdStopScreenShare,MdOutlineContentCopy} from "react-icons/md"
 
 function Controls(props) {
@@ -17,6 +18,8 @@ function Controls(props) {
 	const [trackState, setTrackState] = useState({ video: true, audio: true });
 	const [trigger, setTrigger] = useState(false);
 	const [trigger2, setTrigger2] = useState(false);
+	const [trigger3, setTrigger3] = useState(false);
+	const [trigger4, setTrigger4] = useState(false);
 	const navigate = useNavigate();
 	const videoRef = useRef()
 	const cookies = new Cookies();
@@ -69,31 +72,47 @@ function Controls(props) {
 			});
 		}
 	};
-
-	const leaveChannel = async () => {
-		props.webgazer.pause();
-		props.webgazer.end();
-		window.localStorage.removeItem('webgazerGlobalData');
-		window.localStorage.removeItem('webgazerUserdata');
-		window.localStorage.removeItem('webgazerVideoContainer');
-		console.log("closed")
-		client.removeAllListeners();
-		if (tracks) {
-			tracks[0].stop();
-			tracks[1].stop();
-			// Get the camera device
-			const cameras = await navigator.mediaDevices.enumerateDevices();
-			const camera = cameras.find((device) => device.kind === "videoinput");
-
-			// Turn off the camera by setting the deviceId to null
-			await navigator.mediaDevices.getUserMedia({
-				video: { deviceId: camera ? { exact: camera.deviceId } : undefined, enabled: false },
-			});
+	useEffect(() => {
+		const leaveChannel = async () => {
+			if(trigger4){
+				if(props.webgazer != null){
+					props.webgazer.pause();
+					props.webgazer.end();
+					window.localStorage.removeItem('webgazerGlobalData');
+					window.localStorage.removeItem('webgazerUserdata');
+					window.localStorage.removeItem('webgazerVideoContainer');
+					console.log("closed")
+				}
+				client.removeAllListeners();
+				if (tracks) {
+					tracks[0].stop();
+					tracks[1].stop();
+					// Get the camera device
+					const cameras = await navigator.mediaDevices.enumerateDevices();
+					const camera = cameras.find((device) => device.kind === "videoinput");
+	
+					// Turn off the camera by setting the deviceId to null
+					await navigator.mediaDevices.getUserMedia({
+						video: { deviceId: camera ? { exact: camera.deviceId } : undefined, enabled: false },
+					});
+				}
+				tracks[0].close();
+				tracks[1].close();
+				setStart(false);
+				//clean meeting related cookies
+				cookies.remove("token")
+				cookies.remove("channel_name")
+				cookies.remove("channel_id")
+				cookies.remove("status")
+				window.location="/Dashboard"
+			}
+		};
+		if(trigger3){
+			leaveChannel()
 		}
-		tracks[0].close();
-		tracks[1].close();
-		setStart(false);
-	};
+	  }, [trigger3,trigger4]);
+
+
 
 	return (
 		<div>
@@ -119,10 +138,11 @@ function Controls(props) {
 					For now, it directs the user to Dashboard page, but it should direct to MeetingEnding page.
 					The participants list should be recorded to database in order to be able to retrieve the list and show on the screen.
 				*/}
-					<Link to="/Dashboard" state={{data: users}}><button onClick={() => {leaveChannel()}}><div><IoCloseCircleOutline size={30} /><br></br><label>Leave Meeting</label></div></button></Link>
+					<button onClick={() => {setTrigger3(true)}}><div><IoCloseCircleOutline size={30} /><br></br><label>Leave Meeting</label></div></button>
 				</div>
 				<ParticipantsPopup trigger={trigger} users={users} setTrigger={setTrigger}></ParticipantsPopup>
 				<ClipBoardPopup trigger2={trigger2} setTrigger2={setTrigger2}></ClipBoardPopup>
+				<LeaveMeetingPopup trigger3={trigger3} setTrigger3={setTrigger3} trigger4={trigger4} setTrigger4={setTrigger4}></LeaveMeetingPopup>
 			</div>
 		</div>
 	);
