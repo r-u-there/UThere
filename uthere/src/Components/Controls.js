@@ -12,6 +12,7 @@ import ClipBoardPopup from "./ClipBoardPopup";
 import LeaveMeetingPopup from "./LeaveMeetingPopup";
 import {MdScreenShare, MdStopScreenShare,MdOutlineContentCopy} from "react-icons/md"
 
+
 function Controls(props) {
 	const client = useClient();
 	const { tracks, setStart,  webgazer, users } = props;
@@ -104,7 +105,7 @@ function Controls(props) {
 				cookies.remove("channel_name")
 				cookies.remove("channel_id")
 				cookies.remove("status")
-				window.location="/Dashboard"
+				window.location.href ="/Dashboard"
 			}
 		};
 		if(trigger3){
