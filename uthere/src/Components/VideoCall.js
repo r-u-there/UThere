@@ -49,7 +49,7 @@ function VideoCall(props) {
 					user.audioTrack.play();
 				}
 			});
-
+			  
 			client.on("user-unpublished", (user, mediaType) => {
 				if (mediaType === "audio") {
 					if (user.audioTrack) user.audioTrack.stop();
@@ -64,6 +64,12 @@ function VideoCall(props) {
 			client.on("user-left", (user) => {
 				setUsers((prevUsers) => {
 					return prevUsers.filter((User) => User.uid !== user.uid);
+				});
+			
+			client.on("user-joined", (user) => {
+					setUsers((prevUsers) => {
+						return [...prevUsers, user];
+					});
 				});
 
 			});

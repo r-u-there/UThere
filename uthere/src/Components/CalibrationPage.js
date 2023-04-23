@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import VideoCall from "./VideoCall";
 import React from 'react';
 import UThere from "./UThere";
+import CalibrationPopup from "./CalibrationPopup";
 import {
 	useMicrophoneAndCameraTracks,
 } from "../settings";
@@ -10,6 +11,7 @@ function CalibrationPage() {
 	const [ state, setState] = useState([])
 	const [ videocallstate, setVideoCall] = useState(false)
 	const [ webgazerstate, setWebGazerState ] = useState(true)
+	const [trigger, setTrigger] = useState(true);
 	const counts = [0,0,0,0,0,0,0,0,0]
 	var sumBoolean = false
 	const { tracks} = useMicrophoneAndCameraTracks();
@@ -115,6 +117,7 @@ function CalibrationPage() {
 								</div>
 					}
 				</ div>
+				<CalibrationPopup trigger={trigger} setTrigger={setTrigger}></CalibrationPopup>
 			</div>
 			<UThere></UThere>
 		</div>
