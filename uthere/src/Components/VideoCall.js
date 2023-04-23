@@ -40,11 +40,11 @@ function VideoCall(props) {
 		let init = async (name) => {
 			client.on("user-published", async (user, mediaType) => {
 				await client.subscribe(user, mediaType);
-				//if (mediaType === "video") {
+				if (mediaType === "video") {
 					setUsers((prevUsers) => {
 						return [...prevUsers, user];
 					});
-				//}
+				}
 				if (mediaType === "audio") {
 					user.audioTrack.play();
 				}
@@ -54,11 +54,11 @@ function VideoCall(props) {
 				if (mediaType === "audio") {
 					if (user.audioTrack) user.audioTrack.stop();
 				}
-				//if (mediaType === "video") {
+				if (mediaType === "video") {
 					setUsers((prevUsers) => {
 						return prevUsers.filter((User) => User.uid !== user.uid);
 					});
-				//}
+				}
 			});
 
 			client.on("user-left", (user) => {
