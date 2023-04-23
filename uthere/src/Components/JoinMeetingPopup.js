@@ -29,6 +29,8 @@ function JoinMeetingPopup(props) {
 		}).catch((exception) => {
 			console.log(exception);
 		});
+		
+
 	}
 
 	function insidePopup() {

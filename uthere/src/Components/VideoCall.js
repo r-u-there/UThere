@@ -20,7 +20,6 @@ function VideoCall(props) {
 	const [usersWithCam, setUsersWithCam] = useState([]);
 	const [start, setStart] = useState(false);
 	const client = useClient();
-	console.log("yuşa")
 	console.log(client.remoteUsers)
 	const [token, setToken] = useState('');
 	const agora_token = cookies.get("token");
@@ -39,6 +38,20 @@ function VideoCall(props) {
             return null;
         }
     }
+	async function meetingUserCreate(arg){
+		let host_var = 0
+		if(status === "host"){
+			host_var=1
+		}
+		const createMeetingUserResponse = await axios.post('http://127.0.0.1:8000/api/create_meeting_user/', {
+				"meeting" : channelId,
+				"user": userId,
+				"is_host": host_var,
+				"agora_id": arg 
+			  });
+			  console.log("success");
+			  console.log(createMeetingUserResponse);
+	}
 	useEffect(() => {
 		let init = async (name) => {
 			client.on("user-published", async (user, mediaType) => {
@@ -48,6 +61,7 @@ function VideoCall(props) {
 					setUsersWithCam((prevUsers) => {
 						return [...prevUsers, user];
 					});
+					user.videoTrack.play("play");
 				}
 				if (mediaType === "audio") {
 					user.audioTrack.play();
@@ -59,7 +73,10 @@ function VideoCall(props) {
 					if (user.audioTrack) user.audioTrack.stop();
 				}
 				if (mediaType === "video") {
-					
+					setUsersWithCam((prevUsers) => {
+						return prevUsers.filter((User) => User.uid !== user.uid);
+					});
+					if (user.videoTrack) user.videoTrack.stop();
 				}
 			});
 			
@@ -82,15 +99,23 @@ function VideoCall(props) {
 			try {
 				console.log(name)
 				if(status === "host"){
-					let uid = await client.join(config.appId, name, agora_token, userId);
+					let new_userid= parseInt(userId)
+					let uid = await client.join(config.appId, name, agora_token, 0);
+					meetingUserCreate(uid)
 					console.log("agora user id"+uid); // The user id defined by Agora
+
+					console.log(typeof(userId))
 				}
 				else if (status === "participant"){
 					//get the host uid of the meeting
 					let result = await getHostID(); 
 					console.log(result)
-					let uid = await client.join(config.appId, name, agora_token, result);
+					console.log(typeof(result))
+					result = parseInt(result)
+					let uid = await client.join(config.appId, name, agora_token, 0);
+					meetingUserCreate(uid)
 					console.log("agora user id"+uid); // The user id defined by Agora
+				
 				}
 			} catch (error) {
 				console.log("error");
@@ -98,6 +123,7 @@ function VideoCall(props) {
 
 			if (props.tracks) {
 				await client.publish([tracks[0], tracks[1]]);
+				console.log("bilgehan")
 			}
 			setStart(true);
 			console.log("start is" + start);

@@ -28,7 +28,7 @@ function Dashboard() {
 				"appId" : config.appId,
 				"certificate" : config.certificate,
 				"uid": userId,
-				"role": 1,
+				"role": 2,
 				"privilegeExpiredTs": 36000000
 			  });
 			  console.log(createMeetingResponse.data)
@@ -41,13 +41,13 @@ function Dashboard() {
 			  setMeetingId(createMeetingResponse.data.id);
 			  console.log("1- " + createMeetingResponse.data.id)
 			
-			  const createMeetingUserResponse = await axios.post('http://127.0.0.1:8000/api/create_meeting_user/', {
+			  /*const createMeetingUserResponse = await axios.post('http://127.0.0.1:8000/api/create_meeting_user/', {
 				"meeting" : createMeetingResponse.data.id,
 				"user": userId,
 				"is_host": 1
 			  });
 			  console.log("success");
-			  console.log(createMeetingUserResponse);
+			  console.log(createMeetingUserResponse);*/
 			
 			} catch (exception) {
 			  console.log(exception);

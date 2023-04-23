@@ -32,7 +32,7 @@ function Videos(props) {
 						console.log("here")
 						if (user.videoTrack) {
 							return (
-								<AgoraVideoPlayer videoTrack={user.videoTrack} key={user.uid} className='vid' />
+								<AgoraVideoPlayer id = "play" videoTrack={user.videoTrack} key={user.uid} className='vid' />
 							);
 						}
 						else {

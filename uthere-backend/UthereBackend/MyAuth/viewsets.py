@@ -151,7 +151,7 @@ class CreateMeetingViewSet(ModelViewSet, TokenObtainPairView):
         channelName = ''.join(secrets.choice(alphabet) for i in range(6))
         privilegeExpiredTs = request.data.get("privilegeExpiredTs")
         expiration_time_in_seconds = int(time.time()) + 1440 * 60
-        token = RtcTokenBuilder.buildTokenWithUid(appId, certificate, channelName, uid, role, expiration_time_in_seconds)
+        token = RtcTokenBuilder.buildTokenWithUid(appId, certificate, channelName, 0, role, expiration_time_in_seconds)
         print("uid is " + str(uid))
         print("channel name is " + channelName)
         print("token is " + token)
