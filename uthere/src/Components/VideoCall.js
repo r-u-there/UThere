@@ -19,6 +19,7 @@ function VideoCall(props) {
 	const [users, setUsers] = useState([]);
 	const [usersWithCam, setUsersWithCam] = useState([]);
 	const [start, setStart] = useState(false);
+	const [agorauid,setAgorauid] = useState(0);
 	const client = useClient();
 	console.log(client.remoteUsers)
 	const [token, setToken] = useState('');
@@ -102,6 +103,7 @@ function VideoCall(props) {
 					let new_userid= parseInt(userId)
 					let uid = await client.join(config.appId, name, agora_token, 0);
 					meetingUserCreate(uid)
+					setAgorauid(uid)
 					console.log("agora user id"+uid); // The user id defined by Agora
 
 					console.log(typeof(userId))
@@ -114,6 +116,7 @@ function VideoCall(props) {
 					result = parseInt(result)
 					let uid = await client.join(config.appId, name, agora_token, 0);
 					meetingUserCreate(uid)
+					setAgorauid(uid)
 					console.log("agora user id"+uid); // The user id defined by Agora
 				
 				}
@@ -149,7 +152,7 @@ function VideoCall(props) {
 				{ready && tracks && (<Controls tracks={tracks} setStart={setStart} webgazer={webgazer} users={users} />)}
 			</div>
 			<div>
-			{start && tracks && <Videos tracks={tracks} users={users} usersWithCam={usersWithCam} />}
+			{start && tracks && <Videos tracks={tracks} users={users} usersWithCam={usersWithCam} agorauid={agorauid} />}
 			</div>
 		</div>
 	);

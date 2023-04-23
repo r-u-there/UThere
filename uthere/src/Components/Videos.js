@@ -6,10 +6,28 @@ import {Cookies} from "react-cookie";
 function Videos(props) {
 	const users = props.users;
 	const tracks = props.tracks;
+	const agorauid = props.agorauid
 	const [name, setName] = useState("");
 	const cookies = new Cookies();
 	const userId = cookies.get("userId");
+	const channelId = cookies.get("channel_id");
 	console.log("tracks " + tracks)
+	async function getMeetingUser(arg) {
+        try {
+            const response = await axios.get(`http://127.0.0.1:8000/api/get_meeting_participant/${arg}/`);
+			console.log(response)   
+			let participant_user_id = response.data.user  
+			axios.get(`http://127.0.0.1:8000/api/user/info/${participant_user_id}/`).then(response => {
+				console.log("adı şu")
+				console.log(response)
+				return <div>{response.data.username}</div>
+			}).catch((exception) => {
+				console.log(exception);
+			});
+        } catch (error) {
+            console.log("error", error);
+        }
+    }
 
 	useEffect(() => {
 		axios.get(`http://127.0.0.1:8000/api/user/info/${userId}/`).then(response => {
@@ -38,7 +56,7 @@ function Videos(props) {
 						else {
 							return (
 								<div key={user.uid} className='vid'>
-									<center><h3 style={{color:"white"}}>{user.uid}</h3></center>
+									<center><h3 style={{color:"white"}}>{()=>getMeetingUser(user.uid)}</h3></center>
 								</div>
 							);
 						}
