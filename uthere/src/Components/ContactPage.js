@@ -3,13 +3,26 @@ import UThere from './UThere';
 import {useState} from 'react';
 import Logout from './Logout';
 import axios from 'axios';
+import {Cookies} from "react-cookie";
 
 function ContactPage() {
 	const [message, setMessage] = useState("");
 	const [category, setCategory] = useState("Select what we can help you with.");
-
+	const cookies = new Cookies();
+	const userId = cookies.get("userId");
+	const [email, setEmail] = useState("");
+	getUserInfo();
+	//get user mail from the user id
+	function getUserInfo() {
+		axios.get(`http://127.0.0.1:8000/api/user/info/${userId}/`).then(response => {
+				console.log(response.data)
+				setEmail(response.data.email)
+			}).catch((exception) => {
+				console.log(exception);
+			});
+	}
 	function submit() {
-		let item = {category, message};
+		let item = {category, message,email};
 		axios.post('http://127.0.0.1:8000/api/contact/', item).then(response => {
 			console.log("success");
 			console.log(response);

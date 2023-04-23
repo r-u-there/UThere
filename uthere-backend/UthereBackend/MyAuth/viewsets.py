@@ -289,6 +289,7 @@ class ContactViewSet(ModelViewSet, TokenObtainPairView):
             print("saved")
             message = request.data.get("message")
             category = request.data.get("category")
+            message = "Sender: " + request.data.get("email") + "\n\n" + message
             print("message is " + message)
             print("category is " + category)
             send_email(category,message)
