@@ -65,6 +65,7 @@ function VideoCall(props) {
 				setUsers((prevUsers) => {
 					return prevUsers.filter((User) => User.uid !== user.uid);
 				});
+
 			});
 			try {
 				console.log(name)
