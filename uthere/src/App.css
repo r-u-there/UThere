@@ -268,7 +268,7 @@ body {
 	font-size: 1.1rem;
 }
 .popup-inner button {
-  background-color: #ff0003;
+  background-color: orange;
   color: #f8fff9;
   border: none;
   padding: 5px 8px;
@@ -278,7 +278,7 @@ body {
 }
 
 .popup-inner button:hover {
-  background-color: #ff000e;
+  background-color: orange;
 }
 
 
@@ -292,6 +292,11 @@ body {
 	position: relative;
 	bottom: 118px;
 	left: 28px;
+}
+.popup-close3 {
+	position: relative;
+	bottom: 118px;
+	left: 15px;
 }
 
 .vid-container {

@@ -49,9 +49,9 @@ function Controls(props) {
 	}
 
 	const copyLink = () => {
-		const channelName = cookies.get("channel_name")
+		const channelId = cookies.get("channel_id")
 		const token = cookies.get("token")
-		const text = "Channel Name: " + channelName + "\nToken: " + token
+		const text = "Channel Id: " + channelId + "\nToken: " + token
 		navigator.clipboard.writeText(text);
 		setTrigger2(true)
 	}

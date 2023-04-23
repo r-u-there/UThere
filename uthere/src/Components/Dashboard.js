@@ -36,12 +36,15 @@ function Dashboard() {
 			  console.log("channel name is " + createMeetingResponse.data.channel_name)
 			  cookies.set("token",createMeetingResponse.data.agora_token)
 			  cookies.set("channel_name",createMeetingResponse.data.channel_name)
+			  cookies.set("channel_id", createMeetingResponse.data.id)
+			  cookies.set("status","host")
 			  setMeetingId(createMeetingResponse.data.id);
 			  console.log("1- " + createMeetingResponse.data.id)
 			
 			  const createMeetingUserResponse = await axios.post('http://127.0.0.1:8000/api/create_meeting_user/', {
 				"meeting" : createMeetingResponse.data.id,
-				"user": userId
+				"user": userId,
+				"is_host": 1
 			  });
 			  console.log("success");
 			  console.log(createMeetingUserResponse);

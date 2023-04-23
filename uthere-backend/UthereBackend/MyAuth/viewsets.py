@@ -14,7 +14,7 @@ from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
 from rest_framework.decorators import action
 from .serializers import UserSerializer, LoginSerializer, RegisterSerializer, ContactFormSerializer, ProfileSerializer, \
     MeetingSerializer, MeetingUserSerializer, SettingsSerializer
-from .models import User, Profile, Meeting, Settings
+from .models import User, Profile, Meeting, Settings, MeetingUser
 from django.contrib.auth import authenticate, login
 from django.shortcuts import get_object_or_404
 from .sendmail import send_email
@@ -167,7 +167,59 @@ class CreateMeetingViewSet(ModelViewSet, TokenObtainPairView):
 
         return Response(serializer.data, status=status.HTTP_200_OK)
     
+class GetMeetingViewSet(ModelViewSet, TokenObtainPairView):
+    serializer_class = MeetingSerializer
+    permission_classes = (AllowAny,)
+    http_method_names = ['get']
+    queryset = Meeting.objects.all()
+
+    def retrieve(self, request, pk=None):
+        print("primary key is " + pk)
+        queryset = Meeting.objects.filter(id=pk)
+        my_object = queryset.first()
+        print(my_object.agora_token)
+        if my_object is None:
+            return Response(status=404)
+
+        serializer = MeetingSerializer(my_object)
+        return Response(serializer.data)
+
+class GetMeetingUserViewSet(ModelViewSet, TokenObtainPairView):
+    serializer_class = MeetingUserSerializer
+    permission_classes = (AllowAny,)
+    http_method_names = ['get']
+    queryset = MeetingUser.objects.all()
+
+    def retrieve(self, request, pk=None):
+        print("primary key is " + pk)
+        queryset = MeetingUser.objects.filter(meeting=pk, is_host= True)
+        my_object = queryset.first()
+        print(my_object)
+        if my_object is None:
+            return Response(status=404)
+
+        serializer = MeetingUserSerializer(my_object)
+        return Response(serializer.data)
+
+
+    
 class CreateMeetingUserViewSet(ModelViewSet, TokenObtainPairView):
+    serializer_class = MeetingUserSerializer
+    permission_classes = (AllowAny,)
+    http_method_names = ['post']
+    def create(self, request, *args, **kwargs):
+        print(request.data)
+        serializer = self.get_serializer(data=request.data)
+        try:
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+
+        except TokenError as e:
+            raise InvalidToken(e.args[0])
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+class JoinMeetingViewSet(ModelViewSet, TokenObtainPairView):
     serializer_class = MeetingUserSerializer
     permission_classes = (AllowAny,)
     http_method_names = ['post']
