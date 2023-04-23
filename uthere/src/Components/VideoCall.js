@@ -17,8 +17,11 @@ function VideoCall(props) {
 	const webgazer = props.webgazer;
 	const cookies = new Cookies();
 	const [users, setUsers] = useState([]);
+	const [usersWithCam, setUsersWithCam] = useState([]);
 	const [start, setStart] = useState(false);
 	const client = useClient();
+	console.log("yuşa")
+	console.log(client.remoteUsers)
 	const [token, setToken] = useState('');
 	const agora_token = cookies.get("token");
 	const channelName = cookies.get("channel_name")
@@ -40,8 +43,9 @@ function VideoCall(props) {
 		let init = async (name) => {
 			client.on("user-published", async (user, mediaType) => {
 				await client.subscribe(user, mediaType);
+				console.log("bişi")
 				if (mediaType === "video") {
-					setUsers((prevUsers) => {
+					setUsersWithCam((prevUsers) => {
 						return [...prevUsers, user];
 					});
 				}
@@ -55,21 +59,23 @@ function VideoCall(props) {
 					if (user.audioTrack) user.audioTrack.stop();
 				}
 				if (mediaType === "video") {
-					setUsers((prevUsers) => {
-						return prevUsers.filter((User) => User.uid !== user.uid);
-					});
+					
 				}
+			});
+			
+			client.on("user-joined", (user) => {
+				console.log("JOIN ALGILANDI " + user.uid)
+				setUsers((prevUsers) => {
+					return [...prevUsers, user];
+				});
+				setUsersWithCam((prevUsers) => {
+					return [...prevUsers, user];
+				});
 			});
 
 			client.on("user-left", (user) => {
 				setUsers((prevUsers) => {
 					return prevUsers.filter((User) => User.uid !== user.uid);
-				});
-			
-			client.on("user-joined", (user) => {
-					setUsers((prevUsers) => {
-						return [...prevUsers, user];
-					});
 				});
 
 			});
@@ -117,9 +123,7 @@ function VideoCall(props) {
 				{ready && tracks && (<Controls tracks={tracks} setStart={setStart} webgazer={webgazer} users={users} />)}
 			</div>
 			<div>
-				{start && tracks 
-				 && <Videos  tracks={tracks} users={users} />
-				}
+			{start && tracks && <Videos tracks={tracks} users={users} usersWithCam={usersWithCam} />}
 			</div>
 		</div>
 	);

@@ -36,13 +36,11 @@ function Videos(props) {
 							);
 						}
 						else {
-							console.log(user.uid);
 							return (
 								<div key={user.uid} className='vid'>
 									<center><h3 style={{color:"white"}}>{user.uid}</h3></center>
 								</div>
 							);
-							console.log("no video");
 						}
 					})}
 			</div>
