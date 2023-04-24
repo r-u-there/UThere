@@ -11,6 +11,8 @@ import ParticipantsPopup from "./ParticipantsPopup";
 import ClipBoardPopup from "./ClipBoardPopup";
 import LeaveMeetingPopup from "./LeaveMeetingPopup";
 import {MdScreenShare, MdStopScreenShare,MdOutlineContentCopy} from "react-icons/md"
+import axios from "axios";
+
 
 
 function Controls(props) {
@@ -24,6 +26,8 @@ function Controls(props) {
 	const navigate = useNavigate();
 	const videoRef = useRef()
 	const cookies = new Cookies();
+	const userId = cookies.get("userId");
+	const channelId = cookies.get("channel_id")
 	const [screenSharing, setScreenSharing] = useState(0);
 	let stream;
 
@@ -108,10 +112,33 @@ function Controls(props) {
 				window.location.href ="/Dashboard"
 			}
 		};
-		if(trigger3){
+		if(trigger3 || trigger4){
 			leaveChannel()
 		}
 	  }, [trigger3,trigger4]);
+	  useEffect(() => {
+		const checkRemovedValue = () => {
+			axios.put(`http://127.0.0.1:8000/api/user_meeting_get_info/`, {
+				"userId": userId,
+				"channelId": channelId
+			}).then(response => {
+				console.log("success");
+				console.log(response.data.is_removed);
+				if(response.data.is_removed){
+					setTrigger4(true)
+				}
+			}).catch((exception) => {
+				console.log(exception);
+			});
+		};
+	
+		// Set the interval to check the value every 1 seconds
+		const intervalId = setInterval(checkRemovedValue, 5000);
+
+		// Clean up the interval when the component unmounts
+		return () => clearInterval(intervalId);
+		
+	}, [])
 
 
 

@@ -100,6 +100,7 @@ class MeetingUser(models.Model):
     is_presenter = models.BooleanField(default=False)
     join_time = models.DateField(auto_now_add=True)
     left_time = models.DateField(blank=True, null=True, auto_now_add=False)
+    is_removed = models.BooleanField(default=False)
 
 
 class Presenter(models.Model):

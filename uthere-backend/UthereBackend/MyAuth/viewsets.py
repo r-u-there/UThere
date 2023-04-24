@@ -22,6 +22,7 @@ from agora_token_builder import RtcTokenBuilder
 import secrets
 import string
 import time
+from django.utils import timezone
 
 class UserViewSet(viewsets.ModelViewSet):
     http_method_names = ['get']
@@ -86,6 +87,26 @@ class UserUpdateViewSet(ModelViewSet, TokenObtainPairView):
             user.password = new_password
             user.save()
             return Response({'status': 'password updated'})
+        return Response({'status': 'ERROR'})
+    
+class UserKickedMeetingViewSet(ModelViewSet, TokenObtainPairView):
+    serializer_class = MeetingUserSerializer
+    permission_classes = (AllowAny,)
+    http_method_names = ['put']
+    queryset = MeetingUser.objects.all()
+
+    def put(self, request, *args, **kwargs):
+        left_user_id = request.data.get("userId")
+        channel_id= request.data.get("channelId")
+        print("left user id is " + str(left_user_id))
+        print("channel id is " + str(channel_id))
+        user_meeting = MeetingUser.objects.get(agora_id=left_user_id, meeting_id= channel_id)
+ 
+        if user_meeting.left_time == None:
+            user_meeting.left_time = timezone.now().date()
+            user_meeting.is_removed = True
+            user_meeting.save()
+            return Response({'status': 'user is kicked out of the meeting'})
         return Response({'status': 'ERROR'})
 
 
@@ -217,7 +238,23 @@ class GetMeetingUserParticipantViewSet(ModelViewSet, TokenObtainPairView):
 
         serializer = MeetingUserSerializer(my_object)
         return Response(serializer.data)
+    
+class GetMeetingUserInfoViewSet(ModelViewSet, TokenObtainPairView):
+    serializer_class = MeetingUserSerializer
+    permission_classes = (AllowAny,)
+    http_method_names = ['put']
+    queryset = MeetingUser.objects.all()
 
+    def put(self, request, *args, **kwargs):
+        user_id = request.data.get("userId")
+        channel_id= request.data.get("channelId")
+        print("channel id is " + str(channel_id))
+        user_meeting = MeetingUser.objects.get(user_id=user_id, meeting_id= channel_id)
+        if user_meeting is None:
+            return Response({'status': 'MeetingUser not found'}, status=404)
+
+        serializer = MeetingUserSerializer(user_meeting)
+        return Response(serializer.data)
 
     
 class CreateMeetingUserViewSet(ModelViewSet, TokenObtainPairView):
