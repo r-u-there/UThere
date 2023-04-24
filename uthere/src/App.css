@@ -329,7 +329,6 @@ body {
 	margin: 2px;
 }
 
-
 .vid:nth-child(2) {
 	left: 0;
 	top: 273px;
@@ -432,6 +431,14 @@ body {
   align-items: center;
   padding: 1px;
 }
+.video-label-container-2 {
+	position: relative;
+	top: 5px;
+	left: 10px;
+	display: flex;
+	align-items: center;
+	padding: 1px;
+  }
 
 .video-label {
   margin: 0;
