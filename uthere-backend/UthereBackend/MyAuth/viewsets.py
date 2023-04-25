@@ -147,8 +147,30 @@ class UnsetPresenterMeetingViewSet(ModelViewSet, TokenObtainPairView):
             print(user_meeting)
             return Response({'status': 'user is unsetted as presenter'})
         return Response({'status': 'ERROR'})
+    
+class AlertUserMeetingViewSet(ModelViewSet, TokenObtainPairView):
+    serializer_class = MeetingUserSerializer
+    permission_classes = (AllowAny,)
+    http_method_names = ['put']
+    queryset = MeetingUser.objects.all()
 
-
+    def put(self, request, *args, **kwargs):
+        presenter_user_id = request.data.get("userId")
+        channel_id= request.data.get("channelId")
+        print("presenter user id is " + str(presenter_user_id))
+        print("channel id is " + str(channel_id))
+        user_meeting = MeetingUser.objects.get(agora_id=presenter_user_id, meeting_id= channel_id)
+        if user_meeting is None:
+            return Response({'status': 'MeetingUser not found'}, status=404)
+        else:
+            user_meeting.alert_num = user_meeting.alert_num + 1
+            user_meeting.save()
+            print(user_meeting)
+            
+        serializer = MeetingUserSerializer(user_meeting)
+        return Response(serializer.data)
+        
+    
 class SettingsViewSet(ModelViewSet):
     serializer_class = SettingsSerializer
     permission_classes = (AllowAny,)

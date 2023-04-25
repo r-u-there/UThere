@@ -101,6 +101,7 @@ class MeetingUser(models.Model):
     join_time = models.DateField(auto_now_add=True)
     left_time = models.DateField(blank=True, null=True, auto_now_add=False)
     is_removed = models.BooleanField(default=False)
+    alert_num = models.DecimalField(max_digits=10, decimal_places=0, default=0)
 
 
 class Presenter(models.Model):

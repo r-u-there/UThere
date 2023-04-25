@@ -45,6 +45,17 @@ function ParticipantsPopup(props) {
 			console.log(exception);
 		});
 	}
+	function alertUser(alerted_user_id){
+		axios.put(`http://127.0.0.1:8000/api/alert_user_meeting/`, {
+			"userId": alerted_user_id,
+			"channelId": channelId
+		}).then(response => {
+			console.log(response);
+		}).catch((exception) => {
+			console.log(exception);
+		});
+
+	}
 	function unsetPresenter(presenter_user_id){
 		//make the user presenter
 		axios.put(`http://127.0.0.1:8000/api/unset_presenter_meeting/`, {
@@ -99,7 +110,7 @@ function ParticipantsPopup(props) {
 										{isHost ? <td><button id={user.uid+"-remove"} onClick={()=>removeUser(user.uid)}>Remove</button></td> : <td></td>}
 										{isHost ? isParticipantPresenter ?  <td><button  id= {user.uid+"-unset"} onClick={()=>unsetPresenter(user.uid)}>Unset Presenter</button></td>: 
 																			<td><button  id= {user.uid+"-set"} onClick={()=>setPresenter(user.uid)}>Set Presenter</button></td>: <td></td>}
-										{status === "presenter"?<td><button>Alert</button></td> : <td></td> }
+										{status === "presenter"?<td><button onClick={()=>alertUser(user.uid)}>Alert</button></td> : <td></td> }
 									</tr>
 							})}
 						</table>

@@ -9,6 +9,7 @@ import {Cookies} from "react-cookie";
 import {Link, useNavigate} from 'react-router-dom';
 import ParticipantsPopup from "./ParticipantsPopup";
 import ClipBoardPopup from "./ClipBoardPopup";
+import AlertPopup from "./AlertPopup";
 import LeaveMeetingPopup from "./LeaveMeetingPopup";
 import {MdScreenShare, MdStopScreenShare,MdOutlineContentCopy} from "react-icons/md"
 import axios from "axios";
@@ -23,6 +24,8 @@ function Controls(props) {
 	const [trigger2, setTrigger2] = useState(false);
 	const [trigger3, setTrigger3] = useState(false);
 	const [trigger4, setTrigger4] = useState(false);
+	let alertNum = "0"
+	const [triggerAlertPopup, setTriggerAlertPopup] = useState(false)
 	
 	const navigate = useNavigate();
 	const videoRef = useRef()
@@ -135,6 +138,17 @@ function Controls(props) {
 				if(response.data.is_presenter == 0){
 					cookies.set("status","participant")
 				}
+				console.log(response.data.alert_num)
+				console.log(alertNum)
+				if(response.data.is_presenter == 0 && response.data.alert_num !== alertNum){
+					console.log("burası")
+					console.log(response.data.alert_num)
+					console.log(typeof(alertNum))
+					console.log(alertNum)
+					alertNum =response.data.alert_num
+					console.log(alertNum)
+					setTriggerAlertPopup(true)
+				}
 			}).catch((exception) => {
 				console.log(exception);
 			});
@@ -177,6 +191,7 @@ function Controls(props) {
 					<button onClick={() => {setTrigger3(true)}}><div><IoCloseCircleOutline size={30} /><br></br><label>Leave Meeting</label></div></button>
 				</div>
 				<ParticipantsPopup trigger={trigger} users={users} setTrigger={setTrigger}></ParticipantsPopup>
+				<AlertPopup triggerAlertPopup={triggerAlertPopup} setTriggerAlertPopup={setTriggerAlertPopup}></AlertPopup>
 				<ClipBoardPopup trigger2={trigger2} setTrigger2={setTrigger2}></ClipBoardPopup>
 				<LeaveMeetingPopup trigger3={trigger3} setTrigger3={setTrigger3} trigger4={trigger4} setTrigger4={setTrigger4}></LeaveMeetingPopup>
 			</div>
