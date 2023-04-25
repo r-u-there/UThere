@@ -106,7 +106,46 @@ class UserKickedMeetingViewSet(ModelViewSet, TokenObtainPairView):
             user_meeting.left_time = timezone.now().date()
             user_meeting.is_removed = True
             user_meeting.save()
+            print(user_meeting)
             return Response({'status': 'user is kicked out of the meeting'})
+        return Response({'status': 'ERROR'})
+    
+class SetPresenterMeetingViewSet(ModelViewSet, TokenObtainPairView):
+    serializer_class = MeetingUserSerializer
+    permission_classes = (AllowAny,)
+    http_method_names = ['put']
+    queryset = MeetingUser.objects.all()
+
+    def put(self, request, *args, **kwargs):
+        presenter_user_id = request.data.get("userId")
+        channel_id= request.data.get("channelId")
+        print("presenter user id is " + str(presenter_user_id))
+        print("channel id is " + str(channel_id))
+        user_meeting = MeetingUser.objects.get(agora_id=presenter_user_id, meeting_id= channel_id)
+        if user_meeting.is_presenter == 0:
+            user_meeting.is_presenter = True
+            user_meeting.save()
+            print(user_meeting)
+            return Response({'status': 'user become presenter'})
+        return Response({'status': 'ERROR'})
+    
+class UnsetPresenterMeetingViewSet(ModelViewSet, TokenObtainPairView):
+    serializer_class = MeetingUserSerializer
+    permission_classes = (AllowAny,)
+    http_method_names = ['put']
+    queryset = MeetingUser.objects.all()
+
+    def put(self, request, *args, **kwargs):
+        presenter_user_id = request.data.get("userId")
+        channel_id= request.data.get("channelId")
+        print("presenter user id is " + str(presenter_user_id))
+        print("channel id is " + str(channel_id))
+        user_meeting = MeetingUser.objects.get(agora_id=presenter_user_id, meeting_id= channel_id)
+        if user_meeting.is_presenter == 1:
+            user_meeting.is_presenter = False
+            user_meeting.save()
+            print(user_meeting)
+            return Response({'status': 'user is unsetted as presenter'})
         return Response({'status': 'ERROR'})
 
 

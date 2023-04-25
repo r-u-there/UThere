@@ -11,13 +11,20 @@ function ParticipantsPopup(props) {
 	const channelId = cookies.get("channel_id")
 	const status = cookies.get("status")
 	const [isHost, setIsHost] = useState(status==="host")
-	console.log(isHost)
+	const [isParticipantPresenter,setIsParticipantPresenter] = useState()
+	const [setButton,setsetButton] = useState(true)
 	async function getMeetingUser(arg) {
         try {
             const response = await axios.get(`http://127.0.0.1:8000/api/get_meeting_participant/${arg}/`);
 			let participant_user_id = response.data.user  
+			let participant_is_presenter = response.data.is_presenter
+			setIsParticipantPresenter(participant_is_presenter)
 			axios.get(`http://127.0.0.1:8000/api/user/info/${participant_user_id}/`).then(response => {
-				setParticipantName(response.data.username);
+				let name = response.data.username
+				if(participant_is_presenter){
+					name = name + " (Presenter)"
+				}
+				setParticipantName(name);
 			}).catch((exception) => {
 				console.log(exception);
 			});
@@ -25,6 +32,7 @@ function ParticipantsPopup(props) {
             console.log("error", error);
         }
     }
+
     function removeUser(removed_user_id){
 		//force user to left
 		//update left time of the use
@@ -32,12 +40,34 @@ function ParticipantsPopup(props) {
 			"userId": removed_user_id,
 			"channelId": channelId
 		}).then(response => {
-			console.log("success");
-			console.log("user " + removed_user_id + " is removed" )
 			console.log(response);
 		}).catch((exception) => {
 			console.log(exception);
 		});
+	}
+	function unsetPresenter(presenter_user_id){
+		//make the user presenter
+		axios.put(`http://127.0.0.1:8000/api/unset_presenter_meeting/`, {
+			"userId": presenter_user_id,
+			"channelId": channelId
+		}).then(response => {
+			console.log(response);
+		}).catch((exception) => {
+			console.log(exception);
+		});
+		setsetButton(true)
+	}
+	function setPresenter(presenter_user_id){
+		//make the user presenter
+		axios.put(`http://127.0.0.1:8000/api/set_presenter_meeting/`, {
+			"userId": presenter_user_id,
+			"channelId": channelId
+		}).then(response => {
+			console.log(response);
+		}).catch((exception) => {
+			console.log(exception);
+		});
+		setsetButton(false)
 	}
 	useEffect(() => {
 		axios.get(`http://127.0.0.1:8000/api/user/info/${userId}/`).then(response => {
@@ -57,17 +87,19 @@ function ParticipantsPopup(props) {
 						<h4><u>Participants List</u></h4>
 						<table>
 							<tr>
-								<td>{name+" (Me)"}</td>
+								<td>{status ==="presenter"? name+ " (Me)(Presenter)" : name+" (Me)"}</td>
 								<td></td>
-								{isHost? <td><button id={userId+"-set"}>Set Presenter</button></td>: <td></td>}
+								{isHost? <td><button>Set Presenter</button></td>: <td></td>}
 							</tr>
 
 							{users.map((user) => {
 								getMeetingUser(user.uid);
 								return <tr>
 										<td>{participantName}</td>
-										{isHost ? <td><button onClick={removeUser(user.uid)} id={user.uid+"-remove"}>Remove</button></td> : <td></td>}
-										{isHost ? <td><button id={user.uid+"-set"}>Set Presenter</button></td>: <td></td>}
+										{isHost ? <td><button id={user.uid+"-remove"} onClick={()=>removeUser(user.uid)}>Remove</button></td> : <td></td>}
+										{isHost ? isParticipantPresenter ?  <td><button  id= {user.uid+"-unset"} onClick={()=>unsetPresenter(user.uid)}>Unset Presenter</button></td>: 
+																			<td><button  id= {user.uid+"-set"} onClick={()=>setPresenter(user.uid)}>Set Presenter</button></td>: <td></td>}
+										{status === "presenter"?<td><button>Alert</button></td> : <td></td> }
 									</tr>
 							})}
 						</table>

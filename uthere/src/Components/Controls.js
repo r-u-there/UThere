@@ -23,11 +23,13 @@ function Controls(props) {
 	const [trigger2, setTrigger2] = useState(false);
 	const [trigger3, setTrigger3] = useState(false);
 	const [trigger4, setTrigger4] = useState(false);
+	
 	const navigate = useNavigate();
 	const videoRef = useRef()
 	const cookies = new Cookies();
 	const userId = cookies.get("userId");
 	const channelId = cookies.get("channel_id")
+	const status = cookies.get("status")
 	const [screenSharing, setScreenSharing] = useState(0);
 	let stream;
 
@@ -122,10 +124,16 @@ function Controls(props) {
 				"userId": userId,
 				"channelId": channelId
 			}).then(response => {
-				console.log("success");
-				console.log(response.data.is_removed);
-				if(response.data.is_removed){
+				console.log(response.data);
+
+				if(response.data.is_removed == 1){
 					setTrigger4(true)
+				}
+				if(response.data.is_presenter == 1){
+					cookies.set("status","presenter")
+				}
+				if(response.data.is_presenter == 0){
+					cookies.set("status","participant")
 				}
 			}).catch((exception) => {
 				console.log(exception);
