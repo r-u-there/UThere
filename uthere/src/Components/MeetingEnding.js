@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import UThere from "./UThere";
 import Logout from "./Logout";
 import {useLocation} from "react-router-dom";
@@ -8,17 +8,28 @@ import axios from "axios";
 function MeetingEnding() {
   const location = useLocation();
 	const cookies = new Cookies();
-  const channelId = cookies.get("channel_id")
+  const meetingId = cookies.get("channel_id")
+  const [participants, setParticipants] = useState([]);
 
   useEffect(() => {
-    getMeetingParticipants(channelId);
+    getMeetingParticipants(meetingId);
   }, [])
 
   // Retrieves the meeting participants.
-  async function getMeetingParticipants(channelId) {
+  async function getMeetingParticipants(meetingId) {
     try {
-      const response = await axios.get(`http://127.0.0.1:8000/api/get_meeting_user/${channelId}/`);
+      const response = await axios.get(`http://127.0.0.1:8000/api/get_all_meeting_participants/${meetingId}/`);
 			console.log(response)
+      response.data.forEach(function(current, index) {
+        axios.get(`http://127.0.0.1:8000/api/user/info/${current.user}/`).then(response => {
+				    console.log(response.data.username)
+            setParticipants((prevUsers) => {
+						  return [...prevUsers, response.data.username];
+					  });
+  			}).catch((exception) => {
+	  			console.log(exception);
+		    });
+      });
     } catch (error) {
       console.log("error", error);
     }
@@ -33,10 +44,14 @@ function MeetingEnding() {
         <h1>Meeting is over!</h1>
         <h4>With whom do you want to share the analysis report?</h4>
         <table class="meeting-participants-table">
-          <tr>
-            <td>Bilgehan Akcan</td>
-            <td><button className="btn btn-success">Share Report</button></td>
-          </tr>
+          {participants.map((participant) => {
+            return (
+              <tr>
+                <td>{participant}</td>
+                <td><button className="btn btn-success">Share Report</button></td>
+              </tr>
+            );
+          })}
         </table>
       </div>
     </div>

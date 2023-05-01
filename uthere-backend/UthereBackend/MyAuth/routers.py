@@ -3,7 +3,7 @@ from rest_framework.routers import SimpleRouter
 from .viewsets import LoginViewSet, RegistrationViewSet, RefreshViewSet, UserViewSet, ContactViewSet, ProfileViewSet, \
     UserInfoViewSet, UserUpdateViewSet, CreateMeetingViewSet, CreateMeetingUserViewSet, SettingsViewSet, \
     GetSettingsViewSet,GetMeetingViewSet, GetMeetingUserViewSet, GetMeetingUserParticipantViewSet, UserKickedMeetingViewSet, GetMeetingUserInfoViewSet, \
-    SetPresenterMeetingViewSet, UnsetPresenterMeetingViewSet, AlertUserMeetingViewSet
+    SetPresenterMeetingViewSet, UnsetPresenterMeetingViewSet, AlertUserMeetingViewSet, GetAllMeetingParticipantsViewSet
 
 routes = SimpleRouter()
 
@@ -32,6 +32,7 @@ routes.register(r'user_meeting_get_info', GetMeetingUserInfoViewSet, basename='m
 routes.register(r'set_presenter_meeting', SetPresenterMeetingViewSet, basename='set-presenter-meeting')
 routes.register(r'unset_presenter_meeting', UnsetPresenterMeetingViewSet, basename='unset-presenter-meeting')
 routes.register(r'alert_user_meeting', AlertUserMeetingViewSet, basename='alert-user-meeting')
+routes.register(r'get_all_meeting_participants', GetAllMeetingParticipantsViewSet, basename='get-all-meeting-participants')
 
 urlpatterns = [
     *routes.urls

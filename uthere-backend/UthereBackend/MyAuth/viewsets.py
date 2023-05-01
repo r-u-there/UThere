@@ -299,7 +299,23 @@ class GetMeetingUserParticipantViewSet(ModelViewSet, TokenObtainPairView):
 
         serializer = MeetingUserSerializer(my_object)
         return Response(serializer.data)
-    
+
+class GetAllMeetingParticipantsViewSet(ModelViewSet, TokenObtainPairView):
+    serializer_class = MeetingUserSerializer
+    permission_classes = (AllowAny,)
+    http_method_names = ['get']
+    queryset = MeetingUser.objects.all()
+
+    def retrieve(self, request, pk=None):
+        print("primary key is " + pk)
+        queryset = MeetingUser.objects.filter(meeting_id=pk)
+        print(queryset)
+        if not queryset.exists():
+            return Response(status=404)
+
+        serializer = MeetingUserSerializer(queryset, many=True)
+        return Response(serializer.data)
+
 class GetMeetingUserInfoViewSet(ModelViewSet, TokenObtainPairView):
     serializer_class = MeetingUserSerializer
     permission_classes = (AllowAny,)
