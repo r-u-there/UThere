@@ -1,5 +1,5 @@
 import {useEffect, useRef, useState} from "react";
-import { channelName, useClient } from "../settings";
+import {useClient} from "../settings";
 import React from 'react';
 import { BsCameraVideo, BsCameraVideoOff } from 'react-icons/bs';
 import { BsMic, BsMicMute } from 'react-icons/bs';
@@ -13,6 +13,11 @@ import AlertPopup from "./AlertPopup";
 import LeaveMeetingPopup from "./LeaveMeetingPopup";
 import {MdScreenShare, MdStopScreenShare,MdOutlineContentCopy} from "react-icons/md"
 import axios from "axios";
+import {
+	config,
+	channelName
+} from "../settings";
+import AgoraRTC from 'agora-rtc-react';
 
 function Controls(props) {
 	const client = useClient();
@@ -27,36 +32,44 @@ function Controls(props) {
 	const navigate = useNavigate();
 	const videoRef = useRef()
 	const cookies = new Cookies();
+	const agora_token = cookies.get("token");
 	const userId = cookies.get("userId");
 	const channelId = cookies.get("channel_id")
 	const status = cookies.get("status")
 	const [screenSharing, setScreenSharing] = useState(0);
 	let stream;
+	const channelName = cookies.get("channel_name")
+	const [isSharingEnabled, setIsSharingEnabled] = useState(false);
+  const [channelParameters, setChannelParameters] = useState({
+    screenTrack: null,
+    localVideoTrack: null,
+  });
 
-	const shareScreen = async () => {
-		try {
-			stream = await navigator.mediaDevices.getDisplayMedia({
-				audio: true,
-				video: {
-					cursor: "always"
-				}
-			})
-			setScreenSharing(1);
-			console.log(stream.active)
-			videoRef.current.srcObject = stream
-		}
-		catch (err) {
-			setScreenSharing(0);
-			console.log(err);
-		}
-	}
+/*
+	const agoraClient = AgoraRTC.createClient({ mode: 'rtc', codec: 'vp8' });
+	agoraClient.init(config.appId);
 
-	const stopShareScreen = () => {
-		setScreenSharing(0);
-		let tracks = videoRef.current.srcObject.getTracks();
-		tracks.forEach((t) => {t.stop();})
-		videoRef.current.srcObject = null;
-	}
+agoraClient.join(agora_token, channelName, null, (uid) => {
+  const screenShareConfig = {
+    audio: false,
+    video: false,
+    screen: true,
+    // Change the extensionId to the extension installed on your browser.
+    extensionId: 'yourextensionidhere'
+  };
+
+  const screenShareStream = AgoraRTC.createStream(screenShareConfig);
+  screenShareStream.init(() => {
+    agoraClient.publish(screenShareStream, (err) => {
+      console.log('Failed to publish screen share stream', err);
+    });
+  }, (err) => {
+    console.log('Failed to initialize screen share stream', err);
+  });
+}, (err) => {
+  console.log('Failed to join channel', err);
+});
+*/
 
 	const copyLink = () => {
 		const channelId = cookies.get("channel_id")
@@ -159,16 +172,42 @@ function Controls(props) {
 		
 	}, [])
 
+	const handleScreenShare = async () => {
+    if (isSharingEnabled) {
+      if (channelParameters.screenTrack) {
+        await channelParameters.screenTrack.replaceTrack(channelParameters.localVideoTrack, true);
+      }
+      setIsSharingEnabled(false);
+    } else {
+      try {
+				const client2 = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
+				let uid = await client2.join(config.appId, channelName, agora_token, null);
+        const screenTrack = await AgoraRTC.createScreenVideoTrack();
+				await client2.publish([screenTrack]);
+				client2.on("user-published", async (user, mediaType) => {
+      if (mediaType === "video" && user.videoTrack) {
+        await client2.subscribe(user, "screen");
+        const screenTrack = user.videoTrack;
 
+        // Play the remote screen track in the new div element
+        screenTrack.play("");
+      }
+    });
+        await channelParameters.localVideoTrack.replaceTrack(screenTrack, true);
+        setChannelParameters({ ...channelParameters, screenTrack });
+        setIsSharingEnabled(true);
+      } catch (error) {
+        console.error('Error creating screen track:', error);
+      }
+    }
+  };
 
 	return (
 		<div>
 			<video width={800} height={800} ref={videoRef} autoPlay/>
 			<div className="meeting-controls">
 				<div className="meeting-control">
-					{screenSharing === 0 ? 
-					<button onClick={() => {shareScreen()}}><div><MdScreenShare size={30} /><br></br><label>Share Screen</label></div></button> :
-					<button onClick={() => {stopShareScreen()}}><div><MdStopScreenShare size={30} /><br></br><label>Stop Sharing</label></div></button>}
+					<button onClick={handleScreenShare}>Share Screen</button>
 					<button onClick={() => {setTrigger(true)}}><div><IoPeople size={30} /><br></br><label>Participants ({users.length + 1})</label></div></button>
 					<button onClick={() => mute("video")}>
 						{trackState.video ? <div><BsCameraVideo size={30} /><br></br><label>Turn Off</label></div> :
