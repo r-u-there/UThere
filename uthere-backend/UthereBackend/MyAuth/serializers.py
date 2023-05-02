@@ -8,11 +8,10 @@ from django.core.exceptions import ObjectDoesNotExist
 from .models import User, ContactForm, Profile, Settings, Meeting, MeetingUser
 
 
-
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'is_active']
+        fields = ['id', 'username', 'email', 'is_active', 'password']
         read_only_field = ['is_active']
 
 
@@ -63,8 +62,10 @@ class ContactFormSerializer(serializers.ModelSerializer):
     class Meta:
         model = ContactForm
         fields = ('message', 'category')
+
     def create(self, instance):
         return ContactForm.objects.create(**self.validated_data)
+
 
 class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
@@ -80,18 +81,22 @@ class ProfileSerializer(serializers.ModelSerializer):
         instance.birth_date = validated_data.get('birth_date', instance.birth_date)
         return instance
 
+
 class SettingsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Settings
         fields = '__all__'
 
+
 class MeetingSerializer(serializers.ModelSerializer):
     class Meta:
         model = Meeting
         fields = ['id', 'agora_token', 'start_time', 'end_time','channel_name']
+
     def create(self, instance):
         return Meeting.objects.create(**self.validated_data)
+
 
 class MeetingUserSerializer(serializers.ModelSerializer):
     class Meta:

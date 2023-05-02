@@ -1,6 +1,6 @@
 # core/routers.py
 from rest_framework.routers import SimpleRouter
-from .viewsets import LoginViewSet, RegistrationViewSet, RefreshViewSet, UserViewSet, ContactViewSet, ProfileViewSet, \
+from .viewsets import LoginViewSet, RegistrationViewSet, UserViewSet, ContactViewSet, ProfileViewSet, \
     UserInfoViewSet, UserUpdateViewSet, CreateMeetingViewSet, CreateMeetingUserViewSet, SettingsViewSet, \
     GetSettingsViewSet,GetMeetingViewSet, GetMeetingUserViewSet, GetMeetingUserParticipantViewSet, UserKickedMeetingViewSet, GetMeetingUserInfoViewSet, \
     SetPresenterMeetingViewSet, UnsetPresenterMeetingViewSet, AlertUserMeetingViewSet
@@ -10,7 +10,6 @@ routes = SimpleRouter()
 # AUTHENTICATION
 routes.register(r'auth/login', LoginViewSet, basename='auth-login')
 routes.register(r'auth/register', RegistrationViewSet, basename='auth-register')
-routes.register(r'auth/refresh', RefreshViewSet, basename='auth-refresh')
 routes.register(r'contact', ContactViewSet, basename='contact')
 routes.register(r'profile', ProfileViewSet, basename='profile')
 routes.register(r'settings', SettingsViewSet, basename='settings')
