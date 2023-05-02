@@ -29,10 +29,16 @@ function ProfilePage() {
 	const accessToken = cookies.get(["accessToken"]);
 	const userId = cookies.get("userId");
 	const [settingsId, setSettingsId] = useState(0);
-	const [attentionRatingLimit, setAttentionRatingLimit] = useState("")
+	const [attentionRatingLimit, setAttentionRatingLimit] = useState("");
+	const token = localStorage.getItem('token');
+
 
 	const getUserInfo = useCallback(() => {
-		axios.get(`http://127.0.0.1:8000/api/user/info/${userId}/`).then(response => {
+		axios.get(`http://127.0.0.1:8000/api/user/info/${userId}/`, {
+	headers: {
+		'Authorization': `Token ${token}`
+	}
+		}).then(response => {
 			console.log("success");
 			console.log("userid is" + userId);
 			console.log(response);
@@ -46,8 +52,9 @@ function ProfilePage() {
 
 
 	const getProfileSettings = useCallback(() => {
-		axios.get(`http://127.0.0.1:8000/api/getsettings/${userId}/`).then(response => {
-			console.log("success");
+		axios.get(`http://127.0.0.1:8000/api/getsettings/${userId}/`, {
+				  headers: { Authorization: `Bearer ${token}` }
+			  }).then(response => {
 			console.log("user id is" + userId);
 			console.log(response);
 			setAttentionRatingLimit(response.data.attention_limit);
@@ -66,6 +73,7 @@ function ProfilePage() {
 
 	const setProfilePreferences = useCallback(() => {
 		axios.put(`http://127.0.0.1:8000/api/settings/${settingsId}/`, {
+			headers: { Authorization: `Bearer ${token}` },
 			"get_analysis_report" : toggle1,
 			"hide_real_time_emotion_analysis" : toggle2,
 			"hide_real_time_attention_analysis" : toggle3,

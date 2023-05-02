@@ -13,7 +13,11 @@ function JoinMeetingPopup(props) {
 	const userId = cookies.get("userId");
 
  	function joinMeeting() {
-		axios.get(`http://127.0.0.1:8000/api/get_meeting/${channelId}/`).then(response => {
+		axios.get(`http://127.0.0.1:8000/api/get_meeting/${channelId}/`, {
+	headers: {
+		'Authorization': `Token ${token}`
+	}
+		}).then(response => {
 			//write here
 			console.log(response.data.agora_token);
 			if(response.data.agora_token === token){

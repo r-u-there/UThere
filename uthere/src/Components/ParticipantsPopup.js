@@ -37,6 +37,7 @@ function ParticipantsPopup(props) {
 		//force user to left
 		//update left time of the use
 		axios.put(`http://127.0.0.1:8000/api/user_kicked_meeting/`, {
+			headers: { Authorization: `Bearer ${token}` },
 			"userId": removed_user_id,
 			"channelId": channelId
 		}).then(response => {
@@ -47,6 +48,7 @@ function ParticipantsPopup(props) {
 	}
 	function alertUser(alerted_user_id){
 		axios.put(`http://127.0.0.1:8000/api/alert_user_meeting/`, {
+			headers: { Authorization: `Bearer ${token}` },
 			"userId": alerted_user_id,
 			"channelId": channelId
 		}).then(response => {
@@ -59,6 +61,7 @@ function ParticipantsPopup(props) {
 	function unsetPresenter(presenter_user_id){
 		//make the user presenter
 		axios.put(`http://127.0.0.1:8000/api/unset_presenter_meeting/`, {
+			headers: { Authorization: `Bearer ${token}` },
 			"userId": presenter_user_id,
 			"channelId": channelId
 		}).then(response => {
@@ -71,6 +74,7 @@ function ParticipantsPopup(props) {
 	function setPresenter(presenter_user_id){
 		//make the user presenter
 		axios.put(`http://127.0.0.1:8000/api/set_presenter_meeting/`, {
+			headers: { Authorization: `Bearer ${token}` },
 			"userId": presenter_user_id,
 			"channelId": channelId
 		}).then(response => {

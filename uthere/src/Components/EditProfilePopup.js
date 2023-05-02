@@ -7,14 +7,15 @@ function EditProfilePopup(props) {
 	const [newInfo, setNewInfo] = useState("");
 	const cookies = new Cookies();
 	const userId = cookies.get("userId");
+	const token = localStorage.getItem('token');
+
 	function submitNewInfo() {
 		axios.put(`http://127.0.0.1:8000/api/user/update/`, {
+			headers: { Authorization: `Bearer ${token}` },
 			"userId": userId,
 			"newInfo": newInfo,
 			"changedInfo" : props.changedInfo
 		}).then(response => {
-			console.log("success");
-			console.log("userid is" + userId)
 			console.log(response);
 		}).catch((exception) => {
 			console.log(exception);
@@ -25,10 +26,9 @@ function EditProfilePopup(props) {
 
 	function setAttentionRatingLimit() {
 		axios.put(`http://127.0.0.1:8000/api/settings/${props.settingsId}/`, {
-			"attention_limit" : newInfo
+				  headers: { Authorization: `Bearer ${token}` },
+					"attention_limit" : newInfo
 		}).then(response => {
-			console.log("success");
-			console.log("user id is" + userId)
 			console.log(response);
 		}).catch((exception) => {
 			console.log(exception);

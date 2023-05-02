@@ -20,14 +20,14 @@ function Dashboard() {
 	const userId = cookies.get("userId");
 	const [name, setName] = useState("");
 	const [meetingId, setMeetingId] = useState("");
-	console.log(userId)
+	const token = localStorage.getItem('token');
+
 	async function createMeetingAndUser() {
-		console.log(userId)
 			try {
 			  const createMeetingResponse = await axios.post('http://127.0.0.1:8000/api/create_meeting/', {
+				  headers: { Authorization: `Bearer ${token}` },
 				"appId" : config.appId,
 				"certificate" : config.certificate,
-				"uid": userId,
 				"role": 2,
 				"privilegeExpiredTs": 36000000
 			  });
@@ -55,13 +55,20 @@ function Dashboard() {
 		  }
 	
 	useEffect(() => {
+		console.log(token);
 		function getUserInfo() {
-			axios.get(`http://127.0.0.1:8000/api/user/info/${userId}/`).then(response => {
-					setName(response.data.username);
-				}).catch((exception) => {
-					console.log(exception);
-				});
-			}
+			axios.get(`http://127.0.0.1:8000/api/user/info/${userId}/`, {
+				headers: {
+					Authorization: `Token ${token}`
+				}
+			}).then(response => {
+				setName(response.data.username);
+			}).catch((exception) => {
+				console.log(exception);
+			});
+
+		}
+
 			getUserInfo();
 	  }, []);
 

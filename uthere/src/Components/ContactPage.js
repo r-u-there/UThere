@@ -4,6 +4,8 @@ import {useState} from 'react';
 import Logout from './Logout';
 import axios from 'axios';
 import {Cookies} from "react-cookie";
+const token = localStorage.getItem('token');
+
 
 function ContactPage() {
 	const [message, setMessage] = useState("");
@@ -14,8 +16,9 @@ function ContactPage() {
 	getUserInfo();
 	//get user mail from the user id
 	function getUserInfo() {
-		axios.get(`http://127.0.0.1:8000/api/user/info/${userId}/`).then(response => {
-				console.log(response.data)
+		axios.get('http://127.0.0.1:8000/api/user/info/${userId}/', {
+				  headers: { Authorization: `Bearer ${token}` }
+			  }).then(response => {
 				setEmail(response.data.email)
 			}).catch((exception) => {
 				console.log(exception);
@@ -23,13 +26,18 @@ function ContactPage() {
 	}
 	function submit() {
 		let item = {category, message,email};
-		axios.post('http://127.0.0.1:8000/api/contact/', item).then(response => {
-			console.log("success");
-			console.log(response);
-			window.location = "/Dashboard";
+		axios.post('http://127.0.0.1:8000/api/contact/', item, {
+    	headers: {
+        	'Authorization': 'Bearer ' + token,
+        	'Content-Type': 'application/json'
+    	}
+		}).then(response => {
+    	console.log(response);
+    	window.location = "/Dashboard";
 		}).catch(exception => {
-			console.log(exception);
+    	console.log(exception);
 		});
+
 	}
 
 	return (

@@ -124,6 +124,7 @@ function Controls(props) {
 	  useEffect(() => {
 		const checkRemovedValue = () => {
 			axios.put(`http://127.0.0.1:8000/api/user_meeting_get_info/`, {
+				headers: { Authorization: `Bearer ${token}` },
 				"userId": userId,
 				"channelId": channelId
 			}).then(response => {
