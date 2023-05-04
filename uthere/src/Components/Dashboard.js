@@ -24,13 +24,19 @@ function Dashboard() {
 
 	async function createMeetingAndUser() {
 			try {
-			  const createMeetingResponse = await axios.post('http://127.0.0.1:8000/api/create_meeting/', {
-				  headers: { Authorization: `Bearer ${token}` },
-				"appId" : config.appId,
-				"certificate" : config.certificate,
-				"role": 2,
-				"privilegeExpiredTs": 36000000
-			  });
+			  const createMeetingResponse = await axios.post(
+				  'http://127.0.0.1:8000/api/create_meeting/',
+				  {
+					"appId": config.appId,
+					"certificate": config.certificate,
+					"role": 2,
+					"privilegeExpiredTs": 36000000
+				  },
+				  {
+					headers: { Authorization: `Token ${token}` }
+				  }
+				);
+
 			  console.log(createMeetingResponse.data)
 			  console.log(createMeetingResponse.data.agora_token)
 			  console.log("channel name is " + createMeetingResponse.data.channel_name)

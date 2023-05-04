@@ -16,8 +16,9 @@ function ContactPage() {
 	getUserInfo();
 	//get user mail from the user id
 	function getUserInfo() {
-		axios.get('http://127.0.0.1:8000/api/user/info/${userId}/', {
-				  headers: { Authorization: `Bearer ${token}` }
+		console.log(userId);
+		axios.get(`http://127.0.0.1:8000/api/user/info/${userId}/`, {
+				  headers: { Authorization: `Token ${token}` }
 			  }).then(response => {
 				setEmail(response.data.email)
 			}).catch((exception) => {
@@ -28,7 +29,7 @@ function ContactPage() {
 		let item = {category, message,email};
 		axios.post('http://127.0.0.1:8000/api/contact/', item, {
     	headers: {
-        	'Authorization': 'Bearer ' + token,
+        	'Authorization': 'Token ' + token,
         	'Content-Type': 'application/json'
     	}
 		}).then(response => {

@@ -13,12 +13,12 @@ import axios from "axios";
 
 function ProfilePage() {
 	const [tabSelection, setTabSelection] = useState(0);
-	const [toggle1, setToggle1] = useState(false);
-	const [toggle2, setToggle2] = useState(false);
-	const [toggle3, setToggle3] = useState(false);
-	const [toggle4, setToggle4] = useState(false);
-	const [toggle5, setToggle5] = useState(false);
-	const [toggle6, setToggle6] = useState(false);
+	const [toggle1, setToggle1] = useState();
+	const [toggle2, setToggle2] = useState();
+	const [toggle3, setToggle3] = useState();
+	const [toggle4, setToggle4] = useState();
+	const [toggle5, setToggle5] = useState();
+	const [toggle6, setToggle6] = useState();
 	const [name, setName] = useState("");
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
@@ -35,25 +35,22 @@ function ProfilePage() {
 
 	const getUserInfo = useCallback(() => {
 		axios.get(`http://127.0.0.1:8000/api/user/info/${userId}/`, {
-	headers: {
-		'Authorization': `Token ${token}`
-	}
+		headers: {
+			'Authorization': `Token ${token}`
+		}
 		}).then(response => {
-			console.log("success");
-			console.log("userid is" + userId);
-			console.log(response);
 			setName(response.data.username);
 			setEmail(response.data.email);
 			setPassword(response.data.password);
 		}).catch((exception) => {
 			console.log(exception);
 		});
-	}, [userId]);
+	}, []);
 
 
 	const getProfileSettings = useCallback(() => {
 		axios.get(`http://127.0.0.1:8000/api/getsettings/${userId}/`, {
-				  headers: { Authorization: `Bearer ${token}` }
+				  headers: { Authorization: `Token ${token}` }
 			  }).then(response => {
 			console.log("user id is" + userId);
 			console.log(response);
@@ -64,35 +61,36 @@ function ProfilePage() {
 			setToggle4(response.data.hide_real_time_analysis);
 			setToggle5(response.data.hide_who_left);
 			setToggle6(response.data.hide_eye_tracking);
-			setSettingsId(response.data.id);
 		}).catch((exception) => {
 			console.log(exception);
 		});
-	}, [userId]);
+	}, []);
 
 
 	const setProfilePreferences = useCallback(() => {
-		axios.put(`http://127.0.0.1:8000/api/settings/${settingsId}/`, {
-			headers: { Authorization: `Bearer ${token}` },
-			"get_analysis_report" : toggle1,
-			"hide_real_time_emotion_analysis" : toggle2,
-			"hide_real_time_attention_analysis" : toggle3,
-			"hide_real_time_analysis" : toggle4,
-			"hide_who_left" : toggle5,
-			"hide_eye_tracking" : toggle6
-		}).then(response => {
-			console.log("success");
-			console.log("user id is" + userId);
-			console.log(response);
-		}).catch((exception) => {
-			console.log(exception);
-		});
-	}, [settingsId, toggle1, toggle2, toggle3, toggle4, toggle5, toggle6, userId]);
+		console.log("token is:",token);
+		const data = {
+		  "get_analysis_report": toggle1,
+		  "hide_real_time_emotion_analysis": toggle2,
+		  "hide_real_time_attention_analysis": toggle3,
+		  "hide_real_time_analysis": toggle4,
+		  "hide_who_left": toggle5,
+		  "hide_eye_tracking": toggle6
+		};
+
+		axios.put(`http://127.0.0.1:8000/api/settings/${userId}/`, data, {
+		  headers: {
+			'Authorization': `Token ${token}`
+		  },
+			method: 'PUT'
+
+		})
+	}, [toggle1, toggle2, toggle3, toggle4, toggle5, toggle6]);
 
 	useEffect(() => {
 		getUserInfo();
 		getProfileSettings();
-	}, [getUserInfo, getProfileSettings]);
+	}, [getUserInfo, getProfileSettings, userId]);
 
 	useEffect(() => {
 		setProfilePreferences();

@@ -13,6 +13,8 @@ import AlertPopup from "./AlertPopup";
 import LeaveMeetingPopup from "./LeaveMeetingPopup";
 import {MdScreenShare, MdStopScreenShare,MdOutlineContentCopy} from "react-icons/md"
 import axios from "axios";
+const token = localStorage.getItem('token');
+
 
 
 
@@ -123,13 +125,14 @@ function Controls(props) {
 	  }, [trigger3,trigger4]);
 	  useEffect(() => {
 		const checkRemovedValue = () => {
-			axios.put(`http://127.0.0.1:8000/api/user_meeting_get_info/`, {
-				headers: { Authorization: `Bearer ${token}` },
+			console.log(token)
+			axios.put('http://127.0.0.1:8000/api/user_meeting_get_info/', {
 				"userId": userId,
 				"channelId": channelId
-			}).then(response => {
+			  }, {
+				headers: { Authorization: `Token ${token}` }
+			  }).then(response => {
 				console.log(response.data);
-
 				if(response.data.is_removed == 1){
 					setTrigger4(true)
 				}

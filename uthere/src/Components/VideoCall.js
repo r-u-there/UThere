@@ -49,7 +49,11 @@ function VideoCall(props) {
 				"user": userId,
 				"is_host": host_var,
 				"agora_id": arg 
-			  });
+			  },
+			{
+					headers: { Authorization: `Token ${token}` }
+				  }
+				);
 			  console.log("success");
 			  console.log(createMeetingUserResponse);
 	}

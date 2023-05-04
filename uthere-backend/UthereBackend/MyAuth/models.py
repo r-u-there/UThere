@@ -49,7 +49,7 @@ class Settings(models.Model):
 
 
 class User(AbstractBaseUser, PermissionsMixin):
-    username = models.CharField(db_index=True, max_length=300)
+    username = models.CharField(max_length=300)
     email = models.EmailField(db_index=True, unique=True, null=True, blank=True)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)

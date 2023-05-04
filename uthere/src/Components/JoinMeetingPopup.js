@@ -8,20 +8,22 @@ import axios from 'axios';
 function JoinMeetingPopup(props) {
 	const navigate = useNavigate(); 
 	const [channelId, setChannelId]= useState("");
-	const [token, setToken]= useState("");
+	const [agoraToken, setToken]= useState("");
 	const cookies = new Cookies();
 	const userId = cookies.get("userId");
+	const token = localStorage.getItem('token');
+
 
  	function joinMeeting() {
 		axios.get(`http://127.0.0.1:8000/api/get_meeting/${channelId}/`, {
-	headers: {
-		'Authorization': `Token ${token}`
-	}
+			headers: {
+				'Authorization': `Token ${token}`
+			}
 		}).then(response => {
 			//write here
-			console.log(response.data.agora_token);
-			if(response.data.agora_token === token){
-				cookies.set("token", token)
+			console.log(response.data.agora_agoraToken);
+			if(response.data.agora_agoraToken === agoraToken){
+				cookies.set("agoraToken", agoraToken)
 				cookies.set("channel_name",response.data.channel_name )
 				cookies.set("channel_id",channelId)
 				cookies.set("status","participant")

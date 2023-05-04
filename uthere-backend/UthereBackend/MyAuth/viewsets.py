@@ -1,22 +1,18 @@
 from rest_framework.authentication import TokenAuthentication
-from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import filters
 from rest_framework.response import Response
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import AllowAny
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
-from rest_framework.decorators import action
 from .serializers import UserSerializer, LoginSerializer, RegisterSerializer, ContactFormSerializer, ProfileSerializer, \
     MeetingSerializer, MeetingUserSerializer, SettingsSerializer
 from .models import User, Profile, Meeting, Settings, MeetingUser
 from django.contrib.auth import authenticate, login
-from django.shortcuts import get_object_or_404
 from .sendmail import send_email
 from agora_token_builder import RtcTokenBuilder
 import secrets
@@ -62,17 +58,22 @@ class UserInfoViewSet(ModelViewSet):
             'username': user.username,
         }
         return Response(data)
-    
-class UserUpdateViewSet(ModelViewSet, TokenObtainPairView):
+
+
+class UserUpdateViewSet(ModelViewSet):
     serializer_class = UserSerializer
-    permission_classes = (AllowAny,)
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
     http_method_names = ['put']
     queryset = User.objects.all()
 
     def put(self, request, *args, **kwargs):
-     
+        user_id = request.data.get("userId")
         changed_info = request.data.get("changedInfo")
-        user = request.user
+        user = User.objects.get(pk=user_id)
+        print("changed Info is " + changed_info)
+        changed_info = request.data.get("changedInfo")
+        # user = request.user
         if changed_info =="full name":
             new_username = request.data.get("newInfo")
             user.username = new_username
@@ -85,13 +86,14 @@ class UserUpdateViewSet(ModelViewSet, TokenObtainPairView):
             return Response({'status': 'email updated'})
         elif changed_info == "password":
             new_password = request.data.get("newInfo")
-            user.password = new_password
+            user.set_password(new_password)
             user.save()
             return Response({'status': 'password updated'})
+
         return Response({'status': 'ERROR'})
 
 
-class UserKickedMeetingViewSet(ModelViewSet, TokenObtainPairView):
+class UserKickedMeetingViewSet(ModelViewSet):
     serializer_class = MeetingUserSerializer
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
@@ -111,7 +113,7 @@ class UserKickedMeetingViewSet(ModelViewSet, TokenObtainPairView):
         return Response({'status': 'ERROR'})
 
 
-class SetPresenterMeetingViewSet(ModelViewSet, TokenObtainPairView):
+class SetPresenterMeetingViewSet(ModelViewSet):
     serializer_class = MeetingUserSerializer
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
@@ -129,7 +131,7 @@ class SetPresenterMeetingViewSet(ModelViewSet, TokenObtainPairView):
         return Response({'status': 'ERROR'})
 
 
-class UnsetPresenterMeetingViewSet(ModelViewSet, TokenObtainPairView):
+class UnsetPresenterMeetingViewSet(ModelViewSet):
     serializer_class = MeetingUserSerializer
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
@@ -147,7 +149,7 @@ class UnsetPresenterMeetingViewSet(ModelViewSet, TokenObtainPairView):
         return Response({'status': 'ERROR'})
 
 
-class AlertUserMeetingViewSet(ModelViewSet, TokenObtainPairView):
+class AlertUserMeetingViewSet(ModelViewSet):
     serializer_class = MeetingUserSerializer
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
@@ -173,11 +175,23 @@ class SettingsViewSet(ModelViewSet):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
     queryset = Settings.objects.all()
-    http_method_names = ['put']
+    http_method_names = ['put', 'patch']
 
     def update(self, request, *args, **kwargs):
         data = request.data
-        return super().update(request, *args, **kwargs)
+        serializer = self.serializer_class(data=data)
+
+        print("inside update")
+        print(type(data))
+
+        if serializer.is_valid():
+            setting = Settings.objects.get(id=request.user.settings_id)
+            for key, value in data.items():
+                setattr(setting, key, value)
+            setting.save()
+            return Response(data=serializer.data, status=status.HTTP_204_NO_CONTENT)
+        else:
+            return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class GetSettingsViewSet(ModelViewSet):
@@ -187,11 +201,11 @@ class GetSettingsViewSet(ModelViewSet):
     queryset = Settings.objects.all()
 
     def retrieve(self, request, pk=None):
-        user = request.user
-
-        if user is None:
+        my_object = request.user.settings
+        if my_object is None:
             return Response(status=404)
-        serializer = SettingsSerializer(user.settings)
+
+        serializer = SettingsSerializer(my_object)
         return Response(serializer.data)
 
 
@@ -224,13 +238,14 @@ class LoginViewSet(ModelViewSet):
         return Response(response_data, status=status.HTTP_200_OK)
 
 
-class CreateMeetingViewSet(ModelViewSet, TokenObtainPairView):
+class CreateMeetingViewSet(ModelViewSet):
     serializer_class = MeetingSerializer
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
     http_method_names = ['post']
 
     def create(self, request, *args, **kwargs):
+        print("creating")
         app_id = request.data.get("appId")
         certificate = request.data.get("certificate")
         uid = request.data.get("uid")
@@ -246,13 +261,14 @@ class CreateMeetingViewSet(ModelViewSet, TokenObtainPairView):
         try:
             serializer.is_valid(raise_exception=True)
             serializer.save()
+            print("created")
         except TokenError as e:
             raise InvalidToken(e.args[0])
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class GetMeetingViewSet(ModelViewSet, TokenObtainPairView):
+class GetMeetingViewSet(ModelViewSet):
     serializer_class = MeetingSerializer
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
@@ -269,7 +285,7 @@ class GetMeetingViewSet(ModelViewSet, TokenObtainPairView):
         return Response(serializer.data)
 
 
-class GetMeetingUserViewSet(ModelViewSet, TokenObtainPairView):
+class GetMeetingUserViewSet(ModelViewSet):
     serializer_class = MeetingUserSerializer
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
@@ -286,7 +302,7 @@ class GetMeetingUserViewSet(ModelViewSet, TokenObtainPairView):
         return Response(serializer.data)
 
 
-class GetMeetingUserParticipantViewSet(ModelViewSet, TokenObtainPairView):
+class GetMeetingUserParticipantViewSet(ModelViewSet):
     serializer_class = MeetingUserSerializer
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
@@ -303,7 +319,7 @@ class GetMeetingUserParticipantViewSet(ModelViewSet, TokenObtainPairView):
         return Response(serializer.data)
 
 
-class GetMeetingUserInfoViewSet(ModelViewSet, TokenObtainPairView):
+class GetMeetingUserInfoViewSet(ModelViewSet):
     serializer_class = MeetingUserSerializer
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
@@ -313,15 +329,16 @@ class GetMeetingUserInfoViewSet(ModelViewSet, TokenObtainPairView):
     def put(self, request, *args, **kwargs):
         user_id = request.data.get("userId")
         channel_id = request.data.get("channelId")
-        user_meeting = MeetingUser.objects.get(user_id=user_id, meeting_id=channel_id)
-        if user_meeting is None:
+        print(type(channel_id))
+        user_meeting_queryset = MeetingUser.objects.filter(user_id=request.user.id, meeting_id=channel_id)
+        if not user_meeting_queryset.exists():
             return Response({'status': 'MeetingUser not found'}, status=404)
-
+        user_meeting = user_meeting_queryset.first()
         serializer = MeetingUserSerializer(user_meeting)
         return Response(serializer.data)
 
     
-class CreateMeetingUserViewSet(ModelViewSet, TokenObtainPairView):
+class CreateMeetingUserViewSet(ModelViewSet):
     serializer_class = MeetingUserSerializer
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
@@ -339,7 +356,7 @@ class CreateMeetingUserViewSet(ModelViewSet, TokenObtainPairView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class JoinMeetingViewSet(ModelViewSet, TokenObtainPairView):
+class JoinMeetingViewSet(ModelViewSet):
     serializer_class = MeetingUserSerializer
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
@@ -357,20 +374,22 @@ class JoinMeetingViewSet(ModelViewSet, TokenObtainPairView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class RegistrationViewSet(ModelViewSet, TokenObtainPairView):
+class RegistrationViewSet(ModelViewSet):
     serializer_class = RegisterSerializer
     http_method_names = ['post']
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
+        # print(serializer.is_valid)
         serializer.is_valid(raise_exception=True)
 
         user = serializer.save()
+        print(user)
         refresh = RefreshToken.for_user(user)
         return Response(status=status.HTTP_201_CREATED)
 
 
-class ContactViewSet(ModelViewSet, TokenObtainPairView):
+class ContactViewSet(ModelViewSet):
     serializer_class = ContactFormSerializer
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
@@ -392,7 +411,7 @@ class ContactViewSet(ModelViewSet, TokenObtainPairView):
             return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class ProfileViewSet(ModelViewSet, TokenObtainPairView):
+class ProfileViewSet(ModelViewSet):
     serializer_class = ProfileSerializer
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]

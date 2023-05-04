@@ -1,3 +1,5 @@
+/* jshint esversion: 6 */
+
 import React from 'react';
 import { useState } from 'react';
 import {Cookies} from "react-cookie";
@@ -10,23 +12,27 @@ function EditProfilePopup(props) {
 	const token = localStorage.getItem('token');
 
 	function submitNewInfo() {
-		axios.put(`http://127.0.0.1:8000/api/user/update/`, {
-			headers: { Authorization: `Bearer ${token}` },
+		console.log(userId);
+		const data = {
 			"userId": userId,
 			"newInfo": newInfo,
 			"changedInfo" : props.changedInfo
-		}).then(response => {
-			console.log(response);
-		}).catch((exception) => {
-			console.log(exception);
+		};
+		axios.put(`http://127.0.0.1:8000/api/user/update/`, data, {
+		  headers: {
+			'Authorization': `Token ${token}`
+		  },
+			method: 'PUT'
+
 		});
 		window.location.reload();
 	}
 
 
 	function setAttentionRatingLimit() {
+		console.log();
 		axios.put(`http://127.0.0.1:8000/api/settings/${props.settingsId}/`, {
-				  headers: { Authorization: `Bearer ${token}` },
+				  headers: { Authorization: `Token ${token}` },
 					"attention_limit" : newInfo
 		}).then(response => {
 			console.log(response);

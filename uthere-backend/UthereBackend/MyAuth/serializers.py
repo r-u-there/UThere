@@ -87,6 +87,15 @@ class SettingsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Settings
         fields = '__all__'
+    def update(self, instance):
+        instance.attention_limit = self.validated_data.get('attention_limit', instance.attention_limit)
+        instance.get_analysis_report = self.validated_data.get('get_analysis_report', instance.get_analysis_report)
+        instance.hide_real_time_emotion_analysis = self.validated_data.get('hide_real_time_emotion_analysis ', instance.hide_real_time_emotion_analysis)
+        instance.hide_real_time_attention_analysis = self.validated_data.get('hide_real_time_attention_analysis ', instance.hide_real_time_attention_analysis)
+        instance.hide_real_time_analysis = self.validated_data.get('hide_real_time_analysis', instance.hide_real_time_analysis)
+        instance.hide_who_left = self.validated_data.get('hide_who_left', instance.hide_who_left)
+        instance.hide_eye_tracking = self.validated_data.get('hide_eye_tracking ', instance.hide_eye_tracking )
+        return instance
 
 
 class MeetingSerializer(serializers.ModelSerializer):

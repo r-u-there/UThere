@@ -13,8 +13,8 @@ function MeetingPage() {
 
 	async function isEyeTrackingHidden() {
 		try {
-			response = await axios.get('http://127.0.0.1:8000/api/getsettings/${userId}/', {
-				  headers: { Authorization: `Bearer ${token}` }
+			response = await axios.get(`http://127.0.0.1:8000/api/getsettings/${userId}/`, {
+				  headers: { Authorization: `Token ${token}` }
 			  });
 		} catch(exception) {
 			console.log(exception);

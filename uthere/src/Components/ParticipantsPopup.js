@@ -9,10 +9,12 @@ function ParticipantsPopup(props) {
 	const cookies = new Cookies();
 	const userId = cookies.get("userId");
 	const channelId = cookies.get("channel_id")
-	const status = cookies.get("status")
-	const [isHost, setIsHost] = useState(status==="host")
-	const [isParticipantPresenter,setIsParticipantPresenter] = useState()
-	const [setButton,setsetButton] = useState(true)
+	const status = cookies.get("status");
+	const [isHost, setIsHost] = useState(status==="host");
+	const [isParticipantPresenter,setIsParticipantPresenter] = useState();
+	const [setButton,setsetButton] = useState(true);
+	const token = localStorage.getItem('token');
+
 	async function getMeetingUser(arg) {
         try {
             const response = await axios.get(`http://127.0.0.1:8000/api/get_meeting_participant/${arg}/`);
@@ -37,7 +39,7 @@ function ParticipantsPopup(props) {
 		//force user to left
 		//update left time of the use
 		axios.put(`http://127.0.0.1:8000/api/user_kicked_meeting/`, {
-			headers: { Authorization: `Bearer ${token}` },
+			headers: { Authorization: `Token ${token}` },
 			"userId": removed_user_id,
 			"channelId": channelId
 		}).then(response => {
@@ -48,7 +50,7 @@ function ParticipantsPopup(props) {
 	}
 	function alertUser(alerted_user_id){
 		axios.put(`http://127.0.0.1:8000/api/alert_user_meeting/`, {
-			headers: { Authorization: `Bearer ${token}` },
+			headers: { Authorization: `Token ${token}` },
 			"userId": alerted_user_id,
 			"channelId": channelId
 		}).then(response => {
@@ -61,7 +63,7 @@ function ParticipantsPopup(props) {
 	function unsetPresenter(presenter_user_id){
 		//make the user presenter
 		axios.put(`http://127.0.0.1:8000/api/unset_presenter_meeting/`, {
-			headers: { Authorization: `Bearer ${token}` },
+			headers: { Authorization: `Token ${token}` },
 			"userId": presenter_user_id,
 			"channelId": channelId
 		}).then(response => {
@@ -74,7 +76,7 @@ function ParticipantsPopup(props) {
 	function setPresenter(presenter_user_id){
 		//make the user presenter
 		axios.put(`http://127.0.0.1:8000/api/set_presenter_meeting/`, {
-			headers: { Authorization: `Bearer ${token}` },
+			headers: { Authorization: `Token ${token}` },
 			"userId": presenter_user_id,
 			"channelId": channelId
 		}).then(response => {

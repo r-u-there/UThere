@@ -36,6 +36,7 @@ function RegistrationPage() {
 			axios.post('http://127.0.0.1:8000/api/auth/register/', item).then(response => {
 				window.location = "/Login";
 			}).catch((exception) => {
+				setLoginSuccess(1);
 				if (Object.hasOwn(exception.response.data, 'email')) {
 					setFailureMessage("Invalid email address! Registration unsuccessful!");
 				} else if (Object.hasOwn(exception.response.data, 'username')) {
