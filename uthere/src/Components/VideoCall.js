@@ -28,6 +28,61 @@ function VideoCall(props) {
 	const status = cookies.get("status")
 	const userId = cookies.get("userId");
 	const channelId = cookies.get("channel_id")
+	const [trackState, setTrackState] = useState({ video: true, audio: true });
+	const [mediaStream, setMediaStream] = useState(null);
+	const [mediaRecorder, setMediaRecorder] = useState(null);	
+
+	const startMediaStream = () => {
+		navigator.mediaDevices.getUserMedia({ audio: false, video: true}
+			).then((stream) => {
+			setMediaStream(stream);
+			const options = {
+				videoBitsPerSecond: 2000000,
+				mimeType: 'video/webm',
+			  };
+			const mediaRecorder = new MediaRecorder(stream, options);
+			mediaRecorder.start(10000);
+			mediaRecorder.ondataavailable = (e) => {
+				if (typeof e.data === "undefined") return;
+				if (e.data.size === 0) return;
+				console.log(e.data);
+				const formData = new FormData();
+				const blob = new Blob([e.data], { type: "video/webm" });	
+				formData.append('file', blob, 'recorded-video.webm');
+				let cur_time = new Date().toLocaleTimeString()
+				formData.append('time', cur_time);
+				formData.append('user_id', userId);
+				console.log(formData)
+				fetch("http://0.0.0.0:8008/upload-video/", {
+					method: 'POST',
+					body: formData,
+					headers: {
+						'Accept': 'application/json'
+					}
+				});
+			setMediaRecorder(mediaRecorder);
+		};
+		  })
+		  .catch((error) => {
+			console.error('Error accessing webcam:', error);
+		});	
+	}
+
+	const stopMediaStream = () => {
+		if (mediaRecorder.state === "recording") {
+			mediaRecorder.stop();
+		} 
+		else {
+			console.log("MediaRecorder is not recording");
+		}
+		if (mediaStream) {
+		  // Stop the media stream
+		  mediaStream.getTracks().forEach(track => track.stop());
+		  // Set the media stream state variable to null
+		  setMediaStream(null);
+		}
+		setMediaRecorder(null);
+	}
 
 	async function getHostID() {
         try {
@@ -146,10 +201,24 @@ function VideoCall(props) {
 		
 	}, [channelName, client, ready, tracks]);
 
+	useEffect(() => { 	
+		console.log(trackState)
+		if (mediaStream == null && trackState.video) {
+			startMediaStream();
+			console.log("camera on");
+        }
+		if(mediaStream != null && !trackState.video){
+			stopMediaStream();
+			console.log("camera off");
+		}
+		//check if mediaStream is not equal to null
+
+	}, [trackState]);
+
 	return (
 		<div>
 			<div>
-				{ready && tracks && (<Controls tracks={tracks} setStart={setStart} webgazer={webgazer} users={users} />)}
+				{ready && tracks && (<Controls tracks={tracks} setStart={setStart} webgazer={webgazer} users={users} trackState={trackState} setTrackState = {setTrackState}/>)}
 			</div>
 			<div>
 			{start && tracks && <Videos tracks={tracks} users={users} usersWithCam={usersWithCam} agorauid={agorauid} />}
