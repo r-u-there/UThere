@@ -376,6 +376,7 @@ class JoinMeetingViewSet(ModelViewSet):
 
 class RegistrationViewSet(ModelViewSet):
     serializer_class = RegisterSerializer
+    permission_classes = (AllowAny,)
     http_method_names = ['post']
 
     def create(self, request, *args, **kwargs):
