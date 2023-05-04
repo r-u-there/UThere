@@ -168,7 +168,31 @@ class AlertUserMeetingViewSet(ModelViewSet):
 
         serializer = MeetingUserSerializer(user_meeting)
         return Response(serializer.data)
-        
+
+
+class SignOutViewSet(viewsets.ViewSet):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def create(self, request, pk=None):
+        # Get the user's token
+        try:
+            token = request.auth
+        except AttributeError:
+            # The user is not authenticated
+            return Response(status=401)
+
+        # Delete the user's token
+        try:
+            token = Token.objects.get(key=token)
+            token.delete()
+        except Token.DoesNotExist:
+            # The token doesn't exist
+            pass
+
+        # Return a success response
+        return Response(status=204)
+
     
 class SettingsViewSet(ModelViewSet):
     serializer_class = SettingsSerializer

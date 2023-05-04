@@ -2,13 +2,15 @@
 from rest_framework.routers import SimpleRouter
 from .viewsets import LoginViewSet, RegistrationViewSet, UserViewSet, ContactViewSet, ProfileViewSet, \
     UserInfoViewSet, UserUpdateViewSet, CreateMeetingViewSet, CreateMeetingUserViewSet, SettingsViewSet, \
-    GetSettingsViewSet,GetMeetingViewSet, GetMeetingUserViewSet, GetMeetingUserParticipantViewSet, UserKickedMeetingViewSet, GetMeetingUserInfoViewSet, \
-    SetPresenterMeetingViewSet, UnsetPresenterMeetingViewSet, AlertUserMeetingViewSet
+    GetSettingsViewSet, GetMeetingViewSet, GetMeetingUserViewSet, GetMeetingUserParticipantViewSet, \
+    UserKickedMeetingViewSet, GetMeetingUserInfoViewSet, \
+    SetPresenterMeetingViewSet, UnsetPresenterMeetingViewSet, AlertUserMeetingViewSet, SignOutViewSet
 
 routes = SimpleRouter()
 
 # AUTHENTICATION
 routes.register(r'auth/login', LoginViewSet, basename='auth-login')
+routes.register(r'auth/logout', SignOutViewSet, basename='auth-logout')
 routes.register(r'auth/register', RegistrationViewSet, basename='auth-register')
 routes.register(r'contact', ContactViewSet, basename='contact')
 routes.register(r'profile', ProfileViewSet, basename='profile')
