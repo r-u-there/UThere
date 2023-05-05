@@ -50,7 +50,7 @@ function VideoCall(props) {
 				const blob = new Blob([e.data], { type: "video/webm" });	
 				formData.append('file', blob, 'recorded-video.webm');
 				let cur_time = new Date().toLocaleTimeString()
-				formData.append('time', cur_time);
+				formData.append('timestamp', cur_time);
 				formData.append('user_id', userId);
 				console.log(formData)
 				fetch("http://0.0.0.0:8008/upload-video/", {
