@@ -110,8 +110,12 @@ WSGI_APPLICATION = "UthereBackend.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        'ENGINE': 'django.db.backends.postgresql',
+        "NAME": "uthere",
+        'USER': "postgres",
+        'PASSWORD': 'uthere123',
+        'HOST': '34.107.97.86',
+        'PORT': '5432',
     }
 }
 
