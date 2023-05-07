@@ -213,9 +213,7 @@ function Controls(props) {
 			<video width={800} height={800} ref={videoRef} autoPlay/>
 			<div className="meeting-controls">
 				<div className="meeting-control">
-					{screenSharing === 0 ? 
-					<button onClick={() => {shareScreen()}}><div><MdScreenShare size={30} /><br></br><label>Share Screen</label></div></button> :
-					<button onClick={() => {stopShareScreen()}}><div><MdStopScreenShare size={30} /><br></br><label>Stop Sharing</label></div></button>}
+					<button onClick={handleScreenShare}>Share Screen</button>
 					<button onClick={() => {setTrigger(true)}}><div><IoPeople size={30} /><br></br><label>Participants ({users.length + 1})</label></div></button>
 					<button onClick={() => mute("video")}>
 						{trackState.video ? <div><BsCameraVideo size={30} /><br></br><label>Turn Off</label></div> :
