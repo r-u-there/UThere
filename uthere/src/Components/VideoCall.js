@@ -21,17 +21,19 @@ function VideoCall(props) {
 	const [start, setStart] = useState(false);
 	const [agorauid,setAgorauid] = useState(0);
 	const client = useClient();
-	console.log(client.remoteUsers)
-	const [token, setToken] = useState('');
+	console.log(client.remoteUsers);
+	const token = localStorage.get("token");
 	const agora_token = cookies.get("token");
 	const channelName = cookies.get("channel_name")
-	const status = cookies.get("status")
+	const status = cookies.get("status");
 	const userId = cookies.get("userId");
 	const channelId = cookies.get("channel_id")
 
 	async function getHostID() {
         try {
-            const response = await axios.get(`http://127.0.0.1:8000/api/get_meeting_user/${channelId}/`);
+            const response = await axios.get(`http://127.0.0.1:8000/api/get_meeting_user/${channelId}/`, {
+				  headers: { Authorization: `Token ${token}` }
+			  });
 			console.log(response)
             return response.data.user;
         } catch (error) {

@@ -26,7 +26,9 @@ function MeetingEnding() {
 			  });
 			console.log(response);
       response.data.forEach(function(current, index) {
-        axios.get(`http://127.0.0.1:8000/api/user/info/${current.user}/`).then(response => {
+        axios.get(`http://127.0.0.1:8000/api/user/info/${current.user}/`, {
+				  headers: { Authorization: `Token ${token}` }
+			  }).then(response => {
 				    console.log(response.data.username);
             setParticipants((prevUsers) => {
 						  return [...prevUsers, response.data.username];

@@ -12,11 +12,16 @@ function Videos(props) {
 	const cookies = new Cookies();
 	const userId = cookies.get("userId");
 	const channelId = cookies.get("channel_id");
+	const token = localStorage.get("token");
 	async function getMeetingUser(arg) {
         try {
-            const response = await axios.get(`http://127.0.0.1:8000/api/get_meeting_participant/${arg}/`);
+            const response = await axios.get(`http://127.0.0.1:8000/api/get_meeting_participant/${arg}/`, {
+				  headers: { Authorization: `Token ${token}` }
+			  });
 			let participant_user_id = response.data.user  
-			axios.get(`http://127.0.0.1:8000/api/user/info/${participant_user_id}/`).then(response => {
+			axios.get(`http://127.0.0.1:8000/api/user/info/${participant_user_id}/`, {
+				  headers: { Authorization: `Token ${token}` }
+			  }).then(response => {
 				setParticipantName(response.data.username);
 			}).catch((exception) => {
 				console.log(exception);
@@ -27,7 +32,9 @@ function Videos(props) {
     }
 
 	useEffect(() => {
-		axios.get(`http://127.0.0.1:8000/api/user/info/${userId}/`).then(response => {
+		axios.get(`http://127.0.0.1:8000/api/user/info/${userId}/`, {
+				  headers: { Authorization: `Token ${token}` }
+			  }).then(response => {
 			setName(response.data.username);
 		}).catch((exception) => {
 			console.log(exception);

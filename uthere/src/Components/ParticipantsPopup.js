@@ -17,14 +17,18 @@ function ParticipantsPopup(props) {
 
 	async function getMeetingUser(arg) {
         try {
-            const response = await axios.get(`http://127.0.0.1:8000/api/get_meeting_participant/${arg}/`);
-			let participant_user_id = response.data.user  
-			let participant_is_presenter = response.data.is_presenter
-			setIsParticipantPresenter(participant_is_presenter)
-			axios.get(`http://127.0.0.1:8000/api/user/info/${participant_user_id}/`).then(response => {
-				let name = response.data.username
+            const response = await axios.get(`http://127.0.0.1:8000/api/get_meeting_participant/${arg}/`, {
+				  headers: { Authorization: `Token ${token}` }
+			  });
+			let participant_user_id = response.data.user;
+			let participant_is_presenter = response.data.is_presenter;
+			setIsParticipantPresenter(participant_is_presenter);
+			axios.get(`http://127.0.0.1:8000/api/user/info/${participant_user_id}/`, {
+				  headers: { Authorization: `Token ${token}` }
+			  }).then(response => {
+				let name = response.data.username;
 				if(participant_is_presenter){
-					name = name + " (Presenter)"
+					name = name + " (Presenter)";
 				}
 				setParticipantName(name);
 			}).catch((exception) => {
@@ -87,7 +91,9 @@ function ParticipantsPopup(props) {
 		setsetButton(false)
 	}
 	useEffect(() => {
-		axios.get(`http://127.0.0.1:8000/api/user/info/${userId}/`).then(response => {
+		axios.get(`http://127.0.0.1:8000/api/user/info/${userId}/`, {
+				  headers: { Authorization: `Token ${token}` }
+			  }).then(response => {
 			setName(response.data.username);
 		}).catch((exception) => {
 			console.log(exception);
