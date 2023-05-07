@@ -1,18 +1,25 @@
+/*jshint esversion: 9 */
+
 import {useEffect, useRef, useState} from "react";
-import { channelName, useClient } from "../settings";
+import {useClient} from "../settings";
 import React from 'react';
 import { BsCameraVideo, BsCameraVideoOff } from 'react-icons/bs';
 import { BsMic, BsMicMute } from 'react-icons/bs';
 import { IoCloseCircleOutline } from 'react-icons/io5';
-import { IoPeople } from 'react-icons/io5'
+import { IoPeople } from 'react-icons/io5';
 import {Cookies} from "react-cookie";
 import {Link, useNavigate} from 'react-router-dom';
 import ParticipantsPopup from "./ParticipantsPopup";
 import ClipBoardPopup from "./ClipBoardPopup";
 import AlertPopup from "./AlertPopup";
 import LeaveMeetingPopup from "./LeaveMeetingPopup";
-import {MdScreenShare, MdStopScreenShare,MdOutlineContentCopy} from "react-icons/md"
+import {MdScreenShare, MdStopScreenShare,MdOutlineContentCopy} from "react-icons/md";
 import axios from "axios";
+import {
+	config,
+	channelName
+} from "../settings";
+import AgoraRTC from 'agora-rtc-react';
 const token = localStorage.getItem('token');
 
 
@@ -26,50 +33,55 @@ function Controls(props) {
 	const [trigger2, setTrigger2] = useState(false);
 	const [trigger3, setTrigger3] = useState(false);
 	const [trigger4, setTrigger4] = useState(false);
-	let alertNum = "0"
-	const [triggerAlertPopup, setTriggerAlertPopup] = useState(false)
+	let alertNum = "0";
+	const [triggerAlertPopup, setTriggerAlertPopup] = useState(false);
 	
 	const navigate = useNavigate();
-	const videoRef = useRef()
+	const videoRef = useRef();
 	const cookies = new Cookies();
+	const agora_token = cookies.get("token");
 	const userId = cookies.get("userId");
-	const channelId = cookies.get("channel_id")
-	const status = cookies.get("status")
+	const channelId = cookies.get("channel_id");
+	const status = cookies.get("status");
 	const [screenSharing, setScreenSharing] = useState(0);
 	let stream;
+	const channelName = cookies.get("channel_name");
+	const [isSharingEnabled, setIsSharingEnabled] = useState(false);
+	const [channelParameters, setChannelParameters] = useState({
+		screenTrack: null,
+		localVideoTrack: null,
+	  });
 
-	const shareScreen = async () => {
-		try {
-			stream = await navigator.mediaDevices.getDisplayMedia({
-				audio: true,
-				video: {
-					cursor: "always"
-				}
-			})
-			setScreenSharing(1);
-			console.log(stream.active)
-			videoRef.current.srcObject = stream
-		}
-		catch (err) {
-			setScreenSharing(0);
-			console.log(err);
-		}
-	}
-
-	const stopShareScreen = () => {
-		setScreenSharing(0);
-		let tracks = videoRef.current.srcObject.getTracks();
-		tracks.forEach((t) => {t.stop();})
-		videoRef.current.srcObject = null;
-	}
+	/*
+	const agoraClient = AgoraRTC.createClient({ mode: 'rtc', codec: 'vp8' });
+	agoraClient.init(config.appId);
+	agoraClient.join(agora_token, channelName, null, (uid) => {
+	  const screenShareConfig = {
+		audio: false,
+		video: false,
+		screen: true,
+		// Change the extensionId to the extension installed on your browser.
+		extensionId: 'yourextensionidhere'
+	  };
+	  const screenShareStream = AgoraRTC.createStream(screenShareConfig);
+	  screenShareStream.init(() => {
+		agoraClient.publish(screenShareStream, (err) => {
+		  console.log('Failed to publish screen share stream', err);
+		});
+	  }, (err) => {
+		console.log('Failed to initialize screen share stream', err);
+	  });
+	}, (err) => {
+	  console.log('Failed to join channel', err);
+	});
+	*/
 
 	const copyLink = () => {
-		const channelId = cookies.get("channel_id")
-		const agoraToken = cookies.get("token")
-		const text = "Channel Id: " + channelId + "\nToken: " + agoraToken
+		const channelId = cookies.get("channel_id");
+		const text = "Channel Id: " + channelId + "\nToken: " + agora_token;
 		navigator.clipboard.writeText(text);
-		setTrigger2(true)
-	}
+		setTrigger2(true);
+	};
 
 	const mute = async (type) => {
 		if (type === "audio") {
@@ -87,13 +99,13 @@ function Controls(props) {
 	useEffect(() => {
 		const leaveChannel = async () => {
 			if(trigger4){
-				if(props.webgazer != null){
+				if(props.webgazer !== null){
 					props.webgazer.pause();
 					props.webgazer.end();
 					window.localStorage.removeItem('webgazerGlobalData');
 					window.localStorage.removeItem('webgazerUserdata');
 					window.localStorage.removeItem('webgazerVideoContainer');
-					console.log("closed")
+					console.log("closed");
 				}
 				client.removeAllListeners();
 				if (tracks) {
@@ -112,20 +124,20 @@ function Controls(props) {
 				tracks[1].close();
 				setStart(false);
 				//clean meeting related cookies
-				cookies.remove("token")
-				cookies.remove("channel_name")
-				cookies.remove("channel_id")
-				cookies.remove("status")
-				window.location.href ="/Dashboard"
+				cookies.remove("token");
+				cookies.remove("channel_name");
+				cookies.remove("channel_id");
+				cookies.remove("status");
+				window.location.href ="/Dashboard";
 			}
 		};
 		if(trigger3 || trigger4){
-			leaveChannel()
+			leaveChannel();
 		}
 	  }, [trigger3,trigger4]);
 	  useEffect(() => {
 		const checkRemovedValue = () => {
-			console.log(token)
+			console.log(token);
 			axios.put('http://127.0.0.1:8000/api/user_meeting_get_info/', {
 				"userId": userId,
 				"channelId": channelId
@@ -133,25 +145,25 @@ function Controls(props) {
 				headers: { Authorization: `Token ${token}` }
 			  }).then(response => {
 				console.log(response.data);
-				if(response.data.is_removed == 1){
-					setTrigger4(true)
+				if(response.data.is_removed === 1){
+					setTrigger4(true);
 				}
-				if(response.data.is_presenter == 1){
-					cookies.set("status","presenter")
+				if(response.data.is_presenter === 1){
+					cookies.set("status","presenter");
 				}
-				if(response.data.is_presenter == 0){
-					cookies.set("status","participant")
+				if(response.data.is_presenter === 0){
+					cookies.set("status","participant");
 				}
-				console.log(response.data.alert_num)
-				console.log(alertNum)
-				if(response.data.is_presenter == 0 && response.data.alert_num !== alertNum){
-					console.log("burası")
-					console.log(response.data.alert_num)
-					console.log(typeof(alertNum))
-					console.log(alertNum)
-					alertNum =response.data.alert_num
-					console.log(alertNum)
-					setTriggerAlertPopup(true)
+				console.log(response.data.alert_num);
+				console.log(alertNum);
+				if(response.data.is_presenter === 0 && response.data.alert_num !== alertNum){
+					console.log("burası");
+					console.log(response.data.alert_num);
+					console.log(typeof(alertNum));
+					console.log(alertNum);
+					alertNum =response.data.alert_num;
+					console.log(alertNum);
+					setTriggerAlertPopup(true);
 				}
 			}).catch((exception) => {
 				console.log(exception);
@@ -164,7 +176,35 @@ function Controls(props) {
 		// Clean up the interval when the component unmounts
 		return () => clearInterval(intervalId);
 		
-	}, [])
+	}, []);
+	const handleScreenShare = async () => {
+    if (isSharingEnabled) {
+      if (channelParameters.screenTrack) {
+        await channelParameters.screenTrack.replaceTrack(channelParameters.localVideoTrack, true);
+      }
+      setIsSharingEnabled(false);
+    } else {
+      try {
+				const client2 = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
+				let uid = await client2.join(config.appId, channelName, agora_token, null);
+        const screenTrack = await AgoraRTC.createScreenVideoTrack();
+				await client2.publish([screenTrack]);
+				client2.on("user-published", async (user, mediaType) => {
+      if (mediaType === "video" && user.videoTrack) {
+        await client2.subscribe(user, "screen");
+        const screenTrack = user.videoTrack;
+		        // Play the remote screen track in the new div element
+        screenTrack.play("");
+      }
+    });
+        await channelParameters.localVideoTrack.replaceTrack(screenTrack, true);
+        setChannelParameters({ ...channelParameters, screenTrack });
+        setIsSharingEnabled(true);
+      } catch (error) {
+        console.error('Error creating screen track:', error);
+      }
+    }
+  };
 
 
 

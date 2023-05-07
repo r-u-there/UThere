@@ -471,4 +471,22 @@ class ProfileViewSet(ModelViewSet):
             raise InvalidToken(e.args[0])
 
 
+class GetAllMeetingParticipantsViewSet(ModelViewSet):
+    serializer_class = MeetingUserSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    http_method_names = ['get']
+    queryset = MeetingUser.objects.all()
+
+    def retrieve(self, request, pk=None):
+        print("primary key is " + pk)
+        queryset = MeetingUser.objects.filter(meeting_id=pk)
+        print(queryset)
+        if not queryset.exists():
+            return Response(status=404)
+
+        serializer = MeetingUserSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+
 
