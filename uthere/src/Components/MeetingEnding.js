@@ -61,7 +61,7 @@ function MeetingEnding() {
         </table>
       </div>
     </div>
-        );
+  );
 }
 
 export default MeetingEnding;

@@ -101,11 +101,15 @@ class UserKickedMeetingViewSet(ModelViewSet):
     queryset = MeetingUser.objects.all()
 
     def put(self, request, *args, **kwargs):
+        print(request.user)
         left_user_id = request.data.get("userId")
-        channel_id= request.data.get("channelId")
+        channel_id = request.data.get("channelId")
+        print(left_user_id, channel_id)
         user_meeting = MeetingUser.objects.get(agora_id=left_user_id, meeting_id=channel_id)
- 
-        if user_meeting.left_time == None:
+
+        print(user_meeting)
+        if user_meeting.left_time is None:
+            print("inside if")
             user_meeting.left_time = timezone.now().date()
             user_meeting.is_removed = True
             user_meeting.save()

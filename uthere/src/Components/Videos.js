@@ -12,7 +12,7 @@ function Videos(props) {
 	const cookies = new Cookies();
 	const userId = cookies.get("userId");
 	const channelId = cookies.get("channel_id");
-	const token = localStorage.get("token");
+	const token = localStorage.getItem("token");
 	async function getMeetingUser(arg) {
         try {
             const response = await axios.get(`http://127.0.0.1:8000/api/get_meeting_participant/${arg}/`, {

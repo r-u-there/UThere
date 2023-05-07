@@ -22,7 +22,7 @@ function VideoCall(props) {
 	const [agorauid,setAgorauid] = useState(0);
 	const client = useClient();
 	console.log(client.remoteUsers);
-	const token = localStorage.get("token");
+	const token = localStorage.getItem("token");
 	const agora_token = cookies.get("token");
 	const channelName = cookies.get("channel_name")
 	const status = cookies.get("status");

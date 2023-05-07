@@ -21,12 +21,12 @@ function JoinMeetingPopup(props) {
 			}
 		}).then(response => {
 			//write here
-			console.log(response.data.agora_agoraToken);
-			if(response.data.agora_agoraToken === agoraToken){
-				cookies.set("agoraToken", agoraToken)
-				cookies.set("channel_name",response.data.channel_name )
-				cookies.set("channel_id",channelId)
-				cookies.set("status","participant")
+			console.log("token is:" ,response.data.agora_token);
+			if(response.data.agora_token === agoraToken){
+				cookies.set("token", agoraToken);
+				cookies.set("channel_name",response.data.channel_name );
+				cookies.set("channel_id",channelId);
+				cookies.set("status","participant");
 				navigate("/Meeting");
 			}
 			else{

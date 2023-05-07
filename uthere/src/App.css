@@ -266,18 +266,20 @@ body {
 	font-size: 1.1rem;
 }
 .popup-inner-clipboard {
-	position: center;
-	width: 15%;
-	height: 8%;
-	max-width: 400px;
-	max-height: 80%;
-	border-radius: 15px;
-	background-color: #FFF;
-	opacity: 0.8;
-	box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3);
-	overflow: auto;
-	padding: 1px;
-	font-size: 1.1rem;
+	position: fixed;
+  	top: 50%;
+  	left: 50%;
+  	transform: translate(-50%, -50%);
+  	width: 70%;
+  	max-width: 400px;
+  	height: auto;
+  	max-height: 80%;
+  	border-radius: 15px;
+  	background-color: #f9f9f9;
+  	box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3);
+  	overflow: hidden;
+  	padding: 20px;
+  	font-size: 1.1rem;
 }
 .popup-inner button {
   background-color: orange;
@@ -322,31 +324,25 @@ body {
 	width: 270px;
 	height: 270px;
 	background-color: black;
-	border-radius: 7px;
-	border-width: 3px;
-	border-color: #434343;
-	border-style: solid;
-	margin: 2px;
 }
 
 .vid:nth-child(2) {
-	left: 0;
-	top: 273px;
-}
-
-.vid:nth-child(3) {
 	left: 276px;
+	top: 0;
+}
+.vid:nth-child(3) {
+	left: 552px;
 	top: 0;
 }
 
 .vid:nth-child(4) {
-	left: 276px;
+	left: 0;
 	top: 273px;
 }
 
 .vid:nth-child(5) {
-	left: 552px;
-	top: 0;
+	left: 276px;
+	top: 273px;
 }
 
 .vid:nth-child(6) {
@@ -354,7 +350,6 @@ body {
 	top: 273px;
 }
 
-/* add more rules for each additional video */
 
 
 .abc {
@@ -432,9 +427,9 @@ body {
   padding: 1px;
 }
 .video-label-container-2 {
-	position: relative;
-	top: 5px;
-	left: 10px;
+	position: absolute;
+	top: 0px;
+	left: 276px;
 	display: flex;
 	align-items: center;
 	padding: 1px;
@@ -445,4 +440,35 @@ body {
   font-size: 15px;
   color: #FFF;
   text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);
+}
+
+
+.loading {
+	position: fixed;
+  	top: 50%;
+	left: 50%;
+  	transform: translate(-50%, -50%);
+	color: #ffb241;
+}
+
+.meeting-ending {
+	position: absolute;
+	top: 38%;
+	left: 39%;
+	margin-top: -100px;
+	margin-left: -150px;
+	border: 1px solid;
+	padding-top: 25px;
+	padding-left: 50px;
+	padding-right: 50px;
+	padding-bottom: 25px;
+}
+
+.meeting-participants-table {
+	border-collapse: separate;
+  	border-spacing: 10px;
+}
+
+.meeting-participants-table td {
+  padding: 10px;
 }

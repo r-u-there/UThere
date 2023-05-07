@@ -42,10 +42,12 @@ function ParticipantsPopup(props) {
     function removeUser(removed_user_id){
 		//force user to left
 		//update left time of the use
+		console.log("token: ",token);
 		axios.put(`http://127.0.0.1:8000/api/user_kicked_meeting/`, {
-			headers: { Authorization: `Token ${token}` },
-			"userId": removed_user_id,
-			"channelId": channelId
+		  "userId": removed_user_id,
+		  "channelId": channelId
+		}, {
+		  headers: { Authorization: `Token ${token}` }
 		}).then(response => {
 			console.log(response);
 		}).catch((exception) => {
