@@ -10,6 +10,7 @@ import {useState, useEffect, useCallback} from "react";
 import EditProfilePopup from "./EditProfilePopup";
 import {Cookies} from "react-cookie";
 import axios from "axios";
+import * as ReactBootStrap from "react-bootstrap"
 
 function ProfilePage() {
 	const [tabSelection, setTabSelection] = useState(0);
@@ -31,7 +32,7 @@ function ProfilePage() {
 	const [settingsId, setSettingsId] = useState(0);
 	const [attentionRatingLimit, setAttentionRatingLimit] = useState("");
 	const token = localStorage.getItem('token');
-
+	const [loading, setLoading] = useState(false);
 
 	const getUserInfo = useCallback(() => {
 		axios.get(`http://127.0.0.1:8000/api/user/info/${userId}/`, {
@@ -42,6 +43,7 @@ function ProfilePage() {
 			setName(response.data.username);
 			setEmail(response.data.email);
 			setPassword(response.data.password);
+			setLoading(true);
 		}).catch((exception) => {
 			console.log(exception);
 		});
@@ -182,7 +184,7 @@ function ProfilePage() {
 			<UThere></UThere>
 			<div className='page-background'></div>
 			<Logout></Logout>
-			<div className='profile'>
+			{loading ? <div className='profile'>
 				<ul className="nav nav-tabs">
 					<li className="nav-item">
 						<a className="nav-link active" data-toggle="tab" href="" onClick={() => {setTabSelection(0)}}>Profile</a>
@@ -195,7 +197,7 @@ function ProfilePage() {
 					</li>
 				</ul><hr></hr>
 				{displayProfile()}
-			</div>
+			</div> : <div className="loading"><ReactBootStrap.Spinner animation="border" style={{height:"100px", width:"100px"}}/></div>}
 			<EditProfilePopup trigger={trigger} setTrigger={setTrigger} settingsId={settingsId} changedInfo={changedInfo}></EditProfilePopup>
 		</div>
 	);

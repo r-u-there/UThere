@@ -43,10 +43,12 @@ function Videos(props) {
 
 	return (
 		<div>
-			<div>
-				<AgoraVideoPlayer id={userId} videoTrack={tracks[1]} className='vid' />
-				<div className='video-label-container'>
-					<span className='video-label'>{name}</span>
+			<div >
+				<div>
+					<AgoraVideoPlayer id={userId} videoTrack={tracks[1]} className="vid"/>
+					<div className='video-label-container'>
+						<span className='video-label'>{name}</span>
+					</div>
 				</div>
 				{
 					users.length > 0 &&
@@ -55,14 +57,21 @@ function Videos(props) {
 						if (user.videoTrack) {
 							getMeetingUser(user.uid);
 							return (
-								<AgoraVideoPlayer id = "play" videoTrack={user.videoTrack} key={user.uid} className='vid' />
+								<div className="vid">
+									<AgoraVideoPlayer className="vid" id = "play" videoTrack={user.videoTrack} key={user.uid}/>
+									<div className='video-label-container'>
+										<span className='video-label'>{participantName}</span>
+									</div>
+								</div>
 							);
 						}
 						else {
 							getMeetingUser(user.uid);
 							return (
 								<div key={user.uid} className='vid'>
-									<center><h3 style={{color:"white"}}>{participantName}</h3></center>
+									<div className='video-label-container'>
+										<span className='video-label'>{participantName}</span>
+									</div>
 								</div>
 							);
 						}

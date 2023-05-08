@@ -1,5 +1,3 @@
-/*jshint esversion: 9 */
-
 import React, {useEffect, useState} from 'react';
 import UThere from "./UThere";
 import Logout from "./Logout";

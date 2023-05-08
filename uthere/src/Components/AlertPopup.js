@@ -11,7 +11,7 @@ function AlertPopup(props) {
         setTimeout(() => {
             setIsVisible(false);
             setTriggerAlertPopup(false);
-        }, 500);
+        }, 4000);
     }
   }, [triggerAlertPopup]);
 

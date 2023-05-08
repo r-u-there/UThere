@@ -13,6 +13,7 @@ import {Cookies} from "react-cookie";
 import axios from 'axios';
 import {useState, useEffect} from "react";
 import {config} from "../settings";
+import * as ReactBootStrap from "react-bootstrap"
 
 function Dashboard() {
 	const [trigger, setTrigger] = useState(false);
@@ -21,6 +22,7 @@ function Dashboard() {
 	const [name, setName] = useState("");
 	const [meetingId, setMeetingId] = useState("");
 	const token = localStorage.getItem('token');
+	const [loading, setLoading] = useState(false);
 
 	async function createMeetingAndUser() {
 			try {
@@ -61,6 +63,7 @@ function Dashboard() {
 				}
 			}).then(response => {
 				setName(response.data.username);
+				setLoading(true);
 			}).catch((exception) => {
 				console.log(exception);
 			});
@@ -71,11 +74,12 @@ function Dashboard() {
 	  }, []);
 
 	
-	return (
+	  return (
 		<div>
 			<UThere></UThere>
 			<div className='page-background'></div>
 			<Logout></Logout>
+			{loading ?
 			<div className='dashboard' style={{"background-color": "white"}}>
 				<center><h1>Welcome, {name}</h1></center>
 				<hr></hr>
@@ -93,7 +97,7 @@ function Dashboard() {
 						<td><center><Link to="/Contact"><label style={{"color": "black"}}>Contact Us</label></Link></center></td>
 					</tr>
 				</table>
-			</div>
+			</div> : <div className="loading"><ReactBootStrap.Spinner style={{height:"100px", width:"100px"}} animation="border"/></div>}
 			<JoinMeetingPopup trigger={trigger} setTrigger={setTrigger}></JoinMeetingPopup>
 		</div>
 	);

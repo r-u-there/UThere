@@ -88,8 +88,8 @@ class Profile(models.Model):
 class Meeting(models.Model):
     agora_token = models.TextField(max_length=500)
     channel_name = models.TextField(max_length=500, default = "")
-    start_time = models.DateField(auto_now_add=True)
-    end_time = models.DateField(null=True)
+    start_time = models.DateTimeField(auto_now_add=True)
+    end_time = models.DateTimeField(null=True)
 
 
 class MeetingUser(models.Model):
@@ -98,8 +98,8 @@ class MeetingUser(models.Model):
     agora_id = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     is_host = models.BooleanField(default=False)
     is_presenter = models.BooleanField(default=False)
-    join_time = models.DateField(auto_now_add=True)
-    left_time = models.DateField(blank=True, null=True, auto_now_add=False)
+    join_time = models.DateTimeField(auto_now_add=True)
+    left_time = models.DateTimeField(blank=True, null=True, auto_now_add=False)
     is_removed = models.BooleanField(default=False)
     alert_num = models.DecimalField(max_digits=10, decimal_places=0, default=0)
 
@@ -107,13 +107,13 @@ class MeetingUser(models.Model):
 class Presenter(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     meeting = models.ForeignKey(Meeting, on_delete=models.CASCADE)
-    start_time = models.DateField(auto_now_add=True)
-    end_time = models.DateField(null=True)
+    start_time = models.DateTimeField(auto_now_add=True)
+    end_time = models.DateTimeField(null=True)
 
 
 class AttentionScores(models.Model):
     meeting = models.ForeignKey(Meeting, on_delete=models.CASCADE)
-    time = models.DateField()
+    time = models.DateTimeField()
     attention_score = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
 
