@@ -34,12 +34,7 @@ function RegistrationPage() {
 		}
 		else {
 			axios.post('http://127.0.0.1:8000/api/auth/register/', item).then(response => {
-				console.log("success");
-				console.log(response);
-				setCookie("refreshToken", response.data.refresh);
-				setCookie("accessToken", response.data.access);
-				setCookie("userId", response.data.user.id);
-				window.location = "/Dashboard";
+				window.location = "/Login";
 			}).catch((exception) => {
 				setLoginSuccess(1);
 				if (Object.hasOwn(exception.response.data, 'email')) {

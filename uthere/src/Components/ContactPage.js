@@ -3,20 +3,42 @@ import UThere from './UThere';
 import {useState} from 'react';
 import Logout from './Logout';
 import axios from 'axios';
+import {Cookies} from "react-cookie";
+const token = localStorage.getItem('token');
+
 
 function ContactPage() {
 	const [message, setMessage] = useState("");
 	const [category, setCategory] = useState("Select what we can help you with.");
-
+	const cookies = new Cookies();
+	const userId = cookies.get("userId");
+	const [email, setEmail] = useState("");
+	getUserInfo();
+	//get user mail from the user id
+	function getUserInfo() {
+		console.log(userId);
+		axios.get(`http://127.0.0.1:8000/api/user/info/${userId}/`, {
+				  headers: { Authorization: `Token ${token}` }
+			  }).then(response => {
+				setEmail(response.data.email)
+			}).catch((exception) => {
+				console.log(exception);
+			});
+	}
 	function submit() {
-		let item = {category, message};
-		axios.post('http://127.0.0.1:8000/api/contact/', item).then(response => {
-			console.log("success");
-			console.log(response);
-			window.location = "/Dashboard";
+		let item = {category, message,email};
+		axios.post('http://127.0.0.1:8000/api/contact/', item, {
+    	headers: {
+        	'Authorization': 'Token ' + token,
+        	'Content-Type': 'application/json'
+    	}
+		}).then(response => {
+    	console.log(response);
+    	window.location = "/Dashboard";
 		}).catch(exception => {
-			console.log(exception);
+    	console.log(exception);
 		});
+
 	}
 
 	return (

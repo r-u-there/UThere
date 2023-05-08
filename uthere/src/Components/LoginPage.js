@@ -7,21 +7,23 @@ import axios from 'axios';
 import {useState} from 'react';
 import {useCookies} from "react-cookie";
 
+
 function LoginPage() {
-	const [cookies, setCookie] = useCookies(["refreshToken"])
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 	const [loginSuccess, setLoginSuccess] = useState(true);
+	const [cookies, setCookie] = useCookies(["refreshToken"]);
+
 
 	function login() {
 		axios.post('http://127.0.0.1:8000/api/auth/login/', {
 			"email": email,
 			"password": password
 		}).then(response => {
-			console.log("success");
-			console.log(response);
-			setCookie("refreshToken", response.data.refresh);
-			setCookie("email", response.data.user.email);
+			console.log("here")
+			setCookie("userId", response.data.id);
+			setLoginSuccess(true);
+			localStorage.setItem('token', response.data.token);
 			window.location = "/Dashboard";
 		}).catch((exception) => {
 			setLoginSuccess(false);

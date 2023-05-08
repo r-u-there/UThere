@@ -6,13 +6,35 @@ import {Cookies} from "react-cookie";
 function Videos(props) {
 	const users = props.users;
 	const tracks = props.tracks;
+	const agorauid = props.agorauid
 	const [name, setName] = useState("");
+	const [participantName, setParticipantName] = useState("");
 	const cookies = new Cookies();
 	const userId = cookies.get("userId");
-	console.log("tracks " + tracks)
+	const channelId = cookies.get("channel_id");
+	const token = localStorage.getItem("token");
+	async function getMeetingUser(arg) {
+        try {
+            const response = await axios.get(`http://127.0.0.1:8000/api/get_meeting_participant/${arg}/`, {
+				  headers: { Authorization: `Token ${token}` }
+			  });
+			let participant_user_id = response.data.user  
+			axios.get(`http://127.0.0.1:8000/api/user/info/${participant_user_id}/`, {
+				  headers: { Authorization: `Token ${token}` }
+			  }).then(response => {
+				setParticipantName(response.data.username);
+			}).catch((exception) => {
+				console.log(exception);
+			});
+        } catch (error) {
+            console.log("error", error);
+        }
+    }
 
 	useEffect(() => {
-		axios.get(`http://127.0.0.1:8000/api/user/info/${userId}/`).then(response => {
+		axios.get(`http://127.0.0.1:8000/api/user/info/${userId}/`, {
+				  headers: { Authorization: `Token ${token}` }
+			  }).then(response => {
 			setName(response.data.username);
 		}).catch((exception) => {
 			console.log(exception);
@@ -21,28 +43,37 @@ function Videos(props) {
 
 	return (
 		<div>
-			<div>
-				<AgoraVideoPlayer videoTrack={tracks[1]} className='vid' />
-				<div className='video-label-container'>
-					<span className='video-label'>{name}</span>
+			<div >
+				<div>
+					<AgoraVideoPlayer id={userId} videoTrack={tracks[1]} className="vid"/>
+					<div className='video-label-container'>
+						<span className='video-label'>{name}</span>
+					</div>
 				</div>
 				{
 					users.length > 0 &&
 					users.map((user) => {
 						console.log("here")
 						if (user.videoTrack) {
+							getMeetingUser(user.uid);
 							return (
-								<AgoraVideoPlayer videoTrack={user.videoTrack} key={user.uid} className='vid' />
+								<div className="vid">
+									<AgoraVideoPlayer className="vid" id = "play" videoTrack={user.videoTrack} key={user.uid}/>
+									<div className='video-label-container'>
+										<span className='video-label'>{participantName}</span>
+									</div>
+								</div>
 							);
 						}
 						else {
-							console.log(user.uid);
+							getMeetingUser(user.uid);
 							return (
 								<div key={user.uid} className='vid'>
-									<center><h3 style={{color:"white"}}>{user.uid}</h3></center>
+									<div className='video-label-container'>
+										<span className='video-label'>{participantName}</span>
+									</div>
 								</div>
 							);
-							console.log("no video");
 						}
 					})}
 			</div>

@@ -3,14 +3,19 @@ import React from 'react';
 import UThere from "./UThere";
 import {Cookies} from "react-cookie";
 import axios from "axios";
+import { useLocation } from 'react-router-dom';
 
 function MeetingPage() {
 	const cookies = new Cookies();
 	const userId = cookies.get("userId");
+	const token = localStorage.getItem('token');
 	var response;
+
 	async function isEyeTrackingHidden() {
 		try {
-			response = await axios.get(`http://127.0.0.1:8000/api/getsettings/${userId}/`)
+			response = await axios.get(`http://127.0.0.1:8000/api/getsettings/${userId}/`, {
+				  headers: { Authorization: `Token ${token}` }
+			  });
 		} catch(exception) {
 			console.log(exception);
 		};
