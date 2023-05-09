@@ -3,7 +3,6 @@ import React from 'react';
 import UThere from "./UThere";
 import {Cookies} from "react-cookie";
 import axios from "axios";
-import { useLocation } from 'react-router-dom';
 
 function MeetingPage() {
 	const cookies = new Cookies();
@@ -17,6 +16,7 @@ function MeetingPage() {
 				  headers: { Authorization: `Token ${token}` }
 			  });
 		} catch(exception) {
+			window.location = "/Login"
 			console.log(exception);
 		};
 		if (response.data.hide_eye_tracking) {

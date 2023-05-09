@@ -105,26 +105,27 @@ function ParticipantsPopup(props) {
 
 	function insidePopup() {
 		return (
-			<div className="popup">
-				<div className="popup-inner">
+			<div className="popup-participants">
+				<div className="popup-inner-participants">
 					<br></br>
 					<center>
 						<h4><u>Participants List</u></h4>
 						<table>
 							<tr>
 								<td>{status ==="presenter"? name+ " (Me)(Presenter)" : name+" (Me)"}</td>
-								<td></td>
-								{isHost? <td><button>Set Presenter</button></td>: <td></td>}
+								<td><p>Not Authorized</p></td>
+								{isHost? <td><button>Set Presenter</button></td>: <td><p>Not Authorized</p></td>}
+								<td><p>Not Authorized</p></td>
 							</tr>
 
 							{users.map((user) => {
 								getMeetingUser(user.uid);
 								return <tr>
 										<td>{participantName}</td>
-										{isHost ? <td><button id={user.uid+"-remove"} onClick={()=>removeUser(user.uid)}>Remove</button></td> : <td></td>}
+										{isHost ? <td><button id={user.uid+"-remove"} onClick={()=>removeUser(user.uid)}>Remove</button></td> : <td><p>Not Authorized</p></td>}
 										{isHost ? isParticipantPresenter ?  <td><button  id= {user.uid+"-unset"} onClick={()=>unsetPresenter(user.uid)}>Unset Presenter</button></td>: 
-																			<td><button  id= {user.uid+"-set"} onClick={()=>setPresenter(user.uid)}>Set Presenter</button></td>: <td></td>}
-										{status === "presenter"?<td><button onClick={()=>alertUser(user.uid)}>Alert</button></td> : <td></td> }
+																			<td><button  id= {user.uid+"-set"} onClick={()=>setPresenter(user.uid)}>Set Presenter</button></td>: <td><p>Not Authorized</p></td>}
+										{status === "presenter"?<td><button onClick={()=>alertUser(user.uid)}>Alert</button></td> : <td><p>Not Authorized</p></td> }
 									</tr>
 							})}
 						</table>

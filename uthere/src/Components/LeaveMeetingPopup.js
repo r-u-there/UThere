@@ -13,13 +13,13 @@ function LeaveMeetingPopup(props) {
 
 	function insidePopup() {
 		return (
-			<div className="popup">
-				<div className="popup-inner">
+			<div className="popup2">
+				<div className="popup-inner2">
 					<br></br>
 					<center>
 						<h2>Are you sure you want to leave the meeting? </h2>
 					</center>
-					<button type="button" onClick={() => props.setTrigger3(false)} className="close popup-close3" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<button type="button" onClick={() => props.setTrigger3(false)} className="popup-close3" aria-label="Close"><span aria-hidden="true">&times;</span></button>
 					<center>
 						<button onClick={() => {props.setTrigger4(true); window.location = "/MeetingEnding"}} className="btn btn-primary">Leave</button>
                         <button onClick={() => props.setTrigger3(false)} className="btn btn-primary"  style={{ marginLeft: '10px' }}>Return to Meeting</button>

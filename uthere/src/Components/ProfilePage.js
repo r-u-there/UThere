@@ -85,8 +85,12 @@ function ProfilePage() {
 			'Authorization': `Token ${token}`
 		  },
 			method: 'PUT'
-
-		})
+		}).then(response => {
+			setLoading(true);
+		}).catch((exception) => {
+			window.location = "/Login"
+			console.log(exception);
+		});
 	}, [toggle1, toggle2, toggle3, toggle4, toggle5, toggle6]);
 
 	useEffect(() => {
@@ -181,10 +185,12 @@ function ProfilePage() {
 	}
 	return (
 		<div>
+			{loading ? 
+			<div>
 			<UThere></UThere>
 			<div className='page-background'></div>
 			<Logout></Logout>
-			{loading ? <div className='profile'>
+			<div className='profile'>
 				<ul className="nav nav-tabs">
 					<li className="nav-item">
 						<a className="nav-link active" data-toggle="tab" href="" onClick={() => {setTabSelection(0)}}>Profile</a>
@@ -197,7 +203,7 @@ function ProfilePage() {
 					</li>
 				</ul><hr></hr>
 				{displayProfile()}
-			</div> : <div className="loading"><ReactBootStrap.Spinner animation="border" style={{height:"100px", width:"100px"}}/></div>}
+			</div></div> : <div className="loading"><ReactBootStrap.Spinner animation="border" style={{height:"100px", width:"100px"}}/></div>}
 			<EditProfilePopup trigger={trigger} setTrigger={setTrigger} settingsId={settingsId} changedInfo={changedInfo}></EditProfilePopup>
 		</div>
 	);

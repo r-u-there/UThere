@@ -116,7 +116,7 @@ function CalibrationPage() {
 									</div>
 								</div>
 					}
-				</ div>
+				</div>
 				<CalibrationPopup trigger={trigger} setTrigger={setTrigger}></CalibrationPopup>
 			</div>
 			<UThere></UThere>

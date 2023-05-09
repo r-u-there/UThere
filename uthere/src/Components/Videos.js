@@ -2,6 +2,7 @@ import { AgoraVideoPlayer } from "agora-rtc-react";
 import React, {useEffect, useState} from 'react';
 import axios from "axios";
 import {Cookies} from "react-cookie";
+import AttentionAnalysisPopup from "./AttentionAnalysisPopup";
 
 function Videos(props) {
 	const users = props.users;
@@ -13,11 +14,18 @@ function Videos(props) {
 	const userId = cookies.get("userId");
 	const channelId = cookies.get("channel_id");
 	const token = localStorage.getItem("token");
+
+	const [showPopup, setShowPopup] = useState(true);
+
 	async function getMeetingUser(arg) {
         try {
             const response = await axios.get(`http://127.0.0.1:8000/api/get_meeting_participant/${arg}/`, {
 				  headers: { Authorization: `Token ${token}` }
-			  });
+			  }).then(response => {
+				console.log(response)
+			}).catch((exception) => {
+				console.log(exception);
+			});
 			let participant_user_id = response.data.user  
 			axios.get(`http://127.0.0.1:8000/api/user/info/${participant_user_id}/`, {
 				  headers: { Authorization: `Token ${token}` }
@@ -77,6 +85,9 @@ function Videos(props) {
 						}
 					})}
 			</div>
+      		{showPopup && (
+        		<AttentionAnalysisPopup/>
+      		)}
 		</div>
 	);
 }

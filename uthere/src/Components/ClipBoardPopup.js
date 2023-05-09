@@ -11,13 +11,13 @@ function ClipBoardPopup(props) {
         setTimeout(() => {
             setIsVisible(false);
             setTrigger2(false);
-        }, 500);
+        }, 1500);
     }
   }, [trigger2]);
 
   function insidePopup() {
     return (
-      <div className="popup">
+      <div className="popup-clipboard">
         <div className="popup-inner-clipboard">
           <br />
           <center>

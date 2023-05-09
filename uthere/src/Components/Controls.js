@@ -23,8 +23,6 @@ import AgoraRTC from 'agora-rtc-react';
 const token = localStorage.getItem('token');
 
 
-
-
 function Controls(props) {
 	const client = useClient();
 	const { tracks, setStart,  webgazer, users } = props;
@@ -178,59 +176,58 @@ function Controls(props) {
 		
 	}, []);
 	const handleScreenShare = async () => {
-    if (isSharingEnabled) {
-      if (channelParameters.screenTrack) {
-        await channelParameters.screenTrack.replaceTrack(channelParameters.localVideoTrack, true);
-      }
-      setIsSharingEnabled(false);
-    } else {
-      try {
-				const client2 = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
-				let uid = await client2.join(config.appId, channelName, agora_token, null);
-        const screenTrack = await AgoraRTC.createScreenVideoTrack();
-				await client2.publish([screenTrack]);
-				client2.on("user-published", async (user, mediaType) => {
-      if (mediaType === "video" && user.videoTrack) {
-        await client2.subscribe(user, "screen");
-        const screenTrack = user.videoTrack;
-		        // Play the remote screen track in the new div element
-        screenTrack.play("");
-      }
-    });
-        await channelParameters.localVideoTrack.replaceTrack(screenTrack, true);
-        setChannelParameters({ ...channelParameters, screenTrack });
-        setIsSharingEnabled(true);
-      } catch (error) {
-        console.error('Error creating screen track:', error);
-      }
-    }
-  };
-
-
+		if (isSharingEnabled) {
+		  if (channelParameters.screenTrack) {
+			await channelParameters.screenTrack.replaceTrack(channelParameters.localVideoTrack, true);
+		  }
+		  setIsSharingEnabled(false);
+		} else {
+		  try {
+					const client2 = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
+					let uid = await client2.join(config.appId, channelName, agora_token, null);
+			const screenTrack = await AgoraRTC.createScreenVideoTrack();
+					await client2.publish([screenTrack]);
+					client2.on("user-published", async (user, mediaType) => {
+		  if (mediaType === "video" && user.videoTrack) {
+			await client2.subscribe(user, "screen");
+			const screenTrack = user.videoTrack;
+	
+			// Play the remote screen track in the new div element
+			screenTrack.play("");
+		  }
+		});
+			await channelParameters.localVideoTrack.replaceTrack(screenTrack, true);
+			setChannelParameters({ ...channelParameters, screenTrack });
+			setIsSharingEnabled(true);
+		  } catch (error) {
+			console.error('Error creating screen track:', error);
+		  }
+		}
+	  };
+	  
 
 	return (
 		<div>
-			<video width={800} height={800} ref={videoRef} autoPlay/>
 			<div className="meeting-controls">
 				<div className="meeting-control">
-					<button onClick={handleScreenShare}>Share Screen</button>
-					<button onClick={() => {setTrigger(true)}}><div><IoPeople size={30} /><br></br><label>Participants ({users.length + 1})</label></div></button>
+					<button onClick={handleScreenShare}><div>{!isSharingEnabled ? <MdScreenShare size={20} /> : <MdStopScreenShare size={20}/>}<br></br>Share Screen</div></button>
+					<button onClick={() => {setTrigger(true);}}><div><IoPeople size={20} /><br></br>Participants ({users.length + 1})</div></button>
 					<button onClick={() => mute("video")}>
-						{trackState.video ? <div><BsCameraVideo size={30} /><br></br><label>Turn Off</label></div> :
-							<div><BsCameraVideoOff size={30} /><br></br><label>Turn On</label></div>}
+						{trackState.video ? <div><BsCameraVideo size={20} /><br></br>Turn Off</div> :
+							<div><BsCameraVideoOff size={20} /><br></br>Turn On</div>}
 					</button>
 					<button onClick={() => mute("audio")}>
-						{trackState.audio ? <div><BsMic size={30} /><br></br><label>Mute</label></div> :
-							<div><BsMicMute size={30} /><br></br><label>Unmute</label></div>}
+						{trackState.audio ? <div><BsMic size={20} /><br></br>Mute</div> :
+							<div><BsMicMute size={20} /><br></br>Unmute</div>}
 					</button>
-					<button onClick={() => {copyLink()}}><div><MdOutlineContentCopy size={30} /><br></br><label>Copy Link</label></div></button>
+					<button onClick={() => {copyLink()}}><div><MdOutlineContentCopy size={20} /><br></br>Copy Link</div></button>
 
 					{/*
 					The following line of code will be changed.
 					For now, it directs the user to Dashboard page, but it should direct to MeetingEnding page.
 					The participants list should be recorded to database in order to be able to retrieve the list and show on the screen.
 				*/}
-					<button onClick={() => {setTrigger3(true)}}><div><IoCloseCircleOutline size={30} /><br></br><label>Leave Meeting</label></div></button>
+					<button onClick={() => {setTrigger3(true)}}><div><IoCloseCircleOutline size={20} /><br></br>Leave Meeting</div></button>
 				</div>
 				<ParticipantsPopup trigger={trigger} users={users} setTrigger={setTrigger}></ParticipantsPopup>
 				<AlertPopup triggerAlertPopup={triggerAlertPopup} setTriggerAlertPopup={setTriggerAlertPopup}></AlertPopup>

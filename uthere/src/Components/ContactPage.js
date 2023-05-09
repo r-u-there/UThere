@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import UThere from './UThere';
 import {useState} from 'react';
 import Logout from './Logout';
 import axios from 'axios';
 import {Cookies} from "react-cookie";
+import * as ReactBootStrap from "react-bootstrap"
 const token = localStorage.getItem('token');
-
 
 function ContactPage() {
 	const [message, setMessage] = useState("");
@@ -13,7 +13,7 @@ function ContactPage() {
 	const cookies = new Cookies();
 	const userId = cookies.get("userId");
 	const [email, setEmail] = useState("");
-	getUserInfo();
+	const [loading, setLoading] = useState(false);
 	//get user mail from the user id
 	function getUserInfo() {
 		console.log(userId);
@@ -21,7 +21,9 @@ function ContactPage() {
 				  headers: { Authorization: `Token ${token}` }
 			  }).then(response => {
 				setEmail(response.data.email)
+				setLoading(true)
 			}).catch((exception) => {
+				window.location = "/Login"
 				console.log(exception);
 			});
 	}
@@ -41,8 +43,14 @@ function ContactPage() {
 
 	}
 
+	useEffect(() => {
+		getUserInfo()
+	}, [])
+
 	return (
 		<div>
+		{loading ?
+			<div>
 			<UThere></UThere>
 			<div className='page-background'></div>
 			<Logout></Logout>
@@ -63,7 +71,7 @@ function ContactPage() {
 					</div>
 					<br></br><center><button type="button" onClick={submit} className="btn" style={{ "backgroundColor": "#ffb84d", "color": "white", "fontSize": "20px", "width": "150px", "borderRadius": "100px"}}>Send</button></center>
 				</form>
-			</div>
+			</div></div> : <div className="loading"><ReactBootStrap.Spinner style={{height:"100px", width:"100px"}} animation="border"/></div>}
 		</div>
 	);
 }
