@@ -1,5 +1,3 @@
-/*jshint esversion: 8 */
-
 import React from 'react';
 import UThere from './UThere';
 import {BsCameraVideo} from 'react-icons/bs';
@@ -45,7 +43,8 @@ function Dashboard() {
 			  cookies.set("token",createMeetingResponse.data.agora_token)
 			  cookies.set("channel_name",createMeetingResponse.data.channel_name)
 			  cookies.set("channel_id", createMeetingResponse.data.id)
-			  cookies.set("status","host")
+			  cookies.set("is_host",1)
+			  cookies.set("status","presenter")
 			  setMeetingId(createMeetingResponse.data.id);
 			  console.log("1- " + createMeetingResponse.data.id);
 			
@@ -65,6 +64,7 @@ function Dashboard() {
 				setName(response.data.username);
 				setLoading(true);
 			}).catch((exception) => {
+				window.location = "/Login"
 				console.log(exception);
 			});
 
@@ -76,10 +76,11 @@ function Dashboard() {
 	
 	  return (
 		<div>
+			{loading ?
+			<div>
 			<UThere></UThere>
 			<div className='page-background'></div>
 			<Logout></Logout>
-			{loading ?
 			<div className='dashboard' style={{"background-color": "white"}}>
 				<center><h1>Welcome, {name}</h1></center>
 				<hr></hr>
@@ -91,13 +92,13 @@ function Dashboard() {
 						<td><Link to="/Contact"><BsQuestionCircle color="orange" size={100}/></Link></td>
 					</tr>
 					<tr>
-					<td><center><Link to="/Meeting"><label onClick={createMeetingAndUser}>New Meeting</label></Link></center></td>
+					<td><center><Link to="/Meeting"><label style={{"color": "black"}} onClick={createMeetingAndUser}>New Meeting</label></Link></center></td>
 						<td><center><label onClick={() => setTrigger(true)}>Join Meeting</label></center></td>
 						<td><center><Link to="/Profile"><label style={{"color": "black"}}>Profile</label></Link></center></td>
 						<td><center><Link to="/Contact"><label style={{"color": "black"}}>Contact Us</label></Link></center></td>
 					</tr>
 				</table>
-			</div> : <div className="loading"><ReactBootStrap.Spinner style={{height:"100px", width:"100px"}} animation="border"/></div>}
+			</div></div> : <div className="loading"><ReactBootStrap.Spinner style={{height:"100px", width:"100px"}} animation="border"/></div>}
 			<JoinMeetingPopup trigger={trigger} setTrigger={setTrigger}></JoinMeetingPopup>
 		</div>
 	);

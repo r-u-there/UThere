@@ -28,6 +28,8 @@ function VideoCall(props) {
 	const status = cookies.get("status");
 	const userId = cookies.get("userId");
 	const channelId = cookies.get("channel_id")
+	const is_host = cookies.get("is_host")
+	console.log(is_host)
 
 	async function getHostID() {
         try {
@@ -42,14 +44,10 @@ function VideoCall(props) {
         }
     }
 	async function meetingUserCreate(arg){
-		let host_var = 0
-		if(status === "host"){
-			host_var=1
-		}
 		const createMeetingUserResponse = await axios.post('http://127.0.0.1:8000/api/create_meeting_user/', {
 				"meeting" : channelId,
 				"user": userId,
-				"is_host": host_var,
+				"is_host": is_host,
 				"agora_id": arg 
 			  },
 			{
@@ -58,7 +56,20 @@ function VideoCall(props) {
 				);
 			  console.log("success");
 			  console.log(createMeetingUserResponse);
-	}
+			  //if it is host when created the meeting_user object, it is also presenter
+			  if(is_host == 1){
+				const createPresenterResponse = await axios.post('http://127.0.0.1:8000/api/create_presenter/', {
+					"meeting" : channelId,
+					"user": userId,
+				},
+				{
+						headers: { Authorization: `Token ${token}` }
+					}
+					);
+					console.log(createPresenterResponse);
+					cookies.set("presenter_id",createPresenterResponse.data.id)
+			  }
+		}
 	useEffect(() => {
 		let init = async (name) => {
 			client.on("user-published", async (user, mediaType) => {
@@ -92,6 +103,7 @@ function VideoCall(props) {
 				setUsers((prevUsers) => {
 					return [...prevUsers, user];
 				});
+				console.log(users)
 				setUsersWithCam((prevUsers) => {
 					return [...prevUsers, user];
 				});
@@ -105,11 +117,12 @@ function VideoCall(props) {
 			});
 			try {
 				console.log(name)
-				if(status === "host"){
+				if(is_host == 1){
 					let new_userid= parseInt(userId)
 					let uid = await client.join(config.appId, name, agora_token, 0);
 					meetingUserCreate(uid)
 					setAgorauid(uid)
+					cookies.set("agora_uid",uid)
 					console.log("agora user id"+uid); // The user id defined by Agora
 
 					console.log(typeof(userId))
@@ -123,6 +136,7 @@ function VideoCall(props) {
 					let uid = await client.join(config.appId, name, agora_token, 0);
 					meetingUserCreate(uid)
 					setAgorauid(uid)
+					cookies.set("agora_uid",uid)
 					console.log("agora user id"+uid); // The user id defined by Agora
 				
 				}
@@ -158,7 +172,7 @@ function VideoCall(props) {
 				{ready && tracks && (<Controls tracks={tracks} setStart={setStart} webgazer={webgazer} users={users} />)}
 			</div>
 			<div>
-			{start && tracks && <Videos tracks={tracks} users={users} usersWithCam={usersWithCam} agorauid={agorauid} />}
+				{start && tracks && <Videos tracks={tracks} users={users} usersWithCam={usersWithCam} agorauid={agorauid} />}
 			</div>
 		</div>
 	);

@@ -26,6 +26,7 @@ function JoinMeetingPopup(props) {
 				cookies.set("token", agoraToken);
 				cookies.set("channel_name",response.data.channel_name );
 				cookies.set("channel_id",channelId);
+				cookies.set("is_host",0)
 				cookies.set("status","participant");
 				navigate("/Meeting");
 			}
@@ -35,8 +36,6 @@ function JoinMeetingPopup(props) {
 		}).catch((exception) => {
 			console.log(exception);
 		});
-		
-
 	}
 
 	function insidePopup() {
