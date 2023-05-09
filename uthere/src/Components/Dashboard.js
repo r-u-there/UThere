@@ -43,7 +43,8 @@ function Dashboard() {
 			  cookies.set("token",createMeetingResponse.data.agora_token)
 			  cookies.set("channel_name",createMeetingResponse.data.channel_name)
 			  cookies.set("channel_id", createMeetingResponse.data.id)
-			  cookies.set("status","host")
+			  cookies.set("is_host",1)
+			  cookies.set("status","presenter")
 			  setMeetingId(createMeetingResponse.data.id);
 			  console.log("1- " + createMeetingResponse.data.id);
 			

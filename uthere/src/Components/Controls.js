@@ -31,6 +31,7 @@ function Controls(props) {
 	const [trigger2, setTrigger2] = useState(false);
 	const [trigger3, setTrigger3] = useState(false);
 	const [trigger4, setTrigger4] = useState(false);
+	const [trigger5, setTrigger5] = useState(false);
 	let alertNum = "0";
 	const [triggerAlertPopup, setTriggerAlertPopup] = useState(false);
 	
@@ -38,18 +39,29 @@ function Controls(props) {
 	const videoRef = useRef();
 	const cookies = new Cookies();
 	const agora_token = cookies.get("token");
+	const agora_id = cookies.get("agora_uid")
 	const userId = cookies.get("userId");
 	const channelId = cookies.get("channel_id");
 	const status = cookies.get("status");
 	const [screenSharing, setScreenSharing] = useState(0);
 	let stream;
+	const is_host = cookies.get("is_host")
 	const channelName = cookies.get("channel_name");
 	const [isSharingEnabled, setIsSharingEnabled] = useState(false);
 	const [channelParameters, setChannelParameters] = useState({
 		screenTrack: null,
 		localVideoTrack: null,
 	  });
-
+	const [toggle1, setToggle1] = useState();
+	const [toggle2, setToggle2] = useState();
+	const [toggle3, setToggle3] = useState();
+	const [toggle4, setToggle4] = useState();
+	const [toggle5, setToggle5] = useState();
+	const [toggle6, setToggle6] = useState();
+	const [attentionRatingLimit, setAttentionRatingLimit] = useState("");
+	//const [peopleLeft,setPeopleLeft] = useState(-1)
+	const [notified, setNotified] = useState(false)
+	let peopleLeft = -1
 	/*
 	const agoraClient = AgoraRTC.createClient({ mode: 'rtc', codec: 'vp8' });
 	agoraClient.init(config.appId);
@@ -73,7 +85,25 @@ function Controls(props) {
 	  console.log('Failed to join channel', err);
 	});
 	*/
-
+	async function getSettingsofTheUser(){
+		const response = await axios.get(`http://127.0.0.1:8000/api/getsettings/${userId}/`, {
+				  headers: { Authorization: `Token ${token}` }
+			  }).then(response => {
+			console.log("user id is" + userId);
+			console.log(response);
+			setAttentionRatingLimit(response.data.attention_limit);
+			setToggle1(response.data.get_analysis_report);
+			setToggle2(response.data.hide_real_time_emotion_analysis);
+			setToggle3(response.data.hide_real_time_attention_analysis);
+			setToggle4(response.data.hide_real_time_analysis);
+			setToggle5(response.data.hide_who_left);
+			setToggle6(response.data.hide_eye_tracking);
+		}).catch((exception) => {
+			console.log(exception);
+		});
+		return response;
+	}
+	
 	const copyLink = () => {
 		const channelId = cookies.get("channel_id");
 		const text = "Channel Id: " + channelId + "\nToken: " + agora_token;
@@ -95,8 +125,22 @@ function Controls(props) {
 		}
 	};
 	useEffect(() => {
+		
 		const leaveChannel = async () => {
-			if(trigger4){
+			if(trigger5){
+				//remove everyone from the meeting
+				axios.put(`http://127.0.0.1:8000/api/remove_all_user/`, {
+				  "channelId": channelId
+				}, {
+				  headers: { Authorization: `Token ${token}` }
+				}).then(response => {
+					console.log(response);
+				}).catch((exception) => {
+					console.log(exception);
+				});
+			}
+			if(trigger4||trigger5){
+		
 				if(props.webgazer !== null){
 					props.webgazer.pause();
 					props.webgazer.end();
@@ -105,8 +149,11 @@ function Controls(props) {
 					window.localStorage.removeItem('webgazerVideoContainer');
 					console.log("closed");
 				}
+		
 				client.removeAllListeners();
 				if (tracks) {
+			
+					console.log(tracks[0])
 					tracks[0].stop();
 					tracks[1].stop();
 					// Get the camera device
@@ -117,45 +164,95 @@ function Controls(props) {
 					await navigator.mediaDevices.getUserMedia({
 						video: { deviceId: camera ? { exact: camera.deviceId } : undefined, enabled: false },
 					});
+			
 				}
 				tracks[0].close();
 				tracks[1].close();
 				setStart(false);
 				//clean meeting related cookies
-				cookies.remove("token");
-				cookies.remove("channel_name");
-				cookies.remove("channel_id");
-				cookies.remove("status");
+		
+				//add the left meeting info in database
+				if(!trigger5){
+					axios.put(`http://127.0.0.1:8000/api/user_left_meeting/`, {
+						"userId": userId,
+						"channelId": channelId,
+						"agoraId": agora_id
+						}, {
+						headers: { Authorization: `Token ${token}` }
+						}).then(response => {
+							console.log(response);
+						}).catch((exception) => {
+							console.log(exception);
+						});
+				
+					}
+					cookies.remove("agora_uid");
+					cookies.remove("token");
+					cookies.remove("channel_name");
+					cookies.remove("channel_id");
+					cookies.remove("status");
+
 				window.location.href ="/Dashboard";
 			}
 		};
-		if(trigger3 || trigger4){
+		if(trigger3 || trigger4|| trigger5){
 			leaveChannel();
 		}
-	  }, [trigger3,trigger4]);
-	  useEffect(() => {
-		const checkRemovedValue = () => {
-			console.log(token);
+	  }, [trigger3,trigger4,trigger5]);
+	  useEffect(async () => {
+		const checkRemovedValue = async () => {
+			console.log(agora_token);
 			axios.put('http://127.0.0.1:8000/api/user_meeting_get_info/', {
 				"userId": userId,
-				"channelId": channelId
+				"channelId": channelId,
+				"agoraToken": cookies.get("agora_uid")
 			  }, {
 				headers: { Authorization: `Token ${token}` }
 			  }).then(response => {
 				console.log(response.data);
-				if(response.data.is_removed === 1){
+				if(response.data.is_removed == 1){
 					setTrigger4(true);
 				}
-				if(response.data.is_presenter === 1){
+
+				if(response.data.is_presenter == 1){
 					cookies.set("status","presenter");
+					//check who left the meeting
+					//check the settings of the presenter first
+					axios.get(`http://127.0.0.1:8000/api/getsettings/${userId}/`, {
+							headers: { Authorization: `Token ${token}` }
+						}).then(response => {
+						console.log(response);
+						if(!response.data.hide_who_left){
+							//continue to check 
+							console.log("içindeyim")
+							axios.get(`http://127.0.0.1:8000/api/check_departures/${channelId}/`, {
+								headers: { Authorization: `Token ${token}` }
+									}).then(response => {
+								console.log(response);
+								if(response.data.length != 0){
+									if(response.data.user !== peopleLeft){
+										alert("user " +response.data.user+ "left")
+										peopleLeft= response.data.user;
+										console.log(peopleLeft);
+									}
+									console.log(peopleLeft)
+								}
+							}).catch((exception) => {
+								console.log(exception);
+							});
+						}
+					
+					}).catch((exception) => {
+						console.log(exception);
+					});
 				}
-				if(response.data.is_presenter === 0){
+				if(response.data.is_presenter == 0){
 					cookies.set("status","participant");
 				}
 				console.log(response.data.alert_num);
 				console.log(alertNum);
-				if(response.data.is_presenter === 0 && response.data.alert_num !== alertNum){
-					console.log("burası");
+				if(response.data.is_presenter == 0 && response.data.alert_num != alertNum){
+			
 					console.log(response.data.alert_num);
 					console.log(typeof(alertNum));
 					console.log(alertNum);
@@ -163,13 +260,15 @@ function Controls(props) {
 					console.log(alertNum);
 					setTriggerAlertPopup(true);
 				}
+
 			}).catch((exception) => {
 				console.log(exception);
 			});
 		};
 	
+	
 		// Set the interval to check the value every 1 seconds
-		const intervalId = setInterval(checkRemovedValue, 5000);
+		const intervalId = setInterval(checkRemovedValue, 2000);
 
 		// Clean up the interval when the component unmounts
 		return () => clearInterval(intervalId);
@@ -207,10 +306,12 @@ function Controls(props) {
 	  
 
 	return (
+		
 		<div>
 			<div className="meeting-controls">
 				<div className="meeting-control">
-					<button onClick={handleScreenShare}><div>{!isSharingEnabled ? <MdScreenShare size={20} /> : <MdStopScreenShare size={20}/>}<br></br>Share Screen</div></button>
+
+					{status==="presenter" ? <button onClick={handleScreenShare}><div>{!isSharingEnabled ? <MdScreenShare size={20} /> : <MdStopScreenShare size={20}/>}<br></br>Share Screen</div></button>:<></>}
 					<button onClick={() => {setTrigger(true);}}><div><IoPeople size={20} /><br></br>Participants ({users.length + 1})</div></button>
 					<button onClick={() => mute("video")}>
 						{trackState.video ? <div><BsCameraVideo size={20} /><br></br>Turn Off</div> :
@@ -220,7 +321,7 @@ function Controls(props) {
 						{trackState.audio ? <div><BsMic size={20} /><br></br>Mute</div> :
 							<div><BsMicMute size={20} /><br></br>Unmute</div>}
 					</button>
-					<button onClick={() => {copyLink()}}><div><MdOutlineContentCopy size={20} /><br></br>Copy Link</div></button>
+					{is_host==1? <button onClick={() => {copyLink()}}><div><MdOutlineContentCopy size={20} /><br></br>Copy Link</div></button>:<></>}
 
 					{/*
 					The following line of code will be changed.
@@ -232,7 +333,7 @@ function Controls(props) {
 				<ParticipantsPopup trigger={trigger} users={users} setTrigger={setTrigger}></ParticipantsPopup>
 				<AlertPopup triggerAlertPopup={triggerAlertPopup} setTriggerAlertPopup={setTriggerAlertPopup}></AlertPopup>
 				<ClipBoardPopup trigger2={trigger2} setTrigger2={setTrigger2}></ClipBoardPopup>
-				<LeaveMeetingPopup trigger3={trigger3} setTrigger3={setTrigger3} trigger4={trigger4} setTrigger4={setTrigger4}></LeaveMeetingPopup>
+				<LeaveMeetingPopup trigger3={trigger3} setTrigger3={setTrigger3} trigger4={trigger4} setTrigger4={setTrigger4} trigger5={trigger5} setTrigger5={setTrigger5}></LeaveMeetingPopup>
 			</div>
 		</div>
 	);
