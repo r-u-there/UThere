@@ -137,26 +137,29 @@ function Controls(props) {
 	  }, [trigger3,trigger4]);
 	  useEffect(() => {
 		const checkRemovedValue = () => {
-			console.log(token);
+			console.log(agora_token);
 			axios.put('http://127.0.0.1:8000/api/user_meeting_get_info/', {
 				"userId": userId,
-				"channelId": channelId
+				"channelId": channelId,
+				"agoraToken": cookies.get("agora_uid")
 			  }, {
 				headers: { Authorization: `Token ${token}` }
 			  }).then(response => {
 				console.log(response.data);
-				if(response.data.is_removed === 1){
+				if(response.data.is_removed == 1){
 					setTrigger4(true);
 				}
-				if(response.data.is_presenter === 1){
+				if(response.data.is_presenter == 1){
 					cookies.set("status","presenter");
+					console.log("i set it to presenter")
 				}
-				if(response.data.is_presenter === 0){
+				if(response.data.is_presenter == 0){
 					cookies.set("status","participant");
+					console.log("i set it to participant")
 				}
 				console.log(response.data.alert_num);
 				console.log(alertNum);
-				if(response.data.is_presenter === 0 && response.data.alert_num !== alertNum){
+				if(response.data.is_presenter == 0 && response.data.alert_num != alertNum){
 					console.log("burası");
 					console.log(response.data.alert_num);
 					console.log(typeof(alertNum));
@@ -171,7 +174,7 @@ function Controls(props) {
 		};
 	
 		// Set the interval to check the value every 1 seconds
-		const intervalId = setInterval(checkRemovedValue, 5000);
+		const intervalId = setInterval(checkRemovedValue, 2000);
 
 		// Clean up the interval when the component unmounts
 		return () => clearInterval(intervalId);

@@ -10,8 +10,8 @@ from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
 from .serializers import UserSerializer, LoginSerializer, RegisterSerializer, ContactFormSerializer, ProfileSerializer, \
-    MeetingSerializer, MeetingUserSerializer, SettingsSerializer
-from .models import User, Profile, Meeting, Settings, MeetingUser
+    MeetingSerializer, MeetingUserSerializer, SettingsSerializer,PresenterSerializer
+from .models import User, Profile, Meeting, Settings, MeetingUser, Presenter
 from django.contrib.auth import authenticate, login
 from .sendmail import send_email
 from agora_token_builder import RtcTokenBuilder
@@ -58,7 +58,6 @@ class UserInfoViewSet(ModelViewSet):
             'username': user.username,
         }
         return Response(data)
-
 
 class UserUpdateViewSet(ModelViewSet):
     serializer_class = UserSerializer
@@ -127,7 +126,9 @@ class SetPresenterMeetingViewSet(ModelViewSet):
     def put(self, request, *args, **kwargs):
         presenter_user_id = request.data.get("userId")
         channel_id = request.data.get("channelId")
-        user_meeting = MeetingUser.objects.get(agora_id=presenter_user_id, meeting_id=channel_id)
+        agora_id = request.data.get("agoraToken")
+        print(presenter_user_id)
+        user_meeting = MeetingUser.objects.get(user_id=presenter_user_id, meeting_id=channel_id,agora_id=agora_id)
         if user_meeting.is_presenter == 0:
             user_meeting.is_presenter = True
             user_meeting.save()
@@ -145,12 +146,30 @@ class UnsetPresenterMeetingViewSet(ModelViewSet):
     def put(self, request, *args, **kwargs):
         presenter_user_id = request.data.get("userId")
         channel_id = request.data.get("channelId")
-        user_meeting = MeetingUser.objects.get(agora_id=presenter_user_id, meeting_id=channel_id)
+        agora_id = request.data.get("agoraToken")
+        user_meeting = MeetingUser.objects.get(user_id=presenter_user_id, meeting_id=channel_id,agora_id=agora_id)
         if user_meeting.is_presenter == 1:
             user_meeting.is_presenter = False
             user_meeting.save()
             return Response({'status': 'user is unsetted as presenter'})
         return Response({'status': 'ERROR'})
+    
+class EndTimePresenterViewSet(ModelViewSet):
+    serializer_class = PresenterSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    http_method_names = ['put']
+    queryset = Presenter.objects.all()
+
+    def put(self, request, *args, **kwargs):
+        presenter_user_id = request.data.get("userId")
+        channel_id = request.data.get("channelId")
+        id = request.data.get("id")
+        presenter = Presenter.objects.filter(user_id=presenter_user_id, meeting_id=channel_id, end_time=None).order_by('-id').last()
+        presenter.end_time = timezone.now().date()
+        presenter.save()
+        return Response({'status': 'presenter is unsetted in presenter table'})
+
 
 
 class AlertUserMeetingViewSet(ModelViewSet):
@@ -311,6 +330,23 @@ class GetMeetingViewSet(ModelViewSet):
 
         serializer = MeetingSerializer(my_object)
         return Response(serializer.data)
+    
+class GetParticipantUserInfoViewSet(ModelViewSet):
+    serializer_class = UserSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    http_method_names = ['get']
+    queryset = User.objects.all()
+    print("hello")
+    def retrieve(self, request, pk=None):
+        print("primarey key for part id id" + pk)
+        queryset = User.objects.filter(id=pk)
+        my_object = queryset.first()
+        if my_object is None:
+            return Response(status=404)
+
+        serializer = UserSerializer(my_object)
+        return Response(serializer.data)
 
 
 class GetMeetingUserViewSet(ModelViewSet):
@@ -357,8 +393,9 @@ class GetMeetingUserInfoViewSet(ModelViewSet):
     def put(self, request, *args, **kwargs):
         user_id = request.data.get("userId")
         channel_id = request.data.get("channelId")
+        agora_id = request.data.get("agoraToken")
         print(type(channel_id))
-        user_meeting_queryset = MeetingUser.objects.filter(user_id=request.user.id, meeting_id=channel_id)
+        user_meeting_queryset = MeetingUser.objects.filter(user_id=request.user.id, meeting_id=channel_id,agora_id=agora_id)
         if not user_meeting_queryset.exists():
             return Response({'status': 'MeetingUser not found'}, status=404)
         user_meeting = user_meeting_queryset.first()
@@ -368,6 +405,27 @@ class GetMeetingUserInfoViewSet(ModelViewSet):
     
 class CreateMeetingUserViewSet(ModelViewSet):
     serializer_class = MeetingUserSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    http_method_names = ['post']
+
+    def create(self, request, *args, **kwargs):
+        print(request.data)
+        if request.data['is_host'] == "1":
+            print("olması lazım")
+            request.data['is_presenter'] = 1
+        serializer = self.get_serializer(data=request.data)
+        try:
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+
+        except TokenError as e:
+            raise InvalidToken(e.args[0])
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+class CreatePresenterViewSet(ModelViewSet):
+    serializer_class = PresenterSerializer
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
     http_method_names = ['post']

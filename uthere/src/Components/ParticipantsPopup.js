@@ -10,11 +10,15 @@ function ParticipantsPopup(props) {
 	const userId = cookies.get("userId");
 	const channelId = cookies.get("channel_id")
 	const status = cookies.get("status");
-	const [isHost, setIsHost] = useState(status==="host");
+	const is_host = cookies.get("is_host")
+	const agora_token = cookies.get("token");
 	const [isParticipantPresenter,setIsParticipantPresenter] = useState();
+	const [isParticipantHost,setIsParticipantHost] = useState();
+	const [participantUserId,setparticipantUserId] = useState();
 	const [setButton,setsetButton] = useState(true);
 	const token = localStorage.getItem('token');
-
+	const presenter_id = cookies.get("presenter_id")
+	console.log(users)
 	async function getMeetingUser(arg) {
         try {
             const response = await axios.get(`http://127.0.0.1:8000/api/get_meeting_participant/${arg}/`, {
@@ -22,13 +26,30 @@ function ParticipantsPopup(props) {
 			  });
 			let participant_user_id = response.data.user;
 			let participant_is_presenter = response.data.is_presenter;
+			let participant_is_host = response.data.is_host;
 			setIsParticipantPresenter(participant_is_presenter);
-			axios.get(`http://127.0.0.1:8000/api/user/info/${participant_user_id}/`, {
+			setIsParticipantHost(participant_is_host);
+			console.log(response)
+			console.log(participant_user_id)
+			axios.get(`http://127.0.0.1:8000/api/participant_user_info/${participant_user_id}/`, {
 				  headers: { Authorization: `Token ${token}` }
 			  }).then(response => {
+				console.log(participant_user_id)
+				console.log(response)
 				let name = response.data.username;
-				if(participant_is_presenter){
+				setparticipantUserId(participant_user_id)
+				console.log(participantUserId)
+				if(participant_is_host==1 && participant_is_presenter==1){
+					name = name + " (Host)(Presenter)";
+				}
+				else if(participant_is_host==1 && participant_is_presenter== 0){
+					name = name + " (Host)";
+				}
+				else if(participant_is_host==0 && participant_is_presenter==1){
 					name = name + " (Presenter)";
+				}
+				else if(participant_is_host==0 && participant_is_presenter==0){
+					name = name
 				}
 				setParticipantName(name);
 			}).catch((exception) => {
@@ -56,40 +77,86 @@ function ParticipantsPopup(props) {
 	}
 	function alertUser(alerted_user_id){
 		axios.put(`http://127.0.0.1:8000/api/alert_user_meeting/`, {
-			headers: { Authorization: `Token ${token}` },
 			"userId": alerted_user_id,
 			"channelId": channelId
-		}).then(response => {
+		},{headers: { Authorization: `Token ${token}` }}).then(response => {
 			console.log(response);
 		}).catch((exception) => {
 			console.log(exception);
 		});
 
 	}
-	function unsetPresenter(presenter_user_id){
+	function unsetPresenter(presenter_user_id, presenter_id_table){
 		//make the user presenter
+		let presenter_agora_id = cookies.get("agora_uid")
+		//make the user presenter
+		if(presenter_user_id != userId){
+			//get user id from agora token
+			presenter_agora_id = presenter_user_id
+			presenter_user_id = participantUserId
+			
+		}
 		axios.put(`http://127.0.0.1:8000/api/unset_presenter_meeting/`, {
-			headers: { Authorization: `Token ${token}` },
 			"userId": presenter_user_id,
-			"channelId": channelId
+			"channelId": channelId, 
+			"agoraToken":presenter_agora_id
+		},{
+			headers: { Authorization: `Token ${token}` }
 		}).then(response => {
 			console.log(response);
 		}).catch((exception) => {
 			console.log(exception);
 		});
+		//enter end time to the presenter table for this user
+		axios.put(`http://127.0.0.1:8000/api/end_time_presenter_table/`, {
+			"userId": presenter_user_id,
+			"channelId": channelId,
+			"id":presenter_id_table
+		},{
+			headers: { Authorization: `Token ${token}` },
+		}).then(response => {
+			console.log(response);
+		}).catch((exception) => {
+			console.log(exception);
+		});
+		if(presenter_user_id == userId){
+			cookies.set("status","participant")
+			console.log("current user status is set to participant through unset button")
+		}
 		setsetButton(true)
 	}
-	function setPresenter(presenter_user_id){
+	async function setPresenter(presenter_user_id){
+		 let presenter_agora_id = cookies.get("agora_uid")
 		//make the user presenter
+		if(presenter_user_id != userId){
+			//get user id from agora token
+			presenter_agora_id = presenter_user_id
+			presenter_user_id = participantUserId
+			
+		}
+	
 		axios.put(`http://127.0.0.1:8000/api/set_presenter_meeting/`, {
-			headers: { Authorization: `Token ${token}` },
 			"userId": presenter_user_id,
-			"channelId": channelId
-		}).then(response => {
+			"channelId": channelId,
+			"agoraToken": presenter_agora_id
+		},{headers: { Authorization: `Token ${token}` }}).then(response => {
 			console.log(response);
 		}).catch((exception) => {
 			console.log(exception);
 		});
+		const createPresenterResponse = await axios.post('http://127.0.0.1:8000/api/create_presenter/', {
+					"meeting" : channelId,
+					"user": presenter_user_id,
+				},
+				{
+					headers: { Authorization: `Token ${token}` }
+				});
+		console.log(createPresenterResponse);
+		if(presenter_user_id == userId){
+			cookies.set("status","presenter")
+			console.log("current user status is set to presenter through set button")
+			cookies.set("presenter_id",createPresenterResponse.data.id)
+		}
 		setsetButton(false)
 	}
 	useEffect(() => {
@@ -112,19 +179,35 @@ function ParticipantsPopup(props) {
 						<h4><u>Participants List</u></h4>
 						<table>
 							<tr>
-								<td>{status ==="presenter"? name+ " (Me)(Presenter)" : name+" (Me)"}</td>
+								<td>
+								{(() => {
+									if (is_host==1 && status === "presenter") {
+										return name + " (Me)(Presenter)(Host)";
+									}
+									else if(is_host==1 && status === "participant"){
+										return name + " (Me)(Host)";
+									}
+									else if(is_host==0 && status === "presenter"){
+										return name + " (Me)(Presenter)";
+									}
+									else if(is_host==0 && status === "participant"){
+										return name + " (Me)";
+									}
+									
+								})()}
+								</td>
 								<td></td>
-								{isHost? <td><button>Set Presenter</button></td>: <td></td>}
+								{is_host == 1? status ==="presenter"? <td><button onClick={()=>unsetPresenter(userId,presenter_id)}>Unset Presenter</button></td>:<td><button onClick={()=>setPresenter(userId)}>Set Presenter</button></td>: <td></td>}
 							</tr>
 
 							{users.map((user) => {
 								getMeetingUser(user.uid);
 								return <tr>
 										<td>{participantName}</td>
-										{isHost ? <td><button id={user.uid+"-remove"} onClick={()=>removeUser(user.uid)}>Remove</button></td> : <td></td>}
-										{isHost ? isParticipantPresenter ?  <td><button  id= {user.uid+"-unset"} onClick={()=>unsetPresenter(user.uid)}>Unset Presenter</button></td>: 
+										{is_host == 1 ? <td><button id={user.uid+"-remove"} onClick={()=>removeUser(user.uid)}>Remove</button></td> : <td></td>}
+										{is_host == 1 ? isParticipantPresenter ?  <td><button  id= {user.uid+"-unset"} onClick={()=>unsetPresenter(user.uid,0)}>Unset Presenter</button></td>: 
 																			<td><button  id= {user.uid+"-set"} onClick={()=>setPresenter(user.uid)}>Set Presenter</button></td>: <td></td>}
-										{status === "presenter"?<td><button onClick={()=>alertUser(user.uid)}>Alert</button></td> : <td></td> }
+										{status === "presenter" && !isParticipantPresenter?<td><button onClick={()=>alertUser(user.uid)}>Alert</button></td> : <td></td> }
 									</tr>
 							})}
 						</table>
