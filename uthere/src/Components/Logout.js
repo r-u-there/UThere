@@ -12,8 +12,6 @@ function Logout() {
 	axios.post('http://127.0.0.1:8000/api/auth/logout/', null, {
 	  headers: { 'Authorization': `Token ${token}` }
 	});
-
-
 	Object.keys(cookies.getAll()).forEach(cookie => {
 			cookies.remove(cookie);
 		  });
@@ -23,7 +21,7 @@ function Logout() {
 			<Link to="/Login">
 				<table>
 					<tr>
-						<td><IoIosLogOut size={40} /></td>
+						<td><IoIosLogOut size={40} onClick={logout} /></td>
 						<td><label className='mt-2' onClick={logout} style={{ "font-size": "18px" }}>Sign Out</label></td>
 					</tr>
 				</table>

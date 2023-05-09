@@ -10,6 +10,8 @@ function LeaveMeetingPopup(props) {
 	const [token, setToken]= useState("");
 	const cookies = new Cookies();
 	const userId = cookies.get("userId");
+	const is_Host = cookies.get("is_host")
+	console.log(is_Host)
 
 	function insidePopup() {
 		return (
@@ -21,7 +23,9 @@ function LeaveMeetingPopup(props) {
 					</center>
 					<button type="button" onClick={() => props.setTrigger3(false)} className="close popup-close3" aria-label="Close"><span aria-hidden="true">&times;</span></button>
 					<center>
-						<button onClick={() => {props.setTrigger4(true); window.location = "/MeetingEnding"}} className="btn btn-primary">Leave</button>
+						{is_Host == 1? <button onClick={() => {props.setTrigger5(true);}} className="btn btn-primary">Leave Meeting For All</button>: 
+						 <button onClick={() => {props.setTrigger4(true); }} className="btn btn-primary">Leave</button>
+						 }
                         <button onClick={() => props.setTrigger3(false)} className="btn btn-primary"  style={{ marginLeft: '10px' }}>Return to Meeting</button>
 					</center>			
 				</div>

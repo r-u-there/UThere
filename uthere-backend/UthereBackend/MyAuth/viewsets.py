@@ -21,6 +21,8 @@ import time
 from django.utils import timezone
 from django.contrib.auth import get_user_model
 from rest_framework.authtoken.models import Token
+from django.utils.timezone import make_aware
+import datetime
 
 
 
@@ -109,10 +111,34 @@ class UserKickedMeetingViewSet(ModelViewSet):
         print(user_meeting)
         if user_meeting.left_time is None:
             print("inside if")
-            user_meeting.left_time = timezone.now().date()
+            user_meeting.left_time = datetime.datetime.now(tz=timezone.utc)
             user_meeting.is_removed = True
             user_meeting.save()
             return Response({'status': 'user is kicked out of the meeting'})
+        return Response({'status': 'ERROR'})
+    
+class RemoveAllUserMeetingViewSet(ModelViewSet):
+    serializer_class = MeetingUserSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    http_method_names = ['put']
+    queryset = MeetingUser.objects.all()
+
+    def put(self, request, *args, **kwargs):
+        print(request.user)
+        channel_id = request.data.get("channelId")
+        print(channel_id)
+        user_meeting_all = MeetingUser.objects.filter( meeting_id=channel_id)
+        print(user_meeting_all)
+        for user_meeting in user_meeting_all:
+            print(user_meeting)
+            print(user_meeting.left_time)
+            if user_meeting.left_time is None:
+                print("inside if")
+                user_meeting.left_time = datetime.datetime.now(tz=timezone.utc)
+                user_meeting.is_removed = True
+                user_meeting.save()
+                return Response({'status': 'user is kicked out of the meeting'})
         return Response({'status': 'ERROR'})
 
 
@@ -166,7 +192,7 @@ class EndTimePresenterViewSet(ModelViewSet):
         channel_id = request.data.get("channelId")
         id = request.data.get("id")
         presenter = Presenter.objects.filter(user_id=presenter_user_id, meeting_id=channel_id, end_time=None).order_by('-id').last()
-        presenter.end_time = timezone.now().date()
+        presenter.end_time = datetime.datetime.now(tz=timezone.utc)
         presenter.save()
         return Response({'status': 'presenter is unsetted in presenter table'})
 
@@ -381,6 +407,23 @@ class GetMeetingUserParticipantViewSet(ModelViewSet):
 
         serializer = MeetingUserSerializer(my_object)
         return Response(serializer.data)
+    
+class CheckDeparturesViewSet(ModelViewSet):
+    serializer_class = MeetingUserSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    http_method_names = ['get']
+    queryset = MeetingUser.objects.all()
+
+    def retrieve(self, request, pk=None):
+        print(pk)
+        queryset = MeetingUser.objects.filter(meeting_id=pk,is_removed=False,left_time__isnull=False )
+        my_object = queryset.last()
+        if my_object is None:
+            return Response([])
+
+        serializer = MeetingUserSerializer(my_object)
+        return Response(serializer.data)
 
 
 class GetMeetingUserInfoViewSet(ModelViewSet):
@@ -401,6 +444,30 @@ class GetMeetingUserInfoViewSet(ModelViewSet):
         user_meeting = user_meeting_queryset.first()
         serializer = MeetingUserSerializer(user_meeting)
         return Response(serializer.data)
+
+
+class UserLeftMeetingViewSet(ModelViewSet):
+    serializer_class = MeetingUserSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    http_method_names = ['put']
+    queryset = MeetingUser.objects.all()
+
+    def put(self, request, *args, **kwargs):
+        print(request.user)
+        left_user_id = request.data.get("userId")
+        channel_id = request.data.get("channelId")
+        agora_id = request.data.get("agoraId")
+        print(left_user_id, channel_id, agora_id)
+        user_meeting = MeetingUser.objects.get(user_id=left_user_id, meeting_id=channel_id,agora_id=agora_id)
+
+        print(user_meeting)
+        if user_meeting.left_time is None:
+            print(datetime.datetime.now(tz=timezone.utc))
+            user_meeting.left_time = datetime.datetime.now(tz=timezone.utc)
+            user_meeting.save()
+            return Response({'status': 'user is kicked out of the meeting'})
+        return Response({'status': 'ERROR'})
 
     
 class CreateMeetingUserViewSet(ModelViewSet):
