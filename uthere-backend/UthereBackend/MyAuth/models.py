@@ -127,3 +127,8 @@ class Options(models.Model):
     poll = models.ForeignKey(Poll, on_delete=models.CASCADE)
     option_body =  models.CharField( max_length= 250, default="")
     count = models.IntegerField(default=0)
+
+class AttentionScore(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    time = models.CharField(max_length=50, null=False, blank=False)
+    score = models.IntegerField(default=0)

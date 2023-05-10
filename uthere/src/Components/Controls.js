@@ -25,8 +25,7 @@ const token = localStorage.getItem('token');
 
 function Controls(props) {
 	const client = useClient();
-	const { tracks, setStart,  webgazer, users } = props;
-	const [trackState, setTrackState] = useState({ video: true, audio: true });
+	const { tracks, setStart,  webgazer, users, trackState, setTrackState } = props;
 	const [trigger, setTrigger] = useState(false);
 	const [trigger2, setTrigger2] = useState(false);
 	const [trigger3, setTrigger3] = useState(false);
