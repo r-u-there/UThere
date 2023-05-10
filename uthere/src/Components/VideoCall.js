@@ -31,6 +31,10 @@ function VideoCall(props) {
 	const channelId = cookies.get("channel_id")
 	const is_host = cookies.get("is_host")
 	console.log(is_host)
+	const [trackState, setTrackState] = useState({ video: true, audio: true });
+	const [mediaStream, setMediaStream] = useState(null);
+	const [mediaRecorder, setMediaRecorder] = useState(null);	
+	const [intervalId, setIntervalId] = useState(null);	
 
 	async function getHostID() {
         try {
@@ -167,10 +171,83 @@ function VideoCall(props) {
 		
 	}, [channelName, client, ready, tracks]);
 
+	useEffect(() => {
+		console.log(trackState)
+
+		const stopMediaStream = () => {
+			if (mediaRecorder) {
+				if (mediaRecorder.state === "recording") {
+					mediaRecorder.stop();
+					setMediaRecorder(null);
+				} 
+			}
+			if (mediaStream) {
+				// Stop the media stream
+				mediaStream.getTracks().forEach(track => track.stop());
+				// Set the media stream state variable to null
+				setMediaStream(null);
+				clearInterval(intervalId);
+			}
+		}
+
+		const startMediaStream = () => {
+			let mstream
+			if (mediaStream == null){
+				navigator.mediaDevices.getUserMedia({ audio: false, video: true}
+					).then((stream) => {
+					mstream = stream;
+					setMediaStream(stream);
+	
+				});
+			}
+			const interval = setInterval(() => {
+				const recorder = new MediaRecorder(mstream, { videoBitsPerSecond: 2000000, mimeType: 'video/webm' });
+				  recorder.ondataavailable = (e) => {
+					if (typeof e.data === 'undefined') return;
+					if (e.data.size === 0) return;
+					console.log(e.data);
+					const formData = new FormData();
+					formData.append('file', e.data, 'recorded-video.webm');
+					let cur_time = new Date().toLocaleTimeString();
+					formData.append('timestamp', cur_time);
+					formData.append('user_id', userId);
+					console.log(formData);
+					fetch('http://0.0.0.0:8008/upload-video/', {
+					method: 'POST',
+					body: formData,
+					headers: {
+						Accept: 'application/json',
+					},
+					});
+				};
+				setIntervalId(interval)
+				setMediaRecorder(recorder);
+				recorder.start();
+			
+				setTimeout(() => {
+					if( recorder && recorder.state === "recording") {
+						recorder.stop();
+					}
+				}, 10000);
+			}, 10000);
+		};
+
+		if (mediaStream == null && trackState.video) {
+			startMediaStream();
+			console.log("camera on");
+        }
+		if(mediaStream != null && !trackState.video){
+			stopMediaStream();
+			console.log("camera off");
+		}
+		//check if mediaStream is not equal to null
+
+	}, [trackState]);
+
 	return (
 		<div>
 			<div>
-				{ready && tracks && (<Controls tracks={tracks} setStart={setStart} webgazer={webgazer} users={users} />)}
+				{ready && tracks && (<Controls tracks={tracks} setStart={setStart} webgazer={webgazer} users={users} trackState={trackState} setTrackState = {setTrackState}/>)}
 			</div>
 			<div>
 				{start && tracks && <Videos style={{zIndex:1}} tracks={tracks} users={users} usersWithCam={usersWithCam} agorauid={agorauid} />}
