@@ -20,6 +20,8 @@ from MyAuth.models import AttentionScore, User
 from asgiref.sync import sync_to_async
 from Features.extractor import FeatureExtractor
 import time
+from statistics import mode
+from deepface import DeepFace
 
 # Load the saved model
 model = load_model('attention_model/my_model.h5')
@@ -83,6 +85,16 @@ async def upload_video(file: UploadFile = File(...), timestamp: str = Form(...),
         pred_class = np.argmax(pred_scores)+ 1
         print(f'Got prediction for frames: {pred_class}')
 
+        emotions = []
+        for i in range(0, 200, 20):
+            result = DeepFace.analyze(selected_frames[i], actions = ['emotion'], detector_backend = "mediapipe", silent = True)
+            emotions.append(result[0]['dominant_emotion'])
+        
+        # emotion = result['emotion']['dominant']
+        # print(f'Got prediction for emotion: {emotion}')
+        most_common_emotion = mode(emotions)
+        print(emotions)
+        print(most_common_emotion)
         user = await sync_to_async(User.objects.get)(id=user_id)
         att_score = AttentionScore(user= user, time=timestamp,score = pred_class)
         await sync_to_async(att_score.save)()
