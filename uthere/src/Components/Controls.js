@@ -20,8 +20,8 @@ import {
 	channelName
 } from "../settings";
 import AgoraRTC from 'agora-rtc-react';
+import AttentionAnalysisPopup from "./AttentionAnalysisPopup";
 const token = localStorage.getItem('token');
-
 
 function Controls(props) {
 	const client = useClient();
@@ -34,7 +34,6 @@ function Controls(props) {
 	const [trigger5, setTrigger5] = useState(false);
 	let alertNum = "0";
 	const [triggerAlertPopup, setTriggerAlertPopup] = useState(false);
-	
 	const navigate = useNavigate();
 	const videoRef = useRef();
 	const cookies = new Cookies();
@@ -60,50 +59,9 @@ function Controls(props) {
 	const [toggle6, setToggle6] = useState();
 	const [attentionRatingLimit, setAttentionRatingLimit] = useState("");
 	//const [peopleLeft,setPeopleLeft] = useState(-1)
-	const [notified, setNotified] = useState(false)
+	//const [notified, setNotified] = useState(false)
 	let peopleLeft = -1
-	/*
-	const agoraClient = AgoraRTC.createClient({ mode: 'rtc', codec: 'vp8' });
-	agoraClient.init(config.appId);
-	agoraClient.join(agora_token, channelName, null, (uid) => {
-	  const screenShareConfig = {
-		audio: false,
-		video: false,
-		screen: true,
-		// Change the extensionId to the extension installed on your browser.
-		extensionId: 'yourextensionidhere'
-	  };
-	  const screenShareStream = AgoraRTC.createStream(screenShareConfig);
-	  screenShareStream.init(() => {
-		agoraClient.publish(screenShareStream, (err) => {
-		  console.log('Failed to publish screen share stream', err);
-		});
-	  }, (err) => {
-		console.log('Failed to initialize screen share stream', err);
-	  });
-	}, (err) => {
-	  console.log('Failed to join channel', err);
-	});
-	*/
-	async function getSettingsofTheUser(){
-		const response = await axios.get(`http://127.0.0.1:8000/api/getsettings/${userId}/`, {
-				  headers: { Authorization: `Token ${token}` }
-			  }).then(response => {
-			console.log("user id is" + userId);
-			console.log(response);
-			setAttentionRatingLimit(response.data.attention_limit);
-			setToggle1(response.data.get_analysis_report);
-			setToggle2(response.data.hide_real_time_emotion_analysis);
-			setToggle3(response.data.hide_real_time_attention_analysis);
-			setToggle4(response.data.hide_real_time_analysis);
-			setToggle5(response.data.hide_who_left);
-			setToggle6(response.data.hide_eye_tracking);
-		}).catch((exception) => {
-			console.log(exception);
-		});
-		return response;
-	}
-	
+
 	const copyLink = () => {
 		const channelId = cookies.get("channel_id");
 		const text = "Channel Id: " + channelId + "\nToken: " + agora_token;
@@ -127,6 +85,33 @@ function Controls(props) {
 	useEffect(() => {
 		
 		const leaveChannel = async () => {
+			//check whether the user is presenter currently, if it is change its
+			//end time in presenter table
+			if(status==="presenter"){
+				//enter end time to the presenter table for this user
+				axios.put(`http://127.0.0.1:8000/api/unset_presenter_meeting/`, {
+					"userId": userId,
+					"channelId": channelId, 
+					"agoraToken":agora_id
+				},{
+					headers: { Authorization: `Token ${token}` }
+				}).then(response => {
+					console.log(response);
+				}).catch((exception) => {
+					console.log(exception);
+				});
+				axios.put(`http://127.0.0.1:8000/api/end_time_presenter_table/`, {
+					"userId": userId,
+					"channelId": channelId,
+					"id":0
+				},{
+					headers: { Authorization: `Token ${token}` },
+				}).then(response => {
+					console.log(response);
+				}).catch((exception) => {
+					console.log(exception);
+				});
+			}
 			if(trigger5){
 				//remove everyone from the meeting
 				axios.put(`http://127.0.0.1:8000/api/remove_all_user/`, {
@@ -231,9 +216,27 @@ function Controls(props) {
 								console.log(response);
 								if(response.data.length != 0){
 									if(response.data.user !== peopleLeft){
-										alert("user " +response.data.user+ "left")
-										peopleLeft= response.data.user;
-										console.log(peopleLeft);
+										//if the user left_time is before my presenter start time do not alert
+										let user_left_time= response.data.left_time
+										let left_people_id = response.data.user
+										//get my presenter start_time
+										axios.put(`http://127.0.0.1:8000/api/get_presenter_table/`,
+										{
+											"channelId": channelId,
+											"userId":userId
+										},
+										{
+											headers: { Authorization: `Token ${token}` }
+										}).then(response=>{
+											const date_user_left = new Date(user_left_time)
+											const date_presenter_start = new Date(response.data.start_time)
+											if(date_presenter_start < date_user_left){
+												alert("user " +response.data.user+ "left")
+												peopleLeft= left_people_id;	
+											}
+										}).catch((exception) => {
+											console.log(exception);
+										});
 									}
 									console.log(peopleLeft)
 								}
@@ -310,7 +313,7 @@ function Controls(props) {
 		<div>
 			<div className="meeting-controls">
 				<div className="meeting-control">
-
+				
 					{status==="presenter" ? <button onClick={handleScreenShare}><div>{!isSharingEnabled ? <MdScreenShare size={20} /> : <MdStopScreenShare size={20}/>}<br></br>Share Screen</div></button>:<></>}
 					<button onClick={() => {setTrigger(true);}}><div><IoPeople size={20} /><br></br>Participants ({users.length + 1})</div></button>
 					<button onClick={() => mute("video")}>
@@ -334,8 +337,10 @@ function Controls(props) {
 				<AlertPopup triggerAlertPopup={triggerAlertPopup} setTriggerAlertPopup={setTriggerAlertPopup}></AlertPopup>
 				<ClipBoardPopup trigger2={trigger2} setTrigger2={setTrigger2}></ClipBoardPopup>
 				<LeaveMeetingPopup trigger3={trigger3} setTrigger3={setTrigger3} trigger4={trigger4} setTrigger4={setTrigger4} trigger5={trigger5} setTrigger5={setTrigger5}></LeaveMeetingPopup>
+				
 			</div>
 		</div>
+		
 	);
 }
 

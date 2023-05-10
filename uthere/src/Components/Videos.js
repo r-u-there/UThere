@@ -14,6 +14,8 @@ function Videos(props) {
 	const userId = cookies.get("userId");
 	const channelId = cookies.get("channel_id");
 	const token = localStorage.getItem("token");
+	const status = cookies.get("status")
+	const [trigger, setTrigger] = useState(true)
 
 	const [showPopup, setShowPopup] = useState(true);
 
@@ -38,7 +40,18 @@ function Videos(props) {
             console.log("error", error);
         }
     }
+	useEffect(() =>{
+		if(status === "presenter"){
+			//trigger attention popup
+			setTrigger(true)
+		}
 
+	},[status])
+
+	useEffect(()=>{
+		setShowPopup(status==="presenter")
+		console.log(status)
+	},[status])
 	useEffect(() => {
 		axios.get(`http://127.0.0.1:8000/api/user/info/${userId}/`, {
 				  headers: { Authorization: `Token ${token}` }
@@ -84,10 +97,7 @@ function Videos(props) {
 							);
 						}
 					})}
-			</div>
-      		{showPopup && (
-        		<AttentionAnalysisPopup/>
-      		)}
+			</div> 		
 		</div>
 	);
 }

@@ -444,6 +444,24 @@ class GetMeetingUserInfoViewSet(ModelViewSet):
         user_meeting = user_meeting_queryset.first()
         serializer = MeetingUserSerializer(user_meeting)
         return Response(serializer.data)
+    
+class GetPresenterViewSet(ModelViewSet):
+    serializer_class = PresenterSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    http_method_names = ['put']
+    queryset = Presenter.objects.all()
+
+    def put(self, request, *args, **kwargs):
+        user_id = request.data.get("userId")
+        channel_id = request.data.get("channelId")
+        print(type(channel_id))
+        presenter_queryset = Presenter.objects.filter(user_id=user_id, meeting_id=channel_id)
+        if not presenter_queryset.exists():
+            return Response({'status': 'MeetingUser not found'}, status=404)
+        presenter_row = presenter_queryset.last()
+        serializer = PresenterSerializer(presenter_row)
+        return Response(serializer.data)
 
 
 class UserLeftMeetingViewSet(ModelViewSet):

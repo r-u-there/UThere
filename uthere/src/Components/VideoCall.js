@@ -9,6 +9,7 @@ import Controls from "./Controls";
 import React from 'react';
 import {Cookies} from "react-cookie";
 import axios from 'axios';
+import AttentionAnalysisPopup from "./AttentionAnalysisPopup";
 
 
 function VideoCall(props) {
@@ -172,8 +173,11 @@ function VideoCall(props) {
 				{ready && tracks && (<Controls tracks={tracks} setStart={setStart} webgazer={webgazer} users={users} />)}
 			</div>
 			<div>
-				{start && tracks && <Videos tracks={tracks} users={users} usersWithCam={usersWithCam} agorauid={agorauid} />}
+				{start && tracks && <Videos style={{zIndex:1}} tracks={tracks} users={users} usersWithCam={usersWithCam} agorauid={agorauid} />}
 			</div>
+			{status==="presenter"? (
+        		<AttentionAnalysisPopup />
+      			):<></>}
 		</div>
 	);
 }
