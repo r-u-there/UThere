@@ -14,9 +14,8 @@ RUN pip install -r requirements.txt
 COPY UthereBackend .
 
 # Expose the port that Django runs on
-EXPOSE $PORT
-CMD python manage.py makemigrations && python manage.py migrate && python manage.py runserver 0.0.0.0:$PORT
-
+ENV PORT 8080
+CMD gunicorn --bind :$PORT --workers 1 --threads 8 --preload unicodex.wsgi:application
 
 
 
