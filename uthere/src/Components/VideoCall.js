@@ -10,6 +10,7 @@ import React from 'react';
 import {Cookies} from "react-cookie";
 import axios from 'axios';
 import AttentionAnalysisPopup from "./AttentionAnalysisPopup";
+import PresenterWarningPopup from "./PresenterWarningPopup";
 
 
 function VideoCall(props) {
@@ -37,6 +38,30 @@ function VideoCall(props) {
 	const [intervalId, setIntervalId] = useState(null);	
 	const [attentionScore, setAttentionScore] = useState(0)
 	const [emotionStatus, setEmotion] = useState(0)
+	const [hideRealTimeAnalysis,setHideRealTimeAnalysis] = useState(false)
+	const [hideEmotionAnalysis,setHideEmotionAnalysis] = useState(false)
+	const [hideAttentionAnalysis,setHideAttentionAnalysis] = useState(false)
+	const [attentionLimitPresenter, setAttentionLimitPresenter] = useState(0)
+	const [triggerPresenterWarningPopup, setTriggerPresenterWarningPopup] = useState(false)
+	var attentionLimit = 0
+	function checkAnalysisSettings(){
+		axios.get(`http://127.0.0.1:8000/api/getsettings/${userId}/`, {
+			headers: { Authorization: `Token ${token}` }
+		}).then(response => {
+		console.log(response);
+		setHideRealTimeAnalysis(response.data.hide_real_time_analysis)
+		setHideAttentionAnalysis(response.data.hide_real_time_attention_analysis)
+		setHideEmotionAnalysis(response.data.hide_real_time_emotion_analysis)
+		setAttentionLimitPresenter(response.data.attention_limit)
+		attentionLimit =response.data.attention_limit
+		if(response.data.hide_real_time_attention_analysis && response.data.hide_real_time_emotion_analysis){
+			setHideRealTimeAnalysis(true)
+		}
+		console.log(response.data.hide_real_time_emotion_analysis)
+	}).catch((exception) => {
+		console.log(exception);
+	});
+}
 
 	async function getHostID() {
         try {
@@ -174,6 +199,7 @@ function VideoCall(props) {
 	}, [channelName, client, ready, tracks]);
 
 	useEffect(() => {
+		checkAnalysisSettings()
 		console.log(trackState)
 
 		const stopMediaStream = () => {
@@ -247,7 +273,7 @@ function VideoCall(props) {
 	}, [trackState]);
 	useEffect(()=>{
 		//get the all attention scores of all of the user within the 60 minutes
-		
+		//add if it is the presenter
 		const getscoreinterval = ()=>{
 			axios.put(`http://127.0.0.1:8000/api/get_attention_emotion_score/`, {
 					"channelId": channelId, 
@@ -285,6 +311,12 @@ function VideoCall(props) {
 						  console.log(typeof maxCountKey)
 						maxCountKey = parseInt(maxCountKey)
 						setEmotion(maxCountKey+1)
+						var attentionLimitToCompare = 3 *attentionLimit / 100
+						console.log("min attention limit for presenter is " + attentionLimitToCompare)
+						console.log("actual attention limit " + averageScore)
+						if(averageScore<=attentionLimitToCompare){
+							setTriggerPresenterWarningPopup(true)
+						}
 					
 					}
 				}).catch((exception) => {
@@ -309,9 +341,10 @@ function VideoCall(props) {
 			<div>
 				{start && tracks && <Videos style={{zIndex:1}} tracks={tracks} users={users} usersWithCam={usersWithCam} agorauid={agorauid} />}
 			</div>
-			{status==="presenter"? (
-        		<AttentionAnalysisPopup attentionScore={attentionScore} emotionStatus={emotionStatus}/>
+			{status==="presenter" && !hideRealTimeAnalysis? (
+        		<AttentionAnalysisPopup attentionScore={attentionScore} emotionStatus={emotionStatus} hideEmotionAnalysis={hideEmotionAnalysis} hideAttentionAnalysis={hideAttentionAnalysis}/>
       			):<></>}
+				<PresenterWarningPopup triggerPresenterWarningPopup={triggerPresenterWarningPopup} setTriggerPresenterWarningPopup={setTriggerPresenterWarningPopup}></PresenterWarningPopup>
 		</div>
 	);
 }
