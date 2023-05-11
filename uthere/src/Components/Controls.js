@@ -208,11 +208,9 @@ function Controls(props) {
 						console.log(response);
 						if(!response.data.hide_who_left){
 							//continue to check 
-							console.log("içindeyim")
 							axios.get(`http://127.0.0.1:8000/api/check_departures/${channelId}/`, {
 								headers: { Authorization: `Token ${token}` }
 									}).then(response => {
-								console.log(response);
 								if(response.data.length != 0){
 									if(response.data.user !== peopleLeft){
 										//if the user left_time is before my presenter start time do not alert
@@ -237,7 +235,6 @@ function Controls(props) {
 											console.log(exception);
 										});
 									}
-									console.log(peopleLeft)
 								}
 							}).catch((exception) => {
 								console.log(exception);
@@ -251,8 +248,6 @@ function Controls(props) {
 				if(response.data.is_presenter == 0){
 					cookies.set("status","participant");
 				}
-				console.log(response.data.alert_num);
-				console.log(alertNum);
 				if(response.data.is_presenter == 0 && response.data.alert_num != alertNum){
 			
 					console.log(response.data.alert_num);

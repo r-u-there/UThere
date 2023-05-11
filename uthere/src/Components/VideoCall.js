@@ -35,6 +35,8 @@ function VideoCall(props) {
 	const [mediaStream, setMediaStream] = useState(null);
 	const [mediaRecorder, setMediaRecorder] = useState(null);	
 	const [intervalId, setIntervalId] = useState(null);	
+	const [attentionScore, setAttentionScore] = useState(0)
+	const [emotion, setEmotion] = useState(-1)
 
 	async function getHostID() {
         try {
@@ -208,11 +210,12 @@ function VideoCall(props) {
 					console.log(e.data);
 					const formData = new FormData();
 					formData.append('file', e.data, 'recorded-video.webm');
-					let cur_time = new Date().toLocaleTimeString();
-					formData.append('timestamp', cur_time);
+					let cur_time = new Date();
+					formData.append('timestamp', cur_time.toISOString());
 					formData.append('user_id', userId);
+					formData.append('meeting_id',channelId);
 					console.log(formData);
-					fetch('http://0.0.0.0:8008/upload-video/', {
+					fetch('http://127.0.0.1:8008/upload-video/', {
 					method: 'POST',
 					body: formData,
 					headers: {
@@ -241,8 +244,41 @@ function VideoCall(props) {
 			console.log("camera off");
 		}
 		//check if mediaStream is not equal to null
-
 	}, [trackState]);
+	useEffect(()=>{
+		//get the all attention scores of all of the user within the 60 minutes
+		
+		const getscoreinterval = ()=>{
+			axios.put(`http://127.0.0.1:8000/api/get_attention_emotion_score/`, {
+					"channelId": channelId, 
+					"time":new Date().toISOString()
+				},{
+					headers: { Authorization: `Token ${token}` }
+				}).then(response => {
+					console.log("attention_scoreeee")
+					console.log(response);
+					if(response.data.hasOwnProperty('status') && response.data.status==='Attention score not found'){
+						setAttentionScore(0)
+					}
+					else{
+						const totalScore = response.data.reduce((acc, curr) => acc + curr.attention_score, 0);
+						const averageScore = totalScore / response.data.length;	
+						console.log("average score is " + averageScore)
+						setAttentionScore(averageScore)
+					}
+				}).catch((exception) => {
+					console.log(exception);
+				});
+
+		};
+		// Set the interval to check the value every 1 seconds
+		const intervalscore = setInterval(getscoreinterval, 10000);
+
+		// Clean up the interval when the component unmounts
+		return () => clearInterval(intervalscore);
+		
+
+	},[])
 
 	return (
 		<div>
@@ -253,7 +289,7 @@ function VideoCall(props) {
 				{start && tracks && <Videos style={{zIndex:1}} tracks={tracks} users={users} usersWithCam={usersWithCam} agorauid={agorauid} />}
 			</div>
 			{status==="presenter"? (
-        		<AttentionAnalysisPopup />
+        		<AttentionAnalysisPopup attentionScore={attentionScore}/>
       			):<></>}
 		</div>
 	);

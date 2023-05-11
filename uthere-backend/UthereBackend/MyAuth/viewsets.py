@@ -10,8 +10,8 @@ from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
 from .serializers import UserSerializer, LoginSerializer, RegisterSerializer, ContactFormSerializer, ProfileSerializer, \
-    MeetingSerializer, MeetingUserSerializer, SettingsSerializer,PresenterSerializer
-from .models import User, Profile, Meeting, Settings, MeetingUser, Presenter
+    MeetingSerializer, MeetingUserSerializer, SettingsSerializer,PresenterSerializer,AttentionEmotionScoreSerializer
+from .models import User, Profile, Meeting, Settings, MeetingUser, Presenter,AttentionEmotionScore
 from django.contrib.auth import authenticate, login
 from .sendmail import send_email
 from agora_token_builder import RtcTokenBuilder
@@ -22,7 +22,7 @@ from django.utils import timezone
 from django.contrib.auth import get_user_model
 from rest_framework.authtoken.models import Token
 from django.utils.timezone import make_aware
-import datetime
+from datetime import datetime,timedelta
 
 
 
@@ -392,6 +392,8 @@ class GetMeetingUserViewSet(ModelViewSet):
         return Response(serializer.data)
 
 
+
+
 class GetMeetingUserParticipantViewSet(ModelViewSet):
     serializer_class = MeetingUserSerializer
     authentication_classes = [TokenAuthentication]
@@ -443,6 +445,27 @@ class GetMeetingUserInfoViewSet(ModelViewSet):
             return Response({'status': 'MeetingUser not found'}, status=404)
         user_meeting = user_meeting_queryset.first()
         serializer = MeetingUserSerializer(user_meeting)
+        return Response(serializer.data)
+    
+class GetAttentionEmotionScoreViewSet(ModelViewSet):
+    serializer_class = AttentionEmotionScoreSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    http_method_names = ['put']
+    queryset = AttentionEmotionScore.objects.all()
+
+    def put(self, request, *args, **kwargs):
+        meeting_id = request.data.get("channelId")
+        time = request.data.get("time")
+        time_curr = datetime.strptime(time,'%Y-%m-%dT%H:%M:%S.%fZ')
+        one_minute_before = time_curr -timedelta(minutes=1)
+        print(time_curr)
+        print(one_minute_before)
+        queryset = AttentionEmotionScore.objects.filter( meeting_id=meeting_id,time__gte=one_minute_before)
+        if not queryset.exists():
+            return Response({'status': 'Attention score not found'})
+        attention_score = queryset.all()
+        serializer = AttentionEmotionScoreSerializer(attention_score, many=True)
         return Response(serializer.data)
     
 class GetPresenterViewSet(ModelViewSet):
@@ -497,7 +520,6 @@ class CreateMeetingUserViewSet(ModelViewSet):
     def create(self, request, *args, **kwargs):
         print(request.data)
         if request.data['is_host'] == "1":
-            print("olması lazım")
             request.data['is_presenter'] = 1
         serializer = self.get_serializer(data=request.data)
         try:

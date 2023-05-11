@@ -1,9 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ReactSpeedometer from "react-d3-speedometer"
 
 function AttentionAnalysisPopup(props) {
-  const [score, setScore] = useState(1.4);
+  const { attentionScore } = props;
+  const [score, setScore] = useState(attentionScore);
   const [isMinimized, setIsMinimized] = useState(false);
+  useEffect(() => {
+    setScore(attentionScore);
+  }, [attentionScore]);
 
   const handleMinimizeClick = () => {
     setIsMinimized(!isMinimized);
