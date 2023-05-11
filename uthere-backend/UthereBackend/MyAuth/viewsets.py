@@ -10,8 +10,8 @@ from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
 from .serializers import UserSerializer, LoginSerializer, RegisterSerializer, ContactFormSerializer, ProfileSerializer, \
-    MeetingSerializer, MeetingUserSerializer, SettingsSerializer,PresenterSerializer,AttentionEmotionScoreSerializer
-from .models import User, Profile, Meeting, Settings, MeetingUser, Presenter,AttentionEmotionScore
+    MeetingSerializer, MeetingUserSerializer, SettingsSerializer,PresenterSerializer,AttentionEmotionScoreSerializer, ScreenShareSerializer
+from .models import User, Profile, Meeting, Settings, MeetingUser, Presenter,AttentionEmotionScore, ScreenShare
 from django.contrib.auth import authenticate, login
 from .sendmail import send_email
 from agora_token_builder import RtcTokenBuilder
@@ -402,6 +402,7 @@ class GetMeetingUserParticipantViewSet(ModelViewSet):
     queryset = MeetingUser.objects.all()
 
     def retrieve(self, request, pk=None):
+        print(pk)
         queryset = MeetingUser.objects.filter(agora_id=pk)
         my_object = queryset.first()
         if my_object is None:
@@ -485,6 +486,24 @@ class GetPresenterViewSet(ModelViewSet):
         presenter_row = presenter_queryset.last()
         serializer = PresenterSerializer(presenter_row)
         return Response(serializer.data)
+    
+class GetScreenShareViewSet(ModelViewSet):
+    serializer_class = ScreenShareSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    http_method_names = ['put']
+    queryset = ScreenShare.objects.all()
+
+    def put(self, request, *args, **kwargs):
+        channel_id = request.data.get("channelId")
+        agora_id = request.data.get("agora_id")
+        queryset = ScreenShare.objects.filter( meeting_id=channel_id, agora_id = agora_id)
+        if not queryset.exists():
+            return Response({'status':'Not Screenshare'})
+        screenshare_row = queryset.first()
+        serializer = ScreenShareSerializer(screenshare_row)
+        return Response(serializer.data)
+
 
 
 class UserLeftMeetingViewSet(ModelViewSet):
@@ -538,6 +557,24 @@ class CreatePresenterViewSet(ModelViewSet):
     http_method_names = ['post']
 
     def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        try:
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+
+        except TokenError as e:
+            raise InvalidToken(e.args[0])
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+class CreateScreenShareViewSet(ModelViewSet):
+    serializer_class = ScreenShareSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    http_method_names = ['post']
+
+    def create(self, request, *args, **kwargs):
+        print(request.data)
         serializer = self.get_serializer(data=request.data)
         try:
             serializer.is_valid(raise_exception=True)

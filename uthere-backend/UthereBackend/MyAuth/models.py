@@ -136,3 +136,9 @@ class AttentionEmotionScore(models.Model):
     #5-Happy
     #6-Disgust
     #7-Neutral
+class ScreenShare(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    meeting = models.ForeignKey(Meeting, on_delete=models.CASCADE)
+    start_time = models.DateTimeField(auto_now_add=True)
+    end_time = models.DateTimeField(null=True)
+    agora_id = models.DecimalField(max_digits=12, decimal_places=2, default=0)

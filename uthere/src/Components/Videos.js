@@ -16,11 +16,38 @@ function Videos(props) {
 	const token = localStorage.getItem("token");
 	const status = cookies.get("status")
 	const [trigger, setTrigger] = useState(true)
-
+	const [isScreenShare,setIsScreenShare] = useState(false)
 	const [showPopup, setShowPopup] = useState(true);
+
+	async function checkUserIsScreenShare(arg){
+		const response = await axios.put(`http://127.0.0.1:8000/api/get_screenshare_table/`,
+		{
+			"channelId": channelId,
+			"agora_id": arg
+		},
+		{
+			headers: { Authorization: `Token ${token}` }
+		})
+		.then(response=>{
+			console.log(response)
+			if(response.data.hasOwnProperty('status') && response.data.status==='Not Screenshare'){
+				//it is a user
+				console.log('not screenshare ' + arg)
+				setIsScreenShare(false)
+			}
+			else{
+				//it is a screenshare
+				console.log('screenshare  ' +arg)
+				setIsScreenShare(true)
+			}
+		}).catch((exception) => {
+			console.log(exception);
+		});
+	}
 
 	async function getMeetingUser(arg) {
         try {
+			console.log("arg is " + arg)
             const response = await axios.get(`http://127.0.0.1:8000/api/get_meeting_participant/${arg}/`, {
 				  headers: { Authorization: `Token ${token}` }
 			  }).then(response => {
@@ -74,27 +101,52 @@ function Videos(props) {
 				{
 					users.length > 0 &&
 					users.map((user) => {
-						console.log("here")
+					
 						if (user.videoTrack) {
-							getMeetingUser(user.uid);
-							return (
-								<div className="vid">
-									<AgoraVideoPlayer className="vid" id = "play" videoTrack={user.videoTrack} key={user.uid}/>
-									<div className='video-label-container'>
-										<span className='video-label'>{participantName}</span>
+							checkUserIsScreenShare(user.uid)
+							console.log(isScreenShare)
+							if(!isScreenShare){
+								getMeetingUser(user.uid);
+								return (
+									<div className="vid">
+										<AgoraVideoPlayer className="vid" id = "play" videoTrack={user.videoTrack} key={user.uid}/>
+										<div className='video-label-container'>
+											<span className='video-label'>{participantName}</span>
+										</div>
 									</div>
-								</div>
-							);
+								);
+								
+							}
+							else{
+								return (
+									<div className="vid">
+										<AgoraVideoPlayer className="vid" id = "play" videoTrack={user.videoTrack} key={user.uid}/>
+										<div className='video-label-container'>
+											<span className='video-label'>ScreenShare</span>
+										</div>
+									</div>
+								);
+								
+							}
+						
 						}
 						else {
-							getMeetingUser(user.uid);
-							return (
-								<div key={user.uid} className='vid'>
-									<div className='video-label-container'>
-										<span className='video-label'>{participantName}</span>
+							checkUserIsScreenShare(user.uid)
+							if(!isScreenShare){
+								getMeetingUser(user.uid);
+								return (
+									<div key={user.uid} className='vid'>
+										<div className='video-label-container'>
+											<span className='video-label'>{participantName}</span>
+										</div>
 									</div>
-								</div>
-							);
+								);
+							}
+							else{
+								console.log("kapadın")
+								return<div></div>;
+							}
+							
 						}
 					})}
 			</div> 		

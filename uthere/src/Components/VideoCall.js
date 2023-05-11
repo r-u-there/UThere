@@ -36,7 +36,7 @@ function VideoCall(props) {
 	const [mediaRecorder, setMediaRecorder] = useState(null);	
 	const [intervalId, setIntervalId] = useState(null);	
 	const [attentionScore, setAttentionScore] = useState(0)
-	const [emotion, setEmotion] = useState(-1)
+	const [emotionStatus, setEmotion] = useState(0)
 
 	async function getHostID() {
         try {
@@ -259,12 +259,33 @@ function VideoCall(props) {
 					console.log(response);
 					if(response.data.hasOwnProperty('status') && response.data.status==='Attention score not found'){
 						setAttentionScore(0)
+						setEmotion(0)
 					}
 					else{
 						const totalScore = response.data.reduce((acc, curr) => acc + curr.attention_score, 0);
 						const averageScore = totalScore / response.data.length;	
 						console.log("average score is " + averageScore)
 						setAttentionScore(averageScore)
+						
+						const emotionCounts = response.data.reduce((counts, { emotion }) => {
+							counts[emotion] = (counts[emotion] || 0) + 1;
+							return counts;
+						}, {});
+						console.log(emotionCounts)
+						const maxCount = Object.values(emotionCounts).reduce((max, count) => Math.max(max, count), 0);
+
+						const maxCountIndex = Object.entries(emotionCounts).findIndex(([emotion, count]) => count === maxCount);
+
+						console.log('Emotion counts:', emotionCounts);
+						console.log('Max count:', maxCount);
+						console.log('Index of max count:', maxCountIndex);
+						var maxCountKey = Object.entries(emotionCounts).reduce((max, [key, value]) => {
+							return value > max.count ? { key, count: value } : max;
+						  }, { key: null, count: 0 }).key;
+						  console.log(typeof maxCountKey)
+						maxCountKey = parseInt(maxCountKey)
+						setEmotion(maxCountKey+1)
+					
 					}
 				}).catch((exception) => {
 					console.log(exception);
@@ -289,7 +310,7 @@ function VideoCall(props) {
 				{start && tracks && <Videos style={{zIndex:1}} tracks={tracks} users={users} usersWithCam={usersWithCam} agorauid={agorauid} />}
 			</div>
 			{status==="presenter"? (
-        		<AttentionAnalysisPopup attentionScore={attentionScore}/>
+        		<AttentionAnalysisPopup attentionScore={attentionScore} emotionStatus={emotionStatus}/>
       			):<></>}
 		</div>
 	);

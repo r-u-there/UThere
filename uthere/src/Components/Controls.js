@@ -281,18 +281,28 @@ function Controls(props) {
 		  try {
 					const client2 = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
 					let uid = await client2.join(config.appId, channelName, agora_token, null);
-			const screenTrack = await AgoraRTC.createScreenVideoTrack();
+					console.log("screenshare uid is " + uid)
+					const screenTrack = await AgoraRTC.createScreenVideoTrack();
+					//send screenshare to the backend
+					const createScreenShare = await axios.post('http://127.0.0.1:8000/api/create_screenshare/', {
+						"meeting" : channelId,
+						"user": userId,
+						"agora_id": uid
+					  },
+					{
+							headers: { Authorization: `Token ${token}` }
+						  }
+					);
+					console.log(createScreenShare)
 					await client2.publish([screenTrack]);
 					client2.on("user-published", async (user, mediaType) => {
-		  if (mediaType === "video" && user.videoTrack) {
-			await client2.subscribe(user, "screen");
-			const screenTrack = user.videoTrack;
-	
-			// Play the remote screen track in the new div element
-			screenTrack.play("");
-		  }
-		});
-			await channelParameters.localVideoTrack.replaceTrack(screenTrack, true);
+					if (mediaType === "video" && user.videoTrack) {
+						await client2.subscribe(user, "screen");
+						const screenTrack = user.videoTrack;
+						// Play the remote screen track in the new div element
+						screenTrack.play("yyy");
+					}
+					});
 			setChannelParameters({ ...channelParameters, screenTrack });
 			setIsSharingEnabled(true);
 		  } catch (error) {
