@@ -203,6 +203,7 @@ function ParticipantsPopup(props) {
 
 							{users.map((user) => {
 								getMeetingUser(user.uid);
+								console.log("participant uid is "+user.uid)
 								return <tr>
 										<td>{participantName}</td>
 										{is_host == 1 ? <td><button id={user.uid+"-remove"} onClick={()=>removeUser(user.uid)}>Remove</button></td> : <td>---</td>}
