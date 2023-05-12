@@ -23,7 +23,23 @@ from django.contrib.auth import get_user_model
 from rest_framework.authtoken.models import Token
 from django.utils.timezone import make_aware
 from datetime import datetime,timedelta
-
+from django.http import HttpResponse
+from reportlab.pdfgen import canvas
+from matplotlib.backends.backend_agg import FigureCanvasAgg
+from io import BytesIO
+import matplotlib.pyplot as plt
+from reportlab.graphics.charts.lineplots import LinePlot
+from reportlab.graphics.widgets.markers import makeMarker
+from reportlab.graphics.shapes import Drawing
+from matplotlib.dates import date2num
+import numpy as np
+import numpy as np
+from reportlab.graphics.charts.lineplots import LinePlot
+from reportlab.lib import colors
+from reportlab.lib.units import inch
+from reportlab.graphics.shapes import Drawing, String
+from matplotlib.dates import date2num, DateFormatter, MinuteLocator, SecondLocator
+from datetime import datetime
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -176,6 +192,27 @@ class SetPresenterMeetingViewSet(ModelViewSet):
             user_meeting.is_presenter = True
             user_meeting.save()
             return Response({'status': 'user become presenter'})
+        return Response({'status': 'ERROR'})
+    
+class GiveAccessUserViewSet(ModelViewSet):
+    serializer_class = MeetingUserSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    http_method_names = ['put']
+    queryset = MeetingUser.objects.all()
+
+    def put(self, request, *args, **kwargs):
+        user_id = request.data.get("userId")
+        channel_id = request.data.get("channelId")
+        agora_id = request.data.get("agoraToken")
+        print(user_id)
+        print(channel_id)
+        print(agora_id)
+        user_meeting = MeetingUser.objects.get(user_id=user_id, meeting_id=channel_id,agora_id=agora_id)
+        if user_meeting is not None:
+            user_meeting.access_report = True
+            user_meeting.save()
+            return Response({'status': 'user can access report'})
         return Response({'status': 'ERROR'})
 
 
@@ -500,7 +537,7 @@ class GetPresenterViewSet(ModelViewSet):
         print(type(channel_id))
         presenter_queryset = Presenter.objects.filter(user_id=user_id, meeting_id=channel_id)
         if not presenter_queryset.exists():
-            return Response({'status': 'MeetingUser not found'}, status=404)
+            return Response({'status': 'MeetingUser not found'})
         presenter_row = presenter_queryset.last()
         serializer = PresenterSerializer(presenter_row)
         return Response(serializer.data)
@@ -711,6 +748,138 @@ class GetAllMeetingParticipantsViewSet(ModelViewSet):
 
         serializer = MeetingUserSerializer(queryset, many=True)
         return Response(serializer.data)
+    
+
+class GetAnalysisReportsViewSet(ModelViewSet):
+    serializer_class = MeetingUserSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    http_method_names = ['get']
+
+    def retrieve(self, request, pk=None):
+        print("primary key is " + pk)
+        #take all of the meetings that this user can access
+        queryset_meeting_user =  MeetingUser.objects.filter(user_id=pk,access_report=True)
+        if queryset_meeting_user is not None:
+            reports =[]
+            for meeting_user in queryset_meeting_user:
+                #get the start time and end time of the meeting
+                meeting =  Meeting.objects.filter(id=meeting_user.meeting_id)
+               
+                #find the host of the meeting
+                host_query = MeetingUser.objects.filter(meeting_id=meeting_user.meeting_id,is_host=True)
+                user_info_host = User.objects.filter(id=host_query.get().user_id)
+                presenters = Presenter.objects.filter(meeting_id=meeting_user.meeting_id)
+                presenter_names=[]
+                presenter_emails=[]
+                for presenter in presenters:
+                    user_info_presenters=  User.objects.filter(id=presenter.user_id)
+                    presenter_names.append(user_info_presenters.get().username)
+                    presenter_emails.append(user_info_presenters.get().email)
+                
+                #get total average attention and emotion score
+                emotions =[0,0,0,0,0,0,0]
+                emotion_name = ['Sad','Angry','Surprise','Fear','Happy','Disgust','Neutral']
+                total_avg_attention = AttentionEmotionScore.objects.filter(meeting_id=meeting_user.meeting_id)
+                total = 0
+                attention_graph_points = []
+                for attention in total_avg_attention:
+                    total = total + attention.attention_score
+                    emotions[attention.emotion] = emotions[attention.emotion] +1
+                    point = {'attention_score': attention.attention_score, 'time': attention.time}
+                    attention_graph_points.append(point)
+                max_index = emotions.index(max(emotions))
+                attention_graph_points = sorted(attention_graph_points, key=lambda point: point['time'])
+                print(attention_graph_points)
+                average_attention=0
+                avg_emotion='Not available'
+                if len(total_avg_attention) != 0: 
+                    average_attention = total /len(total_avg_attention)
+                    avg_emotion = emotion_name[max_index]
+                   
+                avg_attention= average_attention * 100/3
+                #find total average emotion score
+
+
+                meeting_report = {'start_time':meeting.first().start_time, 'end_time':meeting.first().end_time,'join_time': meeting_user.join_time,
+                                  'user_left_time':meeting_user.left_time, 'host_username':user_info_host.get().username, 'host_email':user_info_host.get().email,
+                                   'presenter_names': presenter_names, 'presenter_emails': presenter_emails,'average_attention':avg_attention, 'average_emotion': avg_emotion,
+                                    'attention_graph_points':attention_graph_points }
+                reports.append(meeting_report)
+
+            # create a new PDF file
+            response = HttpResponse(content_type='application/pdf')
+            response['Content-Disposition'] = 'attachment; filename="meeting_reports.pdf"'
+            pdf = canvas.Canvas(response)
+            # create a new PDF document with ReportLab
+            # write the reports to the PDF file
+            y = 700
+            for report in reports:
+                pdf.setFont("Helvetica", 14)
+                pdf.drawString(100, y, f"General Meeting Information")
+                y -= 20
+                
+                start_time = report['start_time']
+                pdf.setFont("Helvetica", 12)
+                pdf.drawString(100, y, f"Meeting start time: {start_time}")
+                y -= 20
+
+                end_time = report['end_time']
+                pdf.drawString(100, y, f"Meeting end time: {end_time}")
+                y -= 20
+
+                host_user_name = report['host_username']
+                host_email = report['host_email']
+                pdf.drawString(100, y, f"Host of the meeting (name): {host_user_name}, (email): {host_email}")
+                y -= 20
+
+                join_time = report['join_time']
+                pdf.drawString(100, y, f"The time you join to the meeting: {join_time}")
+                y -= 20
+
+                left_time = report['user_left_time']
+                pdf.drawString(100, y, f"The time you left the meeting: {left_time}")
+                y -= 20
+
+                y-=40
+
+                pdf.setFont("Helvetica", 14)
+                pdf.drawString(100, y, f"Presenters")
+                y -= 20
+
+                pdf.setFont("Helvetica", 12)
+                presenter_names = report['presenter_names']
+                presenter_emails = report['presenter_emails']
+                for name, email in zip(presenter_names,presenter_emails):
+                    pdf.drawString(100, y, f"Presenter (name): {name}, (email): {email}")
+                    y -= 20
+                
+                y-=40
+                pdf.setFont("Helvetica", 14)
+                pdf.drawString(100, y, f"Attention and Emotion Scores")
+                y -= 20
+
+                pdf.setFont("Helvetica", 12)
+                total_avg_attention_score = report['average_attention']
+                pdf.drawString(100, y, f"The average attention score: {total_avg_attention_score}")
+                y -= 20
+
+                total_avg_emotion_score = report['average_emotion']
+                pdf.drawString(100, y, f"The most common emotion during the meeting: {total_avg_emotion_score}")
+                y -= 20
+                
+                #draw attention graph
+                # your existing code
+                # your existing code
+                # your existing code
+                x_values = [point['time'] for point in attention_graph_points]
+                y_values = [point['attention_score'] for point in attention_graph_points]   
+
+            # save the PDF file and return the response
+            pdf.save()
+        else:
+            response =[]
+        return response
 
 
 

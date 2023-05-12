@@ -11,6 +11,7 @@ import EditProfilePopup from "./EditProfilePopup";
 import {Cookies} from "react-cookie";
 import axios from "axios";
 import * as ReactBootStrap from "react-bootstrap"
+import { saveAs } from 'file-saver';
 
 function ProfilePage() {
 	const [tabSelection, setTabSelection] = useState(0);
@@ -68,6 +69,22 @@ function ProfilePage() {
 		}).catch((exception) => {
 			console.log(exception);
 		});
+	}, []);
+
+	const getAnalysisReports = useCallback(() => {
+		axios.get(`http://127.0.0.1:8000/api/getanalysisreports/${userId}/`, {
+				  headers: { Authorization: `Token ${token}` }
+			  }).then(response => {
+			console.log("user id is" + userId);
+			console.log(response);
+				//window.location.href = '`http://127.0.0.1:8000/api/getanalysisreports/${userId}/';
+		const blob = new Blob([response.data], { type: 'application/pdf' });
+		// use file-saver to save the blob as a file
+		saveAs(blob, 'meeting_reports.pdf');
+		}).catch((exception) => {
+			console.log(exception);
+		});
+	
 	}, []);
 
 
@@ -135,8 +152,7 @@ function ProfilePage() {
 				<div>
 					<ul>
 						<li><GrDocumentPdf size={30}/>&emsp;Attention Report - 06/05/2022</li>
-						<li className='mt-3'><GrDocumentPdf size={30}/>&emsp;Attention Report - 10/24/2022</li>
-						<li className='mt-3'><GrDocumentPdf size={30}/>&emsp;Attention Report - 10/17/2022</li>
+						<button onClick={()=>{getAnalysisReports()}}>Download File</button>
 					</ul>
 				</div>
 			);

@@ -80,7 +80,8 @@ function VideoCall(props) {
 				"meeting" : channelId,
 				"user": userId,
 				"is_host": is_host,
-				"agora_id": arg 
+				"agora_id": arg ,
+				"access_report": is_host
 			  },
 			{
 					headers: { Authorization: `Token ${token}` }

@@ -6,7 +6,8 @@ from .viewsets import LoginViewSet, RegistrationViewSet, UserViewSet, ContactVie
     UserKickedMeetingViewSet, GetMeetingUserInfoViewSet, \
     SetPresenterMeetingViewSet, UnsetPresenterMeetingViewSet, AlertUserMeetingViewSet, SignOutViewSet, \
     GetAllMeetingParticipantsViewSet, CreatePresenterViewSet,EndTimePresenterViewSet, GetParticipantUserInfoViewSet, UserLeftMeetingViewSet,RemoveAllUserMeetingViewSet, \
-CheckDeparturesViewSet, GetPresenterViewSet, GetAttentionEmotionScoreViewSet, CreateScreenShareViewSet, GetScreenShareViewSet, GetUserInfoViewSet
+CheckDeparturesViewSet, GetPresenterViewSet, GetAttentionEmotionScoreViewSet, CreateScreenShareViewSet, GetScreenShareViewSet, GetUserInfoViewSet, GiveAccessUserViewSet, \
+GetAnalysisReportsViewSet
 
 routes = SimpleRouter()
 
@@ -47,6 +48,8 @@ routes.register(r'get_attention_emotion_score', GetAttentionEmotionScoreViewSet,
 routes.register(r'create_screenshare', CreateScreenShareViewSet, basename='create_screnshare')
 routes.register(r'get_screenshare_table', GetScreenShareViewSet, basename='get_screnshare')
 routes.register(r'get_user_info', GetUserInfoViewSet, basename='get_user_info')
+routes.register(r'give_access_user', GiveAccessUserViewSet, basename='give_access_user')
+routes.register(r'getanalysisreports', GetAnalysisReportsViewSet, basename='getanalysisreports')
 
 urlpatterns = [
     *routes.urls
