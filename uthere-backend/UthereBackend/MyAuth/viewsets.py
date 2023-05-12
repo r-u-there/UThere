@@ -58,6 +58,7 @@ class UserInfoViewSet(ModelViewSet):
             'id': user.id,
             'email': user.email,
             'username': user.username,
+            'settings_id': user.settings_id
         }
         return Response(data)
 
@@ -253,15 +254,15 @@ class SettingsViewSet(ModelViewSet):
     def update(self, request, *args, **kwargs):
         data = request.data
         serializer = self.serializer_class(data=data)
-
-        print("inside update")
-        print(type(data))
+        print(data)
 
         if serializer.is_valid():
             setting = Settings.objects.get(id=request.user.settings_id)
+            print(setting.attention_limit)
             for key, value in data.items():
                 setattr(setting, key, value)
             setting.save()
+            print(setting)
             return Response(data=serializer.data, status=status.HTTP_204_NO_CONTENT)
         else:
             return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)

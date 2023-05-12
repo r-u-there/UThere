@@ -11,7 +11,7 @@ from .models import User, ContactForm, Profile, Settings, Meeting, MeetingUser,P
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'is_active', 'password']
+        fields = ['id', 'username', 'email', 'is_active', 'password','settings_id']
         read_only_field = ['is_active']
 
 
@@ -86,7 +86,7 @@ class SettingsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Settings
-        fields = '__all__'
+        fields = ['id', 'attention_limit', 'get_analysis_report', 'hide_real_time_emotion_analysis','hide_real_time_attention_analysis','hide_real_time_analysis','hide_who_left','hide_eye_tracking']
     def update(self, instance):
         instance.attention_limit = self.validated_data.get('attention_limit', instance.attention_limit)
         instance.get_analysis_report = self.validated_data.get('get_analysis_report', instance.get_analysis_report)
