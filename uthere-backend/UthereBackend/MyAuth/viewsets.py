@@ -61,6 +61,22 @@ class UserInfoViewSet(ModelViewSet):
             'settings_id': user.settings_id
         }
         return Response(data)
+    
+class GetUserInfoViewSet(ModelViewSet):
+    serializer_class = UserSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    http_method_names = ['get']
+    queryset = User.objects.all()
+
+    def retrieve(self, request, pk=None):
+        queryset = User.objects.filter(id=pk)
+        my_object = queryset.first()
+        if my_object is None:
+            return Response(status=404)
+
+        serializer = UserSerializer(my_object)
+        return Response(serializer.data)
 
 class UserUpdateViewSet(ModelViewSet):
     serializer_class = UserSerializer
@@ -460,7 +476,8 @@ class GetAttentionEmotionScoreViewSet(ModelViewSet):
         meeting_id = request.data.get("channelId")
         time = request.data.get("time")
         time_curr = datetime.strptime(time,'%Y-%m-%dT%H:%M:%S.%fZ')
-        one_minute_before = time_curr -timedelta(minutes=1)
+        #one_minute_before = time_curr -timedelta(minutes=1)
+        one_minute_before = time_curr -timedelta(seconds=20)
         print(time_curr)
         print(one_minute_before)
         queryset = AttentionEmotionScore.objects.filter( meeting_id=meeting_id,time__gte=one_minute_before)

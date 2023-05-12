@@ -339,12 +339,12 @@ function VideoCall(props) {
 				{ready && tracks && (<Controls tracks={tracks} setStart={setStart} webgazer={webgazer} users={users} trackState={trackState} setTrackState = {setTrackState}/>)}
 			</div>
 			<div>
-				{start && tracks && <Videos style={{zIndex:1}} tracks={tracks} users={users} usersWithCam={usersWithCam} agorauid={agorauid} />}
+				{start && tracks && <Videos style={{zIndex:1}} tracks={tracks} users={users} setUsers={setUsers} usersWithCam={usersWithCam} agorauid={agorauid} />}
 			</div>
 			{status==="presenter" && !hideRealTimeAnalysis? (
         		<AttentionAnalysisPopup attentionScore={attentionScore} emotionStatus={emotionStatus} hideEmotionAnalysis={hideEmotionAnalysis} hideAttentionAnalysis={hideAttentionAnalysis}/>
       			):<></>}
-				<PresenterWarningPopup triggerPresenterWarningPopup={triggerPresenterWarningPopup} setTriggerPresenterWarningPopup={setTriggerPresenterWarningPopup}></PresenterWarningPopup>
+				{status==="presenter" && !hideRealTimeAnalysis? <PresenterWarningPopup triggerPresenterWarningPopup={triggerPresenterWarningPopup} setTriggerPresenterWarningPopup={setTriggerPresenterWarningPopup}></PresenterWarningPopup>: <></>}
 		</div>
 	);
 }
