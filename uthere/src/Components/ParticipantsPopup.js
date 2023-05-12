@@ -86,6 +86,18 @@ function ParticipantsPopup(props) {
 		});
 
 	}
+
+	function alertAllUser(){
+		axios.put(`http://127.0.0.1:8000/api/alert_all_user_meeting/`, {
+			"channelId": channelId
+		},{headers: { Authorization: `Token ${token}` }}).then(response => {
+			console.log(response);
+		}).catch((exception) => {
+			console.log(exception);
+		});
+
+	}
+
 	function unsetPresenter(presenter_user_id, presenter_id_table){
 		//make the user presenter
 		let presenter_agora_id = cookies.get("agora_uid")
@@ -196,21 +208,22 @@ function ParticipantsPopup(props) {
 									
 								})()}
 								</td>
-								<td>---</td>
-								{is_host == 1 ? status ==="presenter" ? <td><button onClick={()=>unsetPresenter(userId,presenter_id)}>Unset Presenter</button></td>:<td><button onClick={()=>setPresenter(userId)}>Set Presenter</button></td>: <td>---</td>}
-								<td>---</td>
+								<td> </td>
+								{is_host == 1 ? status ==="presenter" ? <td><button onClick={()=>unsetPresenter(userId,presenter_id)}>Unset Presenter</button></td>:<td><button onClick={()=>setPresenter(userId)}>Set Presenter</button></td>: <td> </td>}
+								<td> </td>
 							</tr>
 
 							{users.map((user) => {
 								getMeetingUser(user.uid);
 								return <tr>
 										<td>{participantName}</td>
-										{is_host == 1 ? <td><button id={user.uid+"-remove"} onClick={()=>removeUser(user.uid)}>Remove</button></td> : <td>---</td>}
+										{is_host == 1 ? <td><button id={user.uid+"-remove"} onClick={()=>removeUser(user.uid)}>Remove</button></td> : <td> </td>}
 										{is_host == 1 ? isParticipantPresenter ?  <td><button  id= {user.uid+"-unset"} onClick={()=>unsetPresenter(user.uid,0)}>Unset Presenter</button></td>: 
-																			<td><button  id= {user.uid+"-set"} onClick={()=>setPresenter(user.uid)}>Set Presenter</button></td>: <td>---</td>}
-										{status === "presenter" && !isParticipantPresenter?<td><button onClick={()=>alertUser(user.uid)}>Alert</button></td> : <td>---</td> }
+																			<td><button  id= {user.uid+"-set"} onClick={()=>setPresenter(user.uid)}>Set Presenter</button></td>: <td> </td>}
+										{status === "presenter" && !isParticipantPresenter?<td><button onClick={()=>alertUser(user.uid)}>Alert</button></td> : <td> </td>}
 									</tr>
 							})}
+							{status === "presenter"?<tr><td colSpan="4" style={{ textAlign: "right" }}><button onClick={() => alertAllUser()}>Alert All</button></td></tr> : null}
 						</table>
 						<button type="button" onClick={() => {setTrigger(false)}} className="close popup-close2" aria-label="Close"><span aria-hidden="true">&times;</span></button>
 					</center>

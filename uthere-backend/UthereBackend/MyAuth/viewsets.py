@@ -10,8 +10,8 @@ from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
 from .serializers import UserSerializer, LoginSerializer, RegisterSerializer, ContactFormSerializer, ProfileSerializer, \
-    MeetingSerializer, MeetingUserSerializer, SettingsSerializer,PresenterSerializer
-from .models import User, Profile, Meeting, Settings, MeetingUser, Presenter
+    MeetingSerializer, MeetingUserSerializer, SettingsSerializer,PresenterSerializer, PollSerializer, OptionsSerializer
+from .models import User, Profile, Meeting, Settings, MeetingUser, Presenter, Poll
 from django.contrib.auth import authenticate, login
 from .sendmail import send_email
 from agora_token_builder import RtcTokenBuilder
@@ -218,7 +218,27 @@ class AlertUserMeetingViewSet(ModelViewSet):
         serializer = MeetingUserSerializer(user_meeting)
         return Response(serializer.data)
 
+class AlertAllUserMeetingViewSet(ModelViewSet):
+    serializer_class = MeetingUserSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    http_method_names = ['put']
+    queryset = MeetingUser.objects.all()
 
+    def put(self, request, *args, **kwargs):
+        channel_id = request.data.get("channelId")
+        user_meeting_all = MeetingUser.objects.filter( meeting_id=channel_id)
+        if user_meeting_all is not None:
+            for user_meeting in user_meeting_all:
+                if not user_meeting.is_presenter:
+                    user_meeting.alert_num = user_meeting.alert_num + 1
+                    user_meeting.save()
+
+        else:
+            return Response({'status': 'MeetingUser not found'}, status=404)
+
+        return Response({'status': 'All users alerted'}, status=202)
+    
 class SignOutViewSet(viewsets.ViewSet):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
@@ -634,6 +654,47 @@ class GetAllMeetingParticipantsViewSet(ModelViewSet):
 
         serializer = MeetingUserSerializer(queryset, many=True)
         return Response(serializer.data)
+
+class CreatePollViewSet(ModelViewSet):
+    serializer_class = PollSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    http_method_names = ['post']
+
+    def create(self, request, *args, **kwargs):
+        question_body = request.data.get("question_body")
+        channel_id = request.data.get("channel_id")
+        user_id= request.data.get("user_id")
+        option1= request.data.get("option_1")
+        option2= request.data.get("option_2")
+        option3= request.data.get("option_3")
+
+        meeting = Meeting.objects.filter(id=channel_id)
+        creator = Presenter.objects.filter(user_id=user_id, meeting_id=channel_id)
+        new_poll = {'meeting': meeting, 'creator':creator, 'question_body':question_body}
+        serializer = self.get_serializer(data=new_poll)
+        
+        try:
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            print("poll created")
+        except TokenError as e:
+            raise InvalidToken(e.args[0])
+        
+        poll = Poll.objects.filter(id=channel_id, creator=user_id)
+        
+        options = [{'poll':poll, 'option_body':option1, 'count': 0},
+                   {'poll':poll, 'option_body':option2, 'count': 0},
+                   {'poll':poll, 'option_body':option3, 'count': 0}]
+        for opt in options:
+            options_serializer = OptionsSerializer(data=opt)
+            try:
+                options_serializer.is_valid(raise_exception=True)
+                options_serializer.save()
+                print("option created")
+            except TokenError as e:
+                raise InvalidToken(e.args[0])
+       
 
 
 

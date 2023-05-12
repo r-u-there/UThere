@@ -6,12 +6,14 @@ import React from 'react';
 import { BsCameraVideo, BsCameraVideoOff } from 'react-icons/bs';
 import { BsMic, BsMicMute } from 'react-icons/bs';
 import { IoCloseCircleOutline } from 'react-icons/io5';
+import { MdOutlinePoll } from "react-icons/md";
 import { IoPeople } from 'react-icons/io5';
 import {Cookies} from "react-cookie";
 import {Link, useNavigate} from 'react-router-dom';
 import ParticipantsPopup from "./ParticipantsPopup";
 import ClipBoardPopup from "./ClipBoardPopup";
 import AlertPopup from "./AlertPopup";
+import PollPopup from "./PollPopup";
 import LeaveMeetingPopup from "./LeaveMeetingPopup";
 import {MdScreenShare, MdStopScreenShare,MdOutlineContentCopy} from "react-icons/md";
 import axios from "axios";
@@ -31,6 +33,7 @@ function Controls(props) {
 	const [trigger3, setTrigger3] = useState(false);
 	const [trigger4, setTrigger4] = useState(false);
 	const [trigger5, setTrigger5] = useState(false);
+	const [pollTrigger, setPollTrigger] = useState(false);
 	let alertNum = "0";
 	const [triggerAlertPopup, setTriggerAlertPopup] = useState(false);
 	const navigate = useNavigate();
@@ -323,6 +326,7 @@ function Controls(props) {
 						{trackState.audio ? <div><BsMic size={20} /><br></br>Mute</div> :
 							<div><BsMicMute size={20} /><br></br>Unmute</div>}
 					</button>
+					<button onClick={() => {setPollTrigger(true)}}><div><MdOutlinePoll size={20} /><br></br>Create Poll</div></button>
 					{is_host==1? <button onClick={() => {copyLink()}}><div><MdOutlineContentCopy size={20} /><br></br>Copy Link</div></button>:<></>}
 
 					{/*
@@ -336,7 +340,7 @@ function Controls(props) {
 				<AlertPopup triggerAlertPopup={triggerAlertPopup} setTriggerAlertPopup={setTriggerAlertPopup}></AlertPopup>
 				<ClipBoardPopup trigger2={trigger2} setTrigger2={setTrigger2}></ClipBoardPopup>
 				<LeaveMeetingPopup trigger3={trigger3} setTrigger3={setTrigger3} trigger4={trigger4} setTrigger4={setTrigger4} trigger5={trigger5} setTrigger5={setTrigger5}></LeaveMeetingPopup>
-				
+				<PollPopup pollTrigger= {pollTrigger} setPollTrigger = {setPollTrigger}></PollPopup>
 			</div>
 		</div>
 		
