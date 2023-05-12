@@ -5,13 +5,13 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.settings import api_settings
 from django.contrib.auth.models import update_last_login
 from django.core.exceptions import ObjectDoesNotExist
-from .models import User, ContactForm, Profile, Settings, Meeting, MeetingUser,Presenter, Poll, Options
+from .models import User, ContactForm, Profile, Settings, Meeting, MeetingUser,Presenter, AttentionEmotionScore,ScreenShare, Poll, Options
 
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'is_active', 'password']
+        fields = ['id', 'username', 'email', 'is_active', 'password','settings_id']
         read_only_field = ['is_active']
 
 
@@ -86,7 +86,7 @@ class SettingsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Settings
-        fields = '__all__'
+        fields = ['id', 'attention_limit', 'get_analysis_report', 'hide_real_time_emotion_analysis','hide_real_time_attention_analysis','hide_real_time_analysis','hide_who_left','hide_eye_tracking']
     def update(self, instance):
         instance.attention_limit = self.validated_data.get('attention_limit', instance.attention_limit)
         instance.get_analysis_report = self.validated_data.get('get_analysis_report', instance.get_analysis_report)
@@ -122,6 +122,22 @@ class PresenterSerializer(serializers.ModelSerializer):
 
     def create(self, instance):
         return Presenter.objects.create(**self.validated_data)
+    
+class AttentionEmotionScoreSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AttentionEmotionScore
+        fields = ['id', 'attention_score', 'time','emotion', 'meeting', 'user']
+
+    def create(self, instance):
+        return AttentionEmotionScore.objects.create(**self.validated_data)
+    
+class ScreenShareSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ScreenShare
+        fields = ['id', 'start_time', 'end_time','agora_id', 'meeting', 'user']
+
+    def create(self, instance):
+        return ScreenShare.objects.create(**self.validated_data)
 
 class PollSerializer(serializers.ModelSerializer):
     class Meta:

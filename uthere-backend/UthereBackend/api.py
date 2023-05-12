@@ -16,12 +16,13 @@ import cv2
 from fastapi.middleware.cors import CORSMiddleware
 import math
 import numpy as np
-from MyAuth.models import AttentionScore, User
+from MyAuth.models import AttentionEmotionScore, User, Meeting
 from asgiref.sync import sync_to_async
 from Features.extractor import FeatureExtractor
 import time
 from statistics import mode
 from deepface import DeepFace
+from datetime import datetime
 
 # Load the saved model
 model = load_model('attention_model/my_model.h5')
@@ -34,6 +35,7 @@ origins = [
     "http://localhost",
     "http://localhost:3000",
 ]
+EMOTION_ENUM = {'sad': 0, 'angry': 1, 'surprise': 2, 'fear': 3, 'happy': 4, 'disgust': 5, 'neutral': 6}
 
 app.add_middleware(
     CORSMiddleware,
@@ -44,7 +46,7 @@ app.add_middleware(
 )
 
 @app.post('/upload-video/')
-async def upload_video(file: UploadFile = File(...), timestamp: str = Form(...), user_id: str = Form(...)):
+async def upload_video(file: UploadFile = File(...), timestamp: str = Form(...), user_id: str = Form(...), meeting_id: str = Form(...)):
     try:
         start = time.time()
         global feature_extractor
@@ -93,10 +95,11 @@ async def upload_video(file: UploadFile = File(...), timestamp: str = Form(...),
         # emotion = result['emotion']['dominant']
         # print(f'Got prediction for emotion: {emotion}')
         most_common_emotion = mode(emotions)
-        print(emotions)
         print(most_common_emotion)
+        emotion_id = EMOTION_ENUM[most_common_emotion]
         user = await sync_to_async(User.objects.get)(id=user_id)
-        att_score = AttentionScore(user= user, time=timestamp,score = pred_class)
+        meeting = await sync_to_async(Meeting.objects.get)(id=meeting_id)
+        att_score = AttentionEmotionScore(user= user,meeting=meeting, time=datetime.strptime(timestamp,'%Y-%m-%dT%H:%M:%S.%fZ'),attention_score = pred_class,emotion=emotion_id)
         await sync_to_async(att_score.save)()
         end = time.time()
         print(f'Execution time: {end - start}')
@@ -105,4 +108,4 @@ async def upload_video(file: UploadFile = File(...), timestamp: str = Form(...),
         return {"message": "Video file not found."}
 
 if __name__ == '__main__':
-    uvicorn.run(app, port=8008, host="0.0.0.0")
+    uvicorn.run(app, port=8008, host="127.0.0.1")

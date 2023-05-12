@@ -40,10 +40,12 @@ function ProfilePage() {
 			'Authorization': `Token ${token}`
 		}
 		}).then(response => {
+			console.log(response)
 			setName(response.data.username);
 			setEmail(response.data.email);
 			setPassword(response.data.password);
 			setLoading(true);
+			setSettingsId(response.data.settings_id)
 		}).catch((exception) => {
 			console.log(exception);
 		});

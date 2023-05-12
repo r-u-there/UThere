@@ -53,6 +53,7 @@ function Controls(props) {
 		screenTrack: null,
 		localVideoTrack: null,
 	  });
+
 	const [toggle1, setToggle1] = useState();
 	const [toggle2, setToggle2] = useState();
 	const [toggle3, setToggle3] = useState();
@@ -211,11 +212,9 @@ function Controls(props) {
 						console.log(response);
 						if(!response.data.hide_who_left){
 							//continue to check 
-							console.log("içindeyim")
 							axios.get(`http://127.0.0.1:8000/api/check_departures/${channelId}/`, {
 								headers: { Authorization: `Token ${token}` }
 									}).then(response => {
-								console.log(response);
 								if(response.data.length != 0){
 									if(response.data.user !== peopleLeft){
 										//if the user left_time is before my presenter start time do not alert
@@ -240,7 +239,6 @@ function Controls(props) {
 											console.log(exception);
 										});
 									}
-									console.log(peopleLeft)
 								}
 							}).catch((exception) => {
 								console.log(exception);
@@ -254,8 +252,6 @@ function Controls(props) {
 				if(response.data.is_presenter == 0){
 					cookies.set("status","participant");
 				}
-				console.log(response.data.alert_num);
-				console.log(alertNum);
 				if(response.data.is_presenter == 0 && response.data.alert_num != alertNum){
 			
 					console.log(response.data.alert_num);
@@ -281,28 +277,40 @@ function Controls(props) {
 	}, []);
 	const handleScreenShare = async () => {
 		if (isSharingEnabled) {
+		  
 		  if (channelParameters.screenTrack) {
 			await channelParameters.screenTrack.replaceTrack(channelParameters.localVideoTrack, true);
+			setIsSharingEnabled(false);
 		  }
-		  setIsSharingEnabled(false);
+		  //setIsSharingEnabled(false);
 		} else {
 		  try {
 					const client2 = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
 					let uid = await client2.join(config.appId, channelName, agora_token, null);
-			const screenTrack = await AgoraRTC.createScreenVideoTrack();
+					console.log("screenshare uid is " + uid)
+					const screenTrack = await AgoraRTC.createScreenVideoTrack();
+					//send screenshare to the backend
+					const createScreenShare = await axios.post('http://127.0.0.1:8000/api/create_screenshare/', {
+						"meeting" : channelId,
+						"user": userId,
+						"agora_id": uid
+					  },
+					{
+							headers: { Authorization: `Token ${token}` }
+						  }
+					);
+					console.log(createScreenShare)
 					await client2.publish([screenTrack]);
 					client2.on("user-published", async (user, mediaType) => {
-		  if (mediaType === "video" && user.videoTrack) {
-			await client2.subscribe(user, "screen");
-			const screenTrack = user.videoTrack;
-	
-			// Play the remote screen track in the new div element
-			screenTrack.play("");
-		  }
-		});
-			await channelParameters.localVideoTrack.replaceTrack(screenTrack, true);
+					if (mediaType === "video" && user.videoTrack) {
+						await client2.subscribe(user, "screen");
+						const screenTrack = user.videoTrack;
+						// Play the remote screen track in the new div element
+						screenTrack.play("yyy");
+					}
+					});
 			setChannelParameters({ ...channelParameters, screenTrack });
-			setIsSharingEnabled(true);
+			setIsSharingEnabled(false);
 		  } catch (error) {
 			console.error('Error creating screen track:', error);
 		  }
@@ -316,7 +324,7 @@ function Controls(props) {
 			<div className="meeting-controls">
 				<div className="meeting-control">
 				
-					{status==="presenter" ? <button onClick={handleScreenShare}><div>{!isSharingEnabled ? <MdScreenShare size={20} /> : <MdStopScreenShare size={20}/>}<br></br>Share Screen</div></button>:<></>}
+					{status==="presenter"&&!isSharingEnabled ? <button onClick={handleScreenShare}><div>{!isSharingEnabled ? <MdScreenShare size={20} /> : <MdStopScreenShare size={20}/>}<br></br>Share Screen</div></button>:<></>}
 					<button onClick={() => {setTrigger(true);}}><div><IoPeople size={20} /><br></br>Participants ({users.length + 1})</div></button>
 					<button onClick={() => mute("video")}>
 						{trackState.video ? <div><BsCameraVideo size={20} /><br></br>Turn Off</div> :

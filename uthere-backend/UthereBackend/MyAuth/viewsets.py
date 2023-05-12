@@ -10,8 +10,8 @@ from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
 from .serializers import UserSerializer, LoginSerializer, RegisterSerializer, ContactFormSerializer, ProfileSerializer, \
-    MeetingSerializer, MeetingUserSerializer, SettingsSerializer,PresenterSerializer, PollSerializer, OptionsSerializer
-from .models import User, Profile, Meeting, Settings, MeetingUser, Presenter, Poll
+    MeetingSerializer, MeetingUserSerializer, SettingsSerializer,PresenterSerializer,AttentionEmotionScoreSerializer, ScreenShareSerializer, PollSerializer, OptionsSerializer
+from .models import User, Profile, Meeting, Settings, MeetingUser, Presenter,AttentionEmotionScore, ScreenShare
 from django.contrib.auth import authenticate, login
 from .sendmail import send_email
 from agora_token_builder import RtcTokenBuilder
@@ -22,7 +22,7 @@ from django.utils import timezone
 from django.contrib.auth import get_user_model
 from rest_framework.authtoken.models import Token
 from django.utils.timezone import make_aware
-import datetime
+from datetime import datetime,timedelta
 
 
 
@@ -58,8 +58,25 @@ class UserInfoViewSet(ModelViewSet):
             'id': user.id,
             'email': user.email,
             'username': user.username,
+            'settings_id': user.settings_id
         }
         return Response(data)
+    
+class GetUserInfoViewSet(ModelViewSet):
+    serializer_class = UserSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    http_method_names = ['get']
+    queryset = User.objects.all()
+
+    def retrieve(self, request, pk=None):
+        queryset = User.objects.filter(id=pk)
+        my_object = queryset.first()
+        if my_object is None:
+            return Response(status=404)
+
+        serializer = UserSerializer(my_object)
+        return Response(serializer.data)
 
 class UserUpdateViewSet(ModelViewSet):
     serializer_class = UserSerializer
@@ -273,15 +290,15 @@ class SettingsViewSet(ModelViewSet):
     def update(self, request, *args, **kwargs):
         data = request.data
         serializer = self.serializer_class(data=data)
-
-        print("inside update")
-        print(type(data))
+        print(data)
 
         if serializer.is_valid():
             setting = Settings.objects.get(id=request.user.settings_id)
+            print(setting.attention_limit)
             for key, value in data.items():
                 setattr(setting, key, value)
             setting.save()
+            print(setting)
             return Response(data=serializer.data, status=status.HTTP_204_NO_CONTENT)
         else:
             return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -412,6 +429,8 @@ class GetMeetingUserViewSet(ModelViewSet):
         return Response(serializer.data)
 
 
+
+
 class GetMeetingUserParticipantViewSet(ModelViewSet):
     serializer_class = MeetingUserSerializer
     authentication_classes = [TokenAuthentication]
@@ -420,6 +439,7 @@ class GetMeetingUserParticipantViewSet(ModelViewSet):
     queryset = MeetingUser.objects.all()
 
     def retrieve(self, request, pk=None):
+        print(pk)
         queryset = MeetingUser.objects.filter(agora_id=pk)
         my_object = queryset.first()
         if my_object is None:
@@ -465,6 +485,28 @@ class GetMeetingUserInfoViewSet(ModelViewSet):
         serializer = MeetingUserSerializer(user_meeting)
         return Response(serializer.data)
     
+class GetAttentionEmotionScoreViewSet(ModelViewSet):
+    serializer_class = AttentionEmotionScoreSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    http_method_names = ['put']
+    queryset = AttentionEmotionScore.objects.all()
+
+    def put(self, request, *args, **kwargs):
+        meeting_id = request.data.get("channelId")
+        time = request.data.get("time")
+        time_curr = datetime.strptime(time,'%Y-%m-%dT%H:%M:%S.%fZ')
+        #one_minute_before = time_curr -timedelta(minutes=1)
+        one_minute_before = time_curr -timedelta(seconds=20)
+        print(time_curr)
+        print(one_minute_before)
+        queryset = AttentionEmotionScore.objects.filter( meeting_id=meeting_id,time__gte=one_minute_before)
+        if not queryset.exists():
+            return Response({'status': 'Attention score not found'})
+        attention_score = queryset.all()
+        serializer = AttentionEmotionScoreSerializer(attention_score, many=True)
+        return Response(serializer.data)
+    
 class GetPresenterViewSet(ModelViewSet):
     serializer_class = PresenterSerializer
     authentication_classes = [TokenAuthentication]
@@ -482,6 +524,24 @@ class GetPresenterViewSet(ModelViewSet):
         presenter_row = presenter_queryset.last()
         serializer = PresenterSerializer(presenter_row)
         return Response(serializer.data)
+    
+class GetScreenShareViewSet(ModelViewSet):
+    serializer_class = ScreenShareSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    http_method_names = ['put']
+    queryset = ScreenShare.objects.all()
+
+    def put(self, request, *args, **kwargs):
+        channel_id = request.data.get("channelId")
+        agora_id = request.data.get("agora_id")
+        queryset = ScreenShare.objects.filter( meeting_id=channel_id, agora_id = agora_id)
+        if not queryset.exists():
+            return Response({'status':'Not Screenshare'})
+        screenshare_row = queryset.first()
+        serializer = ScreenShareSerializer(screenshare_row)
+        return Response(serializer.data)
+
 
 
 class UserLeftMeetingViewSet(ModelViewSet):
@@ -517,7 +577,6 @@ class CreateMeetingUserViewSet(ModelViewSet):
     def create(self, request, *args, **kwargs):
         print(request.data)
         if request.data['is_host'] == "1":
-            print("olması lazım")
             request.data['is_presenter'] = 1
         serializer = self.get_serializer(data=request.data)
         try:
@@ -536,6 +595,24 @@ class CreatePresenterViewSet(ModelViewSet):
     http_method_names = ['post']
 
     def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        try:
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+
+        except TokenError as e:
+            raise InvalidToken(e.args[0])
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+class CreateScreenShareViewSet(ModelViewSet):
+    serializer_class = ScreenShareSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    http_method_names = ['post']
+
+    def create(self, request, *args, **kwargs):
+        print(request.data)
         serializer = self.get_serializer(data=request.data)
         try:
             serializer.is_valid(raise_exception=True)

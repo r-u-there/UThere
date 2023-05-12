@@ -111,12 +111,6 @@ class Presenter(models.Model):
     end_time = models.DateTimeField(null=True)
 
 
-class AttentionScores(models.Model):
-    meeting = models.ForeignKey(Meeting, on_delete=models.CASCADE)
-    time = models.DateTimeField()
-    attention_score = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-
-
 class Poll(models.Model):
     meeting = models.ForeignKey(Meeting, on_delete=models.CASCADE)
     creator = models.ForeignKey(Presenter, on_delete=models.CASCADE)
@@ -128,7 +122,23 @@ class Options(models.Model):
     option_body =  models.CharField( max_length= 250, default="")
     count = models.IntegerField(default=0)
 
-class AttentionScore(models.Model):
+class AttentionEmotionScore(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    meeting = models.ForeignKey(Meeting, on_delete=models.CASCADE)
     time = models.CharField(max_length=50, null=False, blank=False)
-    score = models.IntegerField(default=0)
+    attention_score = models.IntegerField(default=0)
+    emotion= models.IntegerField(default=0)
+    #Emotion Scores Encoding
+    #1-Sad
+    #2-Angry
+    #3-Surprise
+    #4-Fear
+    #5-Happy
+    #6-Disgust
+    #7-Neutral
+class ScreenShare(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    meeting = models.ForeignKey(Meeting, on_delete=models.CASCADE)
+    start_time = models.DateTimeField(auto_now_add=True)
+    end_time = models.DateTimeField(null=True)
+    agora_id = models.DecimalField(max_digits=12, decimal_places=2, default=0)

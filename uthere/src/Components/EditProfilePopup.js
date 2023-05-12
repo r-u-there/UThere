@@ -30,11 +30,11 @@ function EditProfilePopup(props) {
 
 
 	function setAttentionRatingLimit() {
-		console.log();
-		axios.put(`http://127.0.0.1:8000/api/settings/${props.settingsId}/`, {
-				  headers: { Authorization: `Token ${token}` },
-					"attention_limit" : newInfo
-		}).then(response => {
+		console.log(props.settingsId);
+		var settings_id = props.settingsId
+		axios.put(`http://127.0.0.1:8000/api/settings/${props.settingsId}/`,{
+			"attention_limit": newInfo
+		},{headers: { Authorization: `Token ${token}` }}).then(response => {
 			console.log(response);
 		}).catch((exception) => {
 			console.log(exception);
