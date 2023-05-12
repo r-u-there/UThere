@@ -39,7 +39,6 @@ from reportlab.lib import colors
 from reportlab.lib.units import inch
 from reportlab.graphics.shapes import Drawing, String
 from matplotlib.dates import date2num, DateFormatter, MinuteLocator, SecondLocator
-from datetime import datetime
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -144,7 +143,7 @@ class UserKickedMeetingViewSet(ModelViewSet):
         print(user_meeting)
         if user_meeting.left_time is None:
             print("inside if")
-            user_meeting.left_time = datetime.datetime.now(tz=timezone.utc)
+            user_meeting.left_time = datetime.now(tz=timezone.utc)
             user_meeting.is_removed = True
             user_meeting.save()
             return Response({'status': 'user is kicked out of the meeting'})
@@ -168,7 +167,7 @@ class RemoveAllUserMeetingViewSet(ModelViewSet):
             print(user_meeting.left_time)
             if user_meeting.left_time is None:
                 print("inside if")
-                user_meeting.left_time = datetime.datetime.now(tz=timezone.utc)
+                user_meeting.left_time = datetime.now(tz=timezone.utc)
                 user_meeting.is_removed = True
                 user_meeting.save()
                 return Response({'status': 'user is kicked out of the meeting'})
@@ -246,7 +245,7 @@ class EndTimePresenterViewSet(ModelViewSet):
         channel_id = request.data.get("channelId")
         id = request.data.get("id")
         presenter = Presenter.objects.filter(user_id=presenter_user_id, meeting_id=channel_id, end_time=None).order_by('-id').last()
-        presenter.end_time = datetime.datetime.now(tz=timezone.utc)
+        presenter.end_time = datetime.now(tz=timezone.utc)
         presenter.save()
         return Response({'status': 'presenter is unsetted in presenter table'})
 
@@ -578,8 +577,8 @@ class UserLeftMeetingViewSet(ModelViewSet):
 
         print(user_meeting)
         if user_meeting.left_time is None:
-            print(datetime.datetime.now(tz=timezone.utc))
-            user_meeting.left_time = datetime.datetime.now(tz=timezone.utc)
+            print(datetime.now(tz=timezone.utc))
+            user_meeting.left_time = datetime.now(tz=timezone.utc)
             user_meeting.save()
             return Response({'status': 'user is kicked out of the meeting'})
         return Response({'status': 'ERROR'})
@@ -866,15 +865,33 @@ class GetAnalysisReportsViewSet(ModelViewSet):
 
                 total_avg_emotion_score = report['average_emotion']
                 pdf.drawString(100, y, f"The most common emotion during the meeting: {total_avg_emotion_score}")
-                y -= 20
+                y -= 400
                 
                 #draw attention graph
+                drawing = Drawing(width=500, height=300)
                 # your existing code
-                # your existing code
-                # your existing code
-                x_values = [point['time'] for point in attention_graph_points]
+               
+                x_values = [datetime.strptime(point['time'], '%Y-%m-%d %H:%M:%S.%f').timestamp() for point in attention_graph_points]
+                reverse_x_values = [datetime.fromtimestamp(timestamp) for timestamp in x_values]
+                x_labels = [dt.strftime("%Y-%m-%d %H:%M:%S") for dt in reverse_x_values]
                 y_values = [point['attention_score'] for point in attention_graph_points]   
+                print(x_values)
+                print(y_values)
 
+                lp = LinePlot()
+                lp.x = 50
+                lp.y = 50
+                lp.width = 400
+                lp.height = 200
+                lp.data = [list(zip(x_values, y_values))]
+                lp.lines[0].symbol = makeMarker('FilledCircle')
+                lp.lines[0].strokeWidth = 2
+                lp.lines[0].strokeColor = colors.blue
+                lp.xValueAxis.labelTextFormat = '%2.1f'
+               
+                drawing.add(lp)
+                drawing.add(lp)
+                drawing.drawOn(pdf, 50, y,450)
             # save the PDF file and return the response
             pdf.save()
         else:
