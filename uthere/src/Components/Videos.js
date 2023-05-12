@@ -146,11 +146,11 @@ function Videos(props) {
 								);
 								
 							}
-							else{
+							else {
 								console.log(2 +" "+ uid)
 								return (
-									<div className="vid">
-										<AgoraVideoPlayer className="vid" id = "play" videoTrack={video} key={uid}/>
+									<div>
+										<AgoraVideoPlayer className="vid2" id = "play" videoTrack={video} key={uid}/>
 										<div className='video-label-container'>
 											<span className='video-label'>ScreenShare</span>
 										</div>
