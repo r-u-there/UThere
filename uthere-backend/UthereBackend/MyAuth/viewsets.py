@@ -39,6 +39,8 @@ from reportlab.lib import colors
 from reportlab.lib.units import inch
 from reportlab.graphics.shapes import Drawing, String
 from matplotlib.dates import date2num, DateFormatter, MinuteLocator, SecondLocator
+from reportlab.graphics.charts.piecharts import Pie
+
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -803,7 +805,7 @@ class GetAnalysisReportsViewSet(ModelViewSet):
                 meeting_report = {'start_time':meeting.first().start_time, 'end_time':meeting.first().end_time,'join_time': meeting_user.join_time,
                                   'user_left_time':meeting_user.left_time, 'host_username':user_info_host.get().username, 'host_email':user_info_host.get().email,
                                    'presenter_names': presenter_names, 'presenter_emails': presenter_emails,'average_attention':avg_attention, 'average_emotion': avg_emotion,
-                                    'attention_graph_points':attention_graph_points }
+                                    'attention_graph_points':attention_graph_points,'emotions':emotions }
                 reports.append(meeting_report)
 
             # create a new PDF file
@@ -867,7 +869,10 @@ class GetAnalysisReportsViewSet(ModelViewSet):
                 pdf.drawString(100, y, f"The most common emotion during the meeting: {total_avg_emotion_score}")
                 y -= 400
                 
+                emotions=  report['emotions']
                 #draw attention graph
+                pdf.setFont("Helvetica", 14)
+                pdf.drawString(100, y, f"Attention Graph")
                 drawing = Drawing(width=500, height=300)
                 # your existing code
                
@@ -892,6 +897,24 @@ class GetAnalysisReportsViewSet(ModelViewSet):
                 drawing.add(lp)
                 drawing.add(lp)
                 drawing.drawOn(pdf, 50, y,450)
+                
+                pdf.showPage()
+                y+=600
+                #emotion pie
+                pdf.drawString(100, 800, f"Emotion Graph")
+                y-=100
+                d = Drawing(300, 200)
+                pc = Pie()
+                pc.x = 200
+                pc.y = 15
+                pc.width = 200
+                pc.height = 200
+                pc.data = emotions
+                pc.labels = ['Sad','Angry','Surprise','Fear','Happy','Disgust','Neutral']
+                pc.slices[3].fontColor = colors.red
+                d.add(pc)
+                d.drawOn(pdf, 0, y,50)
+             
             # save the PDF file and return the response
             pdf.save()
         else:
