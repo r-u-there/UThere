@@ -18,7 +18,7 @@ COPY . .
 
 # Expose the port that Django runs on
 ENV PORT 8080
-CMD gunicorn --bind :$PORT --workers 1 --threads 8 --preload unicodex.wsgi:application
+CMD gunicorn --bind :$PORT --workers 1 --threads 8 --preload UthereBackend.wsgi:application
 
 
 
