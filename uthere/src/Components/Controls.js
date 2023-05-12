@@ -50,6 +50,7 @@ function Controls(props) {
 		screenTrack: null,
 		localVideoTrack: null,
 	  });
+
 	const [toggle1, setToggle1] = useState();
 	const [toggle2, setToggle2] = useState();
 	const [toggle3, setToggle3] = useState();
@@ -273,10 +274,12 @@ function Controls(props) {
 	}, []);
 	const handleScreenShare = async () => {
 		if (isSharingEnabled) {
+		  
 		  if (channelParameters.screenTrack) {
 			await channelParameters.screenTrack.replaceTrack(channelParameters.localVideoTrack, true);
+			setIsSharingEnabled(false);
 		  }
-		  setIsSharingEnabled(false);
+		  //setIsSharingEnabled(false);
 		} else {
 		  try {
 					const client2 = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
@@ -304,7 +307,7 @@ function Controls(props) {
 					}
 					});
 			setChannelParameters({ ...channelParameters, screenTrack });
-			setIsSharingEnabled(true);
+			setIsSharingEnabled(false);
 		  } catch (error) {
 			console.error('Error creating screen track:', error);
 		  }
@@ -318,7 +321,7 @@ function Controls(props) {
 			<div className="meeting-controls">
 				<div className="meeting-control">
 				
-					{status==="presenter" ? <button onClick={handleScreenShare}><div>{!isSharingEnabled ? <MdScreenShare size={20} /> : <MdStopScreenShare size={20}/>}<br></br>Share Screen</div></button>:<></>}
+					{status==="presenter"&&!isSharingEnabled ? <button onClick={handleScreenShare}><div>{!isSharingEnabled ? <MdScreenShare size={20} /> : <MdStopScreenShare size={20}/>}<br></br>Share Screen</div></button>:<></>}
 					<button onClick={() => {setTrigger(true);}}><div><IoPeople size={20} /><br></br>Participants ({users.length + 1})</div></button>
 					<button onClick={() => mute("video")}>
 						{trackState.video ? <div><BsCameraVideo size={20} /><br></br>Turn Off</div> :
