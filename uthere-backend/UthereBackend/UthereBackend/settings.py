@@ -27,7 +27,7 @@ SECRET_KEY = "django-insecure-1a(lxb!nxv^&ri@p1!(#h9voys4r))wm4fn^(^la^w()0%#c60
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['yourdomain.com', 'www.yourdomain.com', 'uthere-final-yyffjz5wna-uc.a.run.app']
+ALLOWED_HOSTS = [".a.run.app"]
 
 
 # Application definition
