@@ -32,6 +32,7 @@ import matplotlib.pyplot as plt
 from reportlab.graphics.charts.lineplots import LinePlot
 from reportlab.graphics.widgets.markers import makeMarker
 from reportlab.graphics.shapes import Drawing
+from reportlab.graphics.charts.legends import Legend
 from matplotlib.dates import date2num
 import numpy as np
 import numpy as np
@@ -939,7 +940,14 @@ class GetSpecificAnalysisReportViewSet(ModelViewSet):
             pc.slices[3].fontColor = colors.red
             d.add(pc)
             d.drawOn(pdf, 0, y,50)
-
+            #legend part
+            legend = Legend()
+            legend.alignment = 'right'
+            legend.x = 100
+            legend.y = 0
+            legend.colorNamePairs = [(pc.slices[i].fillColor, pc.labels[i]) for i in range(len(pc.labels))]
+            d.add(legend)
+            d.drawOn(pdf, 0, y,50)
             # save the PDF file and return the response
             pdf.save()
             return response
@@ -1106,7 +1114,15 @@ class GetAnalysisReportsViewSet(ModelViewSet):
                 pc.data = emotions
                 pc.labels = ['Sad','Angry','Surprise','Fear','Happy','Disgust','Neutral']
                 pc.slices[3].fontColor = colors.red
+                pc.slices[3].fontSize = 26
                 d.add(pc)
+                #legend part
+                legend = Legend()
+                legend.alignment = 'right'
+                legend.x = 10
+                legend.y = 70
+                legend.colorNamePairs = [(pc.slices[i].fillColor, pc.labels[i]) for i in range(len(pc.labels))]
+                d.add(legend)
                 d.drawOn(pdf, 0, y,50)
              
             # save the PDF file and return the response
