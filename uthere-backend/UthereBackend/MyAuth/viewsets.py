@@ -10,8 +10,9 @@ from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
 from .serializers import UserSerializer, LoginSerializer, RegisterSerializer, ContactFormSerializer, ProfileSerializer, \
-    MeetingSerializer, MeetingUserSerializer, SettingsSerializer,PresenterSerializer,AttentionEmotionScoreSerializer, ScreenShareSerializer
-from .models import User, Profile, Meeting, Settings, MeetingUser, Presenter,AttentionEmotionScore, ScreenShare
+    MeetingSerializer, MeetingUserSerializer, SettingsSerializer,PresenterSerializer,AttentionEmotionScoreSerializer, ScreenShareSerializer,\
+    AttentionEmotionScoreAverageSerializer
+from .models import User, Profile, Meeting, Settings, MeetingUser, Presenter,AttentionEmotionScore, ScreenShare, AttentionEmotionScoreAverage
 from django.contrib.auth import authenticate, login
 from .sendmail import send_email
 from agora_token_builder import RtcTokenBuilder
@@ -40,7 +41,7 @@ from reportlab.lib.units import inch
 from reportlab.graphics.shapes import Drawing, String
 from matplotlib.dates import date2num, DateFormatter, MinuteLocator, SecondLocator
 from reportlab.graphics.charts.piecharts import Pie
-
+from django.db import transaction
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -504,7 +505,7 @@ class GetMeetingUserInfoViewSet(ModelViewSet):
         return Response(serializer.data)
     
 class GetAttentionEmotionScoreViewSet(ModelViewSet):
-    serializer_class = AttentionEmotionScoreSerializer
+    serializer_class = AttentionEmotionScoreSerializer,AttentionEmotionScoreAverageSerializer
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
     http_method_names = ['put']
@@ -514,14 +515,26 @@ class GetAttentionEmotionScoreViewSet(ModelViewSet):
         meeting_id = request.data.get("channelId")
         time = request.data.get("time")
         time_curr = datetime.strptime(time,'%Y-%m-%dT%H:%M:%S.%fZ')
-        #one_minute_before = time_curr -timedelta(minutes=1)
-        one_minute_before = time_curr -timedelta(seconds=20)
-        print(time_curr)
-        print(one_minute_before)
-        queryset = AttentionEmotionScore.objects.filter( meeting_id=meeting_id,time__gte=one_minute_before)
+        one_minute_before = time_curr - timedelta(seconds=20)
+        queryset = AttentionEmotionScore.objects.filter( meeting_id=meeting_id, time__gte=one_minute_before)
         if not queryset.exists():
             return Response({'status': 'Attention score not found'})
         attention_score = queryset.all()
+        total = sum(at_score.attention_score for at_score in attention_score)
+        avg_attention_score = total / len(attention_score)
+        
+        # Create and save the AttentionEmotionScoreAverage instance
+        with transaction.atomic():
+            meeting = Meeting.objects.get(id=meeting_id)
+            score_average = AttentionEmotionScoreAverage(
+                meeting=meeting,
+                time_start=one_minute_before,
+                time_end=time_curr,
+                avg_attention_score=avg_attention_score,
+            )
+            score_average.save()
+        
+        # Serialize the AttentionEmotionScore instances and return the response
         serializer = AttentionEmotionScoreSerializer(attention_score, many=True)
         return Response(serializer.data)
     
@@ -784,16 +797,22 @@ class GetSpecificAnalysisReportViewSet(ModelViewSet):
             emotions =[0,0,0,0,0,0,0]
             emotion_name = ['Sad','Angry','Surprise','Fear','Happy','Disgust','Neutral']
             total_avg_attention = AttentionEmotionScore.objects.filter(meeting_id=channel_id)
+            points_for_attention_graph = AttentionEmotionScoreAverage.objects.filter(meeting_id=channel_id)
             total = 0
             attention_graph_points = []
+            attention_graph_points_average = []
             for attention in total_avg_attention:
                 total = total + attention.attention_score
                 emotions[attention.emotion] = emotions[attention.emotion] +1
                 point = {'attention_score': attention.attention_score, 'time': attention.time}
                 attention_graph_points.append(point)
+            for points in points_for_attention_graph:
+                point ={'attention_score':points.avg_attention_score,'time_start':points.time_start,'time_end':points.time_end}
+                attention_graph_points_average.append(point)
             max_index = emotions.index(max(emotions))
             attention_graph_points = sorted(attention_graph_points, key=lambda point: point['time'])
-            print(attention_graph_points)
+            attention_graph_points_average = sorted(attention_graph_points_average, key=lambda point: point['time_start'])
+            print(attention_graph_points_average)
             average_attention=0
             avg_emotion='Not available'
             if len(total_avg_attention) != 0: 
@@ -811,7 +830,7 @@ class GetSpecificAnalysisReportViewSet(ModelViewSet):
             meeting_report = {'start_time':meeting.first().start_time, 'end_time':meeting.first().end_time,'join_time': user_meeting.join_time,
                                   'user_left_time':user_meeting.left_time, 'host_username':user_info_host.get().username, 'host_email':user_info_host.get().email,
                                    'presenter_names': presenter_names, 'presenter_emails': presenter_emails,'average_attention':avg_attention, 'average_emotion': avg_emotion,
-                                    'attention_graph_points':attention_graph_points,'emotions':emotions}
+                                    'attention_graph_points':attention_graph_points,'attention_graph_points_average':attention_graph_points_average,'emotions':emotions}
             #find total average emotion score
             # create a new PDF file
             response = HttpResponse(content_type='application/pdf')
@@ -881,15 +900,10 @@ class GetSpecificAnalysisReportViewSet(ModelViewSet):
             y -= 330
             drawing = Drawing(width=500, height=300)
             # your existing code
-            #attention calculation for the
-            #time_curr = datetime.strptime(time,'%Y-%m-%dT%H:%M:%S.%fZ')
-            #one_minute_before = time_curr -timedelta(minutes=1)
-            #one_minute_before = time_curr -timedelta(seconds=20)
-
-            x_values = [datetime.strptime(point['time'], '%Y-%m-%d %H:%M:%S.%f').timestamp() for point in attention_graph_points]
+            x_values = [datetime.strptime(point['time_end'], '%Y-%m-%d %H:%M:%S.%f').timestamp() for point in attention_graph_points_average]
             reverse_x_values = [datetime.fromtimestamp(timestamp) for timestamp in x_values]
             x_labels = [dt.strftime("%Y-%m-%d %H:%M:%S") for dt in reverse_x_values]
-            y_values = [point['attention_score'] for point in attention_graph_points]   
+            y_values = [point['attention_score'] for point in attention_graph_points_average]   
             print(x_values)
             print(y_values)
 

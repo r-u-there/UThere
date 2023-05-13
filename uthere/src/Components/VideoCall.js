@@ -282,6 +282,7 @@ function VideoCall(props) {
 				},{
 					headers: { Authorization: `Token ${token}` }
 				}).then(response => {
+					console.log(response)
 					console.log("attention_scoreeee")
 					console.log(response);
 					if(response.data.hasOwnProperty('status') && response.data.status==='Attention score not found'){
@@ -315,6 +316,7 @@ function VideoCall(props) {
 						var attentionLimitToCompare = 3 *attentionLimit / 100
 						console.log("min attention limit for presenter is " + attentionLimitToCompare)
 						console.log("actual attention limit " + averageScore)
+						//post average score to the database
 						if(averageScore<=attentionLimitToCompare){
 							setTriggerPresenterWarningPopup(true)
 						}
