@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Cookies } from "react-cookie";
 import { config } from "../settings";
 import axios from 'axios';
+import MeetingEnding from './MeetingEnding';
 
 function LeaveMeetingPopup(props) {
 	const navigate = useNavigate();
@@ -23,11 +24,11 @@ function LeaveMeetingPopup(props) {
 					</center>
 					<button type="button" onClick={() => props.setTrigger3(false)} className="popup-close3" aria-label="Close"><span aria-hidden="true">&times;</span></button>
 					<center>
-						{is_Host == 1 ? <button onClick={() => { props.setTrigger5(true); }} className="btn btn-primary">End Meeting For All</button> :
-							<button onClick={() => { props.setTrigger4(true); }} className="btn btn-primary">Leave</button>
-						}
-						<button onClick={() => props.setTrigger3(false)} className="btn btn-primary" style={{ marginLeft: '10px' }}>Return to Meeting</button>
-					</center>
+						{is_Host == 1? <button onClick={() => {props.setTrigger5(true);window.location="\MeetingEnding"}} className="btn btn-primary">End Meeting For All</button>: 
+						 <button onClick={() => {props.setTrigger4(true); }} className="btn btn-primary">Leave</button>
+						 }
+                        <button onClick={() => props.setTrigger3(false)} className="btn btn-primary"  style={{ marginLeft: '10px' }}>Return to Meeting</button>
+					</center>			
 				</div>
 			</div>
 		)

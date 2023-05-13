@@ -110,7 +110,7 @@ class MeetingSerializer(serializers.ModelSerializer):
 class MeetingUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = MeetingUser
-        fields = ['id', 'is_host', 'is_presenter', 'join_time', 'left_time', 'meeting','user','agora_id','is_removed','alert_num']
+        fields = ['id', 'is_host','access_report', 'is_presenter', 'join_time', 'left_time', 'meeting','user','agora_id','is_removed','alert_num']
 
     def create(self, instance):
         return MeetingUser.objects.create(**self.validated_data)
