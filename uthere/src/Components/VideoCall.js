@@ -142,6 +142,7 @@ function VideoCall(props) {
 			});
 
 			client.on("user-left", (user) => {
+				console.log("user left");
 				setUsers((prevUsers) => {
 					return prevUsers.filter((User) => User.uid !== user.uid);
 				});

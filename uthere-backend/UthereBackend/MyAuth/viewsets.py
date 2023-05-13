@@ -128,7 +128,7 @@ class UserKickedMeetingViewSet(ModelViewSet):
         print(user_meeting)
         if user_meeting.left_time is None:
             print("inside if")
-            user_meeting.left_time = datetime.datetime.now(tz=timezone.utc)
+            user_meeting.left_time = datetime.now(tz=timezone.utc)
             user_meeting.is_removed = True
             user_meeting.save()
             return Response({'status': 'user is kicked out of the meeting'})
@@ -152,7 +152,7 @@ class RemoveAllUserMeetingViewSet(ModelViewSet):
             print(user_meeting.left_time)
             if user_meeting.left_time is None:
                 print("inside if")
-                user_meeting.left_time = datetime.datetime.now(tz=timezone.utc)
+                user_meeting.left_time = datetime.now(tz=timezone.utc)
                 user_meeting.is_removed = True
                 user_meeting.save()
                 return Response({'status': 'user is kicked out of the meeting'})
@@ -209,7 +209,7 @@ class EndTimePresenterViewSet(ModelViewSet):
         channel_id = request.data.get("channelId")
         id = request.data.get("id")
         presenter = Presenter.objects.filter(user_id=presenter_user_id, meeting_id=channel_id, end_time=None).order_by('-id').last()
-        presenter.end_time = datetime.datetime.now(tz=timezone.utc)
+        presenter.end_time = datetime.now(tz=timezone.utc)
         presenter.save()
         return Response({'status': 'presenter is unsetted in presenter table'})
 
@@ -541,8 +541,8 @@ class UserLeftMeetingViewSet(ModelViewSet):
 
         print(user_meeting)
         if user_meeting.left_time is None:
-            print(datetime.datetime.now(tz=timezone.utc))
-            user_meeting.left_time = datetime.datetime.now(tz=timezone.utc)
+            print(datetime.now(tz=timezone.utc))
+            user_meeting.left_time = datetime.now(tz=timezone.utc)
             user_meeting.save()
             return Response({'status': 'user is kicked out of the meeting'})
         return Response({'status': 'ERROR'})
