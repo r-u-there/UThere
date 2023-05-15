@@ -6,6 +6,7 @@ import {Link} from 'react-router-dom';
 import axios from 'axios';
 import {useState} from 'react';
 import {useCookies} from "react-cookie";
+import API from "./API";
 
 
 function LoginPage() {
@@ -16,7 +17,7 @@ function LoginPage() {
 
 
 	function login() {
-		axios.post('https://uthere-l4pyduarua-uc.a.run.app/api/auth/login/', {
+		API.post('auth/login/', {
 			"email": email,
 			"password": password
 		}).then(response => {

@@ -12,6 +12,7 @@ import axios from 'axios';
 import { useState, useEffect } from "react";
 import { config } from "../settings";
 import * as ReactBootStrap from "react-bootstrap"
+import API from "./API";
 
 function Dashboard() {
 	const [trigger, setTrigger] = useState(false);
@@ -24,19 +25,14 @@ function Dashboard() {
 
 	async function createMeetingAndUser() {
 		try {
-			const createMeetingResponse = await axios.post(
-				'https://uthere-l4pyduarua-uc.a.run.app/api/create_meeting/',
-				{
-					"appId": config.appId,
-					"certificate": config.certificate,
-					"role": 2,
-					"privilegeExpiredTs": 36000000
-				},
-				{
-					headers: { Authorization: `Token ${token}` }
-				}
-			);
-
+			  const createMeetingResponse = await API.post('create_meeting/', {
+				"appId": config.appId,
+				"certificate": config.certificate,
+				"role": 2,
+				"privilegeExpiredTs": 36000000
+			  });
+			  // Handle the response data
+			console.log(createMeetingResponse.data);
 			console.log(createMeetingResponse.data);
 			console.log(createMeetingResponse.data.agora_token);
 			console.log("channel name is " + createMeetingResponse.data.channel_name);
@@ -56,7 +52,7 @@ function Dashboard() {
 	useEffect(() => {
 		console.log(token);
 		function getUserInfo() {
-			axios.get(`https://uthere-l4pyduarua-uc.a.run.app/api/user/info/${userId}/`, {
+			API.get(`user/info/${userId}/`, {
 				headers: {
 					Authorization: `Token ${token}`
 				}
