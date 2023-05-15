@@ -165,10 +165,18 @@ function Controls(props) {
 				cookies.remove("status");
 
 				if (isRemoved) {
-					alert("The host has removed you from the meeting. Please press the button below to go back to dashboard!")
-
+					toast("The host has removed you from the meeting. Please wait until you are redirected to dashboard!", {
+						position: toast.POSITION.TOP_CENTER,
+						autoClose: 5000, // Time in milliseconds
+						onClose: () => {
+							window.location.href = "/Dashboard";
+						}
+					});
+					
 				}
-				window.location.href = "/Dashboard";
+				else {
+					window.location.href = "/Dashboard";
+				}
 			}
 		};
 		if (trigger3 || trigger4 || trigger5) {
