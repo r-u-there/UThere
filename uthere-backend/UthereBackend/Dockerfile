@@ -10,6 +10,9 @@ WORKDIR $APP_HOME
 # Copy the requirements.txt file to the container
 COPY requirements.txt .
 # Install OS dependencies for the requriements.txt libraries
+# Install system dependencies
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends gcc
 RUN apt-get update && apt-get install -y \
     libgl1-mesa-glx \
     libsm6 \
