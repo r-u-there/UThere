@@ -16,7 +16,7 @@ function LoginPage() {
 
 
 	function login() {
-		axios.post('http://127.0.0.1:8000/api/auth/login/', {
+		axios.post('https://uthere-l4pyduarua-uc.a.run.app/api/auth/login/', {
 			"email": email,
 			"password": password
 		}).then(response => {
