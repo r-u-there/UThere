@@ -10,9 +10,11 @@ import MeetingPage from './Components/MeetingPage';
 import MeetingEnding from "./Components/MeetingEnding";
 import CalibrationPage from './Components/CalibrationPage'
 import MeetingWithoutCalibration from './Components/MeetingWithoutCalibration'
+import { ToastContainer } from 'react-toastify';
 
 function App() {
 	return (
+		<div>
 		<Routes>
 			<Route path="/" element={<RegistrationPage/>} />
 			<Route path="/Login" element={<LoginPage/>} />
@@ -24,6 +26,8 @@ function App() {
 			<Route path="/Calibration" element={<CalibrationPage/>} />
 			<Route path="/MeetingWithoutCalibration" element={<MeetingWithoutCalibration/>} />
 		</Routes>
+		<ToastContainer />
+		</div>
 	);
 }
 

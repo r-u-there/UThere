@@ -2,7 +2,6 @@ import React from 'react';
 import UThereIcon from "../Icons/UThereIcon.png";
 import {Link} from 'react-router-dom';
 function UThere(props) {
-	console.log(props.notClickable)
 	if (props.notClickable === undefined) {
 		return (
 			<div className='uthere'>

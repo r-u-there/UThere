@@ -20,7 +20,7 @@ function Videos(props) {
 	const [isScreenShare,setIsScreenShare] = useState(false)
 	const [showPopup, setShowPopup] = useState(true);
 	const [usersData, setUsersData] = useState([]);
-
+	console.log(users)
 	
 	async function checkUserIsScreenShare(arg) {
 		try {
@@ -90,6 +90,7 @@ function Videos(props) {
 					const isScreenShare = await checkUserIsScreenShare(user.uid);
 					if (!isScreenShare) {
 						const participantName = await getMeetingUser(user.uid);
+						console.log(user)
 						newData.push({ uid: user.uid, participantName: participantName, isScreenShare: false });
 	
 					} else {
@@ -97,7 +98,9 @@ function Videos(props) {
 					}	
 				}
 			}
+			
 			setUsersData(newData);
+			console.log(newData);
 		};
 		fetchData();
 	}, [users,users.map(user => user.videoTrack).join(),users.map(user => user.uid).join()]);
@@ -127,7 +130,6 @@ function Videos(props) {
 					</div>
 				</div>
 				{
-					
 					usersData.length > 0 &&
 					usersData.map((userData) => {
 						console.log(users)
@@ -146,22 +148,18 @@ function Videos(props) {
 								);
 								
 							}
-							else{
+							else {
 								console.log(2 +" "+ uid)
 								return (
-									<div className="vid">
-										<AgoraVideoPlayer className="vid" id = "play" videoTrack={video} key={uid}/>
-										<div className='video-label-container'>
-											<span className='video-label'>ScreenShare</span>
-										</div>
+									<div>
+										<AgoraVideoPlayer className="vid2" id = "play" videoTrack={video} key={uid}/>
+										
 									</div>
-								);
-								
+								);	
 							}
-						
 						}
 						else {
-							if(!isScreenShare){
+							if (!isScreenShare) {
 								console.log(3 +" "+ uid)
 								return (
 									<div key={uid} className='vid'>
@@ -171,12 +169,11 @@ function Videos(props) {
 									</div>
 								);
 							}
-							else{
+							else {
 								console.log(4 +" "+ uid)
 								console.log("kapadın")
 								return(<div></div>);
-							}
-							
+							}	
 						}
 					})}
 			</div> 		

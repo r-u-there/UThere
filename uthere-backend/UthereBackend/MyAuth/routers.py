@@ -6,7 +6,9 @@ from .viewsets import LoginViewSet, RegistrationViewSet, UserViewSet, ContactVie
     UserKickedMeetingViewSet, GetMeetingUserInfoViewSet, \
     SetPresenterMeetingViewSet, UnsetPresenterMeetingViewSet, AlertUserMeetingViewSet, SignOutViewSet, \
     GetAllMeetingParticipantsViewSet, CreatePresenterViewSet,EndTimePresenterViewSet, GetParticipantUserInfoViewSet, UserLeftMeetingViewSet,RemoveAllUserMeetingViewSet, \
-CheckDeparturesViewSet, GetPresenterViewSet, GetAttentionEmotionScoreViewSet, CreateScreenShareViewSet, GetScreenShareViewSet, GetUserInfoViewSet
+CheckDeparturesViewSet, GetPresenterViewSet, GetAttentionEmotionScoreViewSet, CreateScreenShareViewSet, GetScreenShareViewSet, GetUserInfoViewSet, GiveAccessUserViewSet, \
+GetAnalysisReportsViewSet, GetAnalysisReportsNameViewSet, GetSpecificAnalysisReportViewSet, LeftUserInfoViewSet
+
 
 routes = SimpleRouter()
 
@@ -22,6 +24,7 @@ routes.register(r'getsettings', GetSettingsViewSet, basename='get_settings')
 # USER
 #routes.register(r'user', UserViewSet, basename='user')
 routes.register(r'user/info', UserInfoViewSet, basename='user-info')
+routes.register(r'user/info2', LeftUserInfoViewSet, basename='user-info')
 routes.register(r'user/update', UserUpdateViewSet, basename='user-update')
 
 #MEETING
@@ -47,6 +50,9 @@ routes.register(r'get_attention_emotion_score', GetAttentionEmotionScoreViewSet,
 routes.register(r'create_screenshare', CreateScreenShareViewSet, basename='create_screnshare')
 routes.register(r'get_screenshare_table', GetScreenShareViewSet, basename='get_screnshare')
 routes.register(r'get_user_info', GetUserInfoViewSet, basename='get_user_info')
+routes.register(r'give_access_user', GiveAccessUserViewSet, basename='give_access_user')
+routes.register(r'get_analysis_reports_name', GetAnalysisReportsNameViewSet, basename='getanalysisreportsname')
+routes.register(r'get_specific_analysis_reports', GetSpecificAnalysisReportViewSet, basename='getspecificanalysisreportsname')
 
 urlpatterns = [
     *routes.urls
