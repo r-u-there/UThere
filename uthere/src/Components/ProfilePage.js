@@ -34,6 +34,7 @@ function ProfilePage() {
 	const [attentionRatingLimit, setAttentionRatingLimit] = useState("");
 	const token = localStorage.getItem('token');
 	const [loading, setLoading] = useState(false);
+	const [reportsName,setReportsName] = useState([])
 
 	const getUserInfo = useCallback(() => {
 		axios.get(`http://127.0.0.1:8000/api/user/info/${userId}/`, {
@@ -70,9 +71,31 @@ function ProfilePage() {
 			console.log(exception);
 		});
 	}, []);
+	function getSpecificAnalysisReports(id,agora_id, meeting_user_id){
+		console.log(agora_id)
+		axios.put(`http://127.0.0.1:8000/api/get_specific_analysis_reports/`,
+		{
+			"id":meeting_user_id,
+			"userId": userId,
+			"channelId": id,
+			"agora_id":agora_id
+		}, 
+		{
+				  headers: { Authorization: `Token ${token}` }
+		}).then(response => {
+			console.log("user id is" + userId);
+			console.log(response);
+				//window.location.href = '`http://127.0.0.1:8000/api/getanalysisreports/${userId}/';
+		const blob = new Blob([response.data], { type: 'application/pdf' });
+		// use file-saver to save the blob as a file
+		saveAs(blob, 'meeting_reports'+id+'.pdf');
+		}).catch((exception) => {
+			console.log(exception);
+		});
+	}
 
 	const getAnalysisReports = useCallback(() => {
-		axios.get(`http://127.0.0.1:8000/api/getanalysisreports/${userId}/`, {
+		axios.get(`http://127.0.0.1:8000/api/get_specific_analysis_reports/${userId}/`, {
 				  headers: { Authorization: `Token ${token}` }
 			  }).then(response => {
 			console.log("user id is" + userId);
@@ -81,6 +104,30 @@ function ProfilePage() {
 		const blob = new Blob([response.data], { type: 'application/pdf' });
 		// use file-saver to save the blob as a file
 		saveAs(blob, 'meeting_reports.pdf');
+		}).catch((exception) => {
+			console.log(exception);
+		});
+	
+	}, []);
+	const getNameOfAnalysisReports = useCallback(() => {
+		axios.get(`http://127.0.0.1:8000/api/get_analysis_reports_name/${userId}/`, {
+				  headers: { Authorization: `Token ${token}` }
+			  }).then(response => {
+			console.log("user id is" + userId);
+			console.log(response);
+			response.data.forEach(element => {
+				var name = "Attention-Emotion Report-"+element.join_time
+				var id = element.meeting
+				var meeting_user_id = element.id
+				var agora_id = element.agora_id
+				console.log(name)
+				console.log(id)
+				console.log(agora_id)
+				var meetinguserobj = {name:name,id:id,agora_id:agora_id, meeting_user_id:meeting_user_id}
+				setReportsName((prevReportsName) => {
+					return [...prevReportsName, meetinguserobj];
+				});
+			});
 		}).catch((exception) => {
 			console.log(exception);
 		});
@@ -115,6 +162,7 @@ function ProfilePage() {
 	useEffect(() => {
 		getUserInfo();
 		getProfileSettings();
+		getNameOfAnalysisReports();
 	}, [getUserInfo, getProfileSettings, userId]);
 
 	useEffect(() => {
@@ -148,14 +196,30 @@ function ProfilePage() {
 			);
 		}
 		else if (tabSelection == 1) {
-			return (
+			console.log(reportsName)
+			return(
 				<div>
 					<ul>
-						<li><GrDocumentPdf size={30}/>&emsp;Attention Report - 06/05/2022</li>
-						<button onClick={()=>{getAnalysisReports()}}>Download File</button>
+						{
+							reportsName.map((reportName)=>{
+								const { name,id,agora_id, meeting_user_id } = reportName;
+								console.log(name)
+								console.log(id)
+								console.log(agora_id)
+								console.log(meeting_user_id)
+								return(
+									<li onClick={() => { getSpecificAnalysisReports(id,agora_id, meeting_user_id) }}>
+										<a href="#">
+											<GrDocumentPdf size={30} />&emsp;{name}
+										</a>
+									</li>
+								);
+							})
+
+						}
 					</ul>
 				</div>
-			);
+				);
 		}
 		else if (tabSelection == 2) {
 			return (
@@ -165,11 +229,6 @@ function ProfilePage() {
 							<td><BiChevronRightCircle size={30}/></td>
 							<td>&ensp;Attention Rating Limit: {attentionRatingLimit}</td>
 							<td>&emsp;&emsp;<TbEdit onClick={() => {setTrigger(true); setChangedInfo("attention rate")}} size={40}/></td>
-						</tr>
-						<tr>
-							<td><BiChevronRightCircle size={30}/></td>
-							<td>&ensp;Get Analysis Report</td>
-							<td>&emsp;&emsp;{!toggle1 ? <MdToggleOff onClick={() => {setToggle1(!toggle1);}} size={40}/> : <MdToggleOn onClick={() => {setToggle1(!toggle1);}} size={40} color="green"/>}</td>
 						</tr>
 						<tr>
 							<td><BiChevronRightCircle size={30}/></td>

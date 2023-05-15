@@ -130,6 +130,12 @@ class AttentionEmotionScore(models.Model):
     time = models.CharField(max_length=50, null=False, blank=False)
     attention_score = models.IntegerField(default=0)
     emotion= models.IntegerField(default=0)
+
+class AttentionEmotionScoreAverage(models.Model):
+    meeting = models.ForeignKey(Meeting, on_delete=models.CASCADE)
+    time_start = models.CharField(max_length=50, null=False, blank=False)
+    time_end= models.CharField(max_length=50, null=False, blank=False)
+    avg_attention_score = models.IntegerField(default=0)
     #Emotion Scores Encoding
     #1-Sad
     #2-Angry

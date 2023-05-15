@@ -7,7 +7,8 @@ from .viewsets import LoginViewSet, RegistrationViewSet, UserViewSet, ContactVie
     SetPresenterMeetingViewSet, UnsetPresenterMeetingViewSet, AlertUserMeetingViewSet, SignOutViewSet, \
     GetAllMeetingParticipantsViewSet, CreatePresenterViewSet,EndTimePresenterViewSet, GetParticipantUserInfoViewSet, UserLeftMeetingViewSet,RemoveAllUserMeetingViewSet, \
 CheckDeparturesViewSet, GetPresenterViewSet, GetAttentionEmotionScoreViewSet, CreateScreenShareViewSet, GetScreenShareViewSet, GetUserInfoViewSet, GiveAccessUserViewSet, \
-GetAnalysisReportsViewSet, LeftUserInfoViewSet
+GetAnalysisReportsViewSet, GetAnalysisReportsNameViewSet, GetSpecificAnalysisReportViewSet, LeftUserInfoViewSet
+
 
 routes = SimpleRouter()
 
@@ -50,7 +51,8 @@ routes.register(r'create_screenshare', CreateScreenShareViewSet, basename='creat
 routes.register(r'get_screenshare_table', GetScreenShareViewSet, basename='get_screnshare')
 routes.register(r'get_user_info', GetUserInfoViewSet, basename='get_user_info')
 routes.register(r'give_access_user', GiveAccessUserViewSet, basename='give_access_user')
-routes.register(r'getanalysisreports', GetAnalysisReportsViewSet, basename='getanalysisreports')
+routes.register(r'get_analysis_reports_name', GetAnalysisReportsNameViewSet, basename='getanalysisreportsname')
+routes.register(r'get_specific_analysis_reports', GetSpecificAnalysisReportViewSet, basename='getspecificanalysisreportsname')
 
 urlpatterns = [
     *routes.urls
