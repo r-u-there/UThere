@@ -5,6 +5,8 @@ import { BsCameraVideo, BsCameraVideoOff } from 'react-icons/bs';
 import { BsMic, BsMicMute } from 'react-icons/bs';
 import { IoCloseCircleOutline } from 'react-icons/io5';
 import { IoPeople } from 'react-icons/io5';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { Cookies } from "react-cookie";
 import { Link, useNavigate } from 'react-router-dom';
 import ParticipantsPopup from "./ParticipantsPopup";
@@ -29,17 +31,12 @@ function Controls(props) {
 	const [trigger4, setTrigger4] = useState(false);
 	const [trigger5, setTrigger5] = useState(false);
 	let alertNum = "0";
-	const [triggerAlertPopup, setTriggerAlertPopup] = useState(false);
-	const navigate = useNavigate();
-	const videoRef = useRef();
 	const cookies = new Cookies();
 	const agora_token = cookies.get("token");
 	const agora_id = cookies.get("agora_uid")
 	const userId = cookies.get("userId");
 	const channelId = cookies.get("channel_id");
 	const status = cookies.get("status");
-	const [screenSharing, setScreenSharing] = useState(0);
-	let stream;
 	const is_host = cookies.get("is_host")
 	const channelName = cookies.get("channel_name");
 	const [isSharingEnabled, setIsSharingEnabled] = useState(false);
@@ -47,19 +44,10 @@ function Controls(props) {
 		screenTrack: null,
 		localVideoTrack: null,
 	});
-	const [leftUserName, setLeftUserName] = useState("")
 
-	const [toggle1, setToggle1] = useState();
-	const [toggle2, setToggle2] = useState();
-	const [toggle3, setToggle3] = useState();
-	const [toggle4, setToggle4] = useState();
-	const [toggle5, setToggle5] = useState();
-	const [toggle6, setToggle6] = useState();
-	const [attentionRatingLimit, setAttentionRatingLimit] = useState("");
-	//const [peopleLeft,setPeopleLeft] = useState(-1)
-	//const [notified, setNotified] = useState(false)
 	const [isRemoved, setIsRemoved] = useState(false);
 	let peopleLeft = -1
+	let leftUserId = -1
 
 	const copyLink = () => {
 		const channelId = cookies.get("channel_id");
@@ -211,12 +199,17 @@ function Controls(props) {
 					axios.get(`http://127.0.0.1:8000/api/getsettings/${userId}/`, {
 						headers: { Authorization: `Token ${token}` }
 					}).then(responseA => {
-						console.log(responseA);
+						console.log("responseA: " + responseA);
 						if (!responseA.data.hide_who_left) {
 							//continue to check 
 							axios.get(`http://127.0.0.1:8000/api/check_departures/${channelId}/`, {
 								headers: { Authorization: `Token ${token}` }
 							}).then(responseB => {
+								console.log(typeof responseB.data.user)
+								leftUserId = responseB.data.user
+								console.log("The users in the channel shown here: ")
+								console.log(responseB)
+								console.log(leftUserId)
 								if (responseB.data.length != 0) {
 									if (responseB.data.user !== peopleLeft) {
 										//if the user left_time is before my presenter start time do not alert
@@ -233,16 +226,21 @@ function Controls(props) {
 											}).then(responseC => {
 												const date_user_left = new Date(user_left_time)
 												const date_presenter_start = new Date(responseC.data.start_time)
+
 												if (date_presenter_start < date_user_left) {
 													console.log("alert should appear")
-													axios.get(`http://127.0.0.1:8000/api/user/info/${responseB.data.user}/`, {
+													console.log("the id of the left user: " + leftUserId)
+													axios.get(`http://127.0.0.1:8000/api/user/info2/${leftUserId}/`, {
 														headers: {
 															Authorization: `Token ${token}`
 														}
 													}).then(tempResponse => {
-														alert("aaaaaaaaaaa +" + tempResponse.data.username)
-														setLeftUserName(tempResponse.data.username);
-														alert("user " + leftUserName + "left")
+														console.log("ALL DATA OF THE LEFT USER:")
+														console.log(tempResponse)
+														toast(tempResponse.data.username + " left the meeting!", {
+															position: toast.POSITION.TOP_RIGHT,
+															autoClose: 5000 // Time in milliseconds
+														});
 														peopleLeft = left_people_id;
 													}).catch((exception) => {
 														console.log(exception);
@@ -272,7 +270,10 @@ function Controls(props) {
 					console.log(alertNum);
 					alertNum = response.data.alert_num;
 					console.log(alertNum);
-					setTriggerAlertPopup(true);
+					toast("Presenter noticed that your attention rate has decreased. Please pay attention to the presentation.", {
+						position: toast.POSITION.TOP_CENTER,
+						autoClose: 5000 // Time in milliseconds
+					});
 				}
 
 			}).catch((exception) => {
@@ -357,7 +358,6 @@ function Controls(props) {
 					<button onClick={() => { setTrigger3(true) }}><div><IoCloseCircleOutline size={20} /><br></br>Leave Meeting</div></button>
 				</div>
 				<ParticipantsPopup trigger={trigger} users={users} setTrigger={setTrigger}></ParticipantsPopup>
-				<AlertPopup triggerAlertPopup={triggerAlertPopup} setTriggerAlertPopup={setTriggerAlertPopup}></AlertPopup>
 				<ClipBoardPopup trigger2={trigger2} setTrigger2={setTrigger2}></ClipBoardPopup>
 				<LeaveMeetingPopup trigger3={trigger3} setTrigger3={setTrigger3} trigger4={trigger4} setTrigger4={setTrigger4} trigger5={trigger5} setTrigger5={setTrigger5}></LeaveMeetingPopup>
 			</div>

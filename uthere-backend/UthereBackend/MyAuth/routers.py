@@ -7,7 +7,7 @@ from .viewsets import LoginViewSet, RegistrationViewSet, UserViewSet, ContactVie
     SetPresenterMeetingViewSet, UnsetPresenterMeetingViewSet, AlertUserMeetingViewSet, SignOutViewSet, \
     GetAllMeetingParticipantsViewSet, CreatePresenterViewSet,EndTimePresenterViewSet, GetParticipantUserInfoViewSet, UserLeftMeetingViewSet,RemoveAllUserMeetingViewSet, \
 CheckDeparturesViewSet, GetPresenterViewSet, GetAttentionEmotionScoreViewSet, CreateScreenShareViewSet, GetScreenShareViewSet, GetUserInfoViewSet, GiveAccessUserViewSet, \
-GetAnalysisReportsViewSet
+GetAnalysisReportsViewSet, LeftUserInfoViewSet
 
 routes = SimpleRouter()
 
@@ -23,6 +23,7 @@ routes.register(r'getsettings', GetSettingsViewSet, basename='get_settings')
 # USER
 #routes.register(r'user', UserViewSet, basename='user')
 routes.register(r'user/info', UserInfoViewSet, basename='user-info')
+routes.register(r'user/info2', LeftUserInfoViewSet, basename='user-info')
 routes.register(r'user/update', UserUpdateViewSet, basename='user-update')
 
 #MEETING

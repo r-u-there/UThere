@@ -78,7 +78,28 @@ class UserInfoViewSet(ModelViewSet):
             'settings_id': user.settings_id
         }
         return Response(data)
-    
+
+class LeftUserInfoViewSet(ModelViewSet):
+    serializer_class = UserSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    http_method_names = ['get']
+    queryset = User.objects.all()
+
+    def retrieve(self, request, pk=None):
+        try:
+            user = User.objects.get(pk=pk)
+            data = {
+                'id': user.id,
+                'email': user.email,
+                'username': user.username,
+                'settings_id': user.settings_id
+            }
+            return Response(data)
+        except User.DoesNotExist:
+            return Response({'error': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+
 class GetUserInfoViewSet(ModelViewSet):
     serializer_class = UserSerializer
     authentication_classes = [TokenAuthentication]
