@@ -15,7 +15,8 @@ RUN apt-get update && apt-get install -y \
     libsm6 \
     libxext6 \
     libxrender-dev \
-    libopencv-dev
+    libopencv-dev \
+    libcairo2-dev
 
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
