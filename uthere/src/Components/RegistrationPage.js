@@ -2,10 +2,10 @@ import React from 'react';
 import LoginIcon from '../Icons/LoginPageIcon3.png';
 import UThere from './UThere';
 import { Link } from 'react-router-dom';
-import {useState} from 'react';
+import { useState } from 'react';
 import API from './API.js';
 import axios from 'axios';
-import {useCookies} from "react-cookie";
+import { useCookies } from "react-cookie";
 import TermsConditionsPopup from './TermsConditionsPopup';
 
 function RegistrationPage() {
@@ -19,17 +19,17 @@ function RegistrationPage() {
 	const [agree, setAgree] = React.useState(false);
 	const [cookies, setCookie] = useCookies(["refreshToken"])
 
-	function handleAgreeCheckbox(){
+	function handleAgreeCheckbox() {
 		setAgree(!agree)
 		console.log(agree)
 	}
 
 	function register() {
-		let item = {"username": username, "email": email, "password": password};
+		let item = { "username": username, "email": email, "password": password };
 		if (password !== passwordVerification) {
 			setLoginSuccess(2);
 		}
-		else if(!agree){
+		else if (!agree) {
 			setLoginSuccess(3);
 		}
 		else {
@@ -64,22 +64,22 @@ function RegistrationPage() {
 										</div>
 									</div>
 									<div className="form-group col-sm-10">
-									{loginSuccess === 1 ? <label style={{"color": "red"}}>{failureMessage}</label> : (loginSuccess == 2 ? <label style={{"color": "red"}}>Passwords do not match!</label> : (loginSuccess == 3 ?  <label style={{"color": "red"}}>Please Agree Terms & Conditions</label> :null))}
-										<input type="text" className="form-control" id="inputName" placeholder="Full Name" style={{ "border-radius": "20px", "width": "70%" }} onChange={(e) => {setFullName(e.target.value); setLoginSuccess(0);}}/>
+										{loginSuccess === 1 ? <label style={{ "color": "red" }}>{failureMessage}</label> : (loginSuccess == 2 ? <label style={{ "color": "red" }}>Passwords do not match!</label> : (loginSuccess == 3 ? <label style={{ "color": "red" }}>Please Agree Terms & Conditions</label> : null))}
+										<input type="text" className="form-control" id="inputName" placeholder="Full Name" style={{ "border-radius": "20px", "width": "70%" }} onChange={(e) => { setFullName(e.target.value); setLoginSuccess(0); }} />
 									</div>
 									<div className="form-group col-sm-10">
-										<input type="text" className="form-control" id="inputEmail" placeholder="Email" style={{ "border-radius": "20px", "width": "70%" }} onChange={(e) => {setEmail(e.target.value); setLoginSuccess(0);}}/>
+										<input type="text" className="form-control" id="inputEmail" placeholder="Email" style={{ "border-radius": "20px", "width": "70%" }} onChange={(e) => { setEmail(e.target.value); setLoginSuccess(0); }} />
 									</div>
 									<div className="form-group col-sm-10">
-										<input type="password" className="form-control" id="inputPassword" placeholder="Password" style={{ "border-radius": "20px", "width": "70%" }} onChange={(e) => {setPassword(e.target.value); setLoginSuccess(0);}}/>
+										<input type="password" className="form-control" id="inputPassword" placeholder="Password" style={{ "border-radius": "20px", "width": "70%" }} onChange={(e) => { setPassword(e.target.value); setLoginSuccess(0); }} />
 									</div>
 									<div className="form-group col-sm-10">
-										<input type="password" className="form-control" id="inputPassword" placeholder="Password Verification" style={{ "border-radius": "20px", "width": "70%" }} onChange={(e) => {setPasswordVerification(e.target.value); setLoginSuccess(0);}}/>
+										<input type="password" className="form-control" id="inputPassword" placeholder="Password Verification" style={{ "border-radius": "20px", "width": "70%" }} onChange={(e) => { setPasswordVerification(e.target.value); setLoginSuccess(0); }} />
 									</div>
 									<div>
 										<td>
 											<label>
-												<input type="checkbox" onChange={handleAgreeCheckbox}/> Agree <label className="label-terms" onClick={() => setTrigger(true)} >Terms & Conditions</label>
+												<input type="checkbox" onChange={handleAgreeCheckbox} /> I have read and agree to UThere's <label className="label-terms" onClick={() => setTrigger(true)} >Terms & Conditions</label>
 											</label>
 										</td>
 									</div>

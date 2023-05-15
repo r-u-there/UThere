@@ -16,9 +16,10 @@ function CalibrationPopup(props) {
 				<div className="popup-inner-calibration">
 					<br></br>
 					<center>
-						<h4>Please replace your face in the rectangle and click all buttons until they become black</h4><br></br>
+						<h4>Please replace your face in the rectangle and click all buttons until they all become black</h4>
+						<button type="button" className="mt-3 btn btn-danger" onClick={() => props.setTrigger(false)}>OK</button>
 					</center>
-					<button type="button" onClick={() => props.setTrigger(false)} className="close popup-close3" aria-label="Close"><span aria-hidden="true">&times;</span></button>			
+								
 				</div>
 			</div>
 		)

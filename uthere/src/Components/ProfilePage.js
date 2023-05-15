@@ -217,7 +217,7 @@ function ProfilePage() {
 						<a className="nav-link" data-toggle="tab" href="" onClick={() => setTabSelection(1)}>Past Analysis Reports</a>
 					</li>
 					<li className="nav-item">
-						<a className="nav-link" data-toggle="tab" href="" onClick={() => setTabSelection(2)}>Analysis Preferences</a>
+						<a className="nav-link" data-toggle="tab" href="" onClick={() => setTabSelection(2)}>Meeting Preferences</a>
 					</li>
 				</ul><hr></hr>
 				{displayProfile()}

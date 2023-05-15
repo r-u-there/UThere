@@ -40,8 +40,8 @@ from reportlab.lib.units import inch
 from reportlab.graphics.shapes import Drawing, String
 from matplotlib.dates import date2num, DateFormatter, MinuteLocator, SecondLocator
 from reportlab.graphics.charts.piecharts import Pie
-
-
+from django.db import IntegrityError
+from django.contrib.auth.hashers import check_password
 
 class UserViewSet(viewsets.ModelViewSet):
     http_method_names = ['get']
@@ -116,15 +116,24 @@ class UserUpdateViewSet(ModelViewSet):
             return Response({'status': 'username updated'})
         elif changed_info == "email":
             new_email = request.data.get("newInfo")
-            user.email = new_email
-            user.save()
-            return Response({'status': 'email updated'})
+            try:
+                user.email = new_email
+                user.save()
+                return Response({'status': 'email updated'})
+            except IntegrityError:
+                return Response({'status': 'ERROR', 'message': 'Email already exists'})
         elif changed_info == "password":
-            new_password = request.data.get("newInfo")
-            user.set_password(new_password)
-            user.save()
-            return Response({'status': 'password updated'})
-
+            currentPassword = request.data.get("currentPassword")
+            print(currentPassword)
+            password = request.user.password
+            if check_password(currentPassword, password):
+                new_password = request.data.get("newInfo")
+                user.set_password(new_password)
+                user.save()
+                return Response({'status': 'password updated'})
+            else:
+                return Response({'status': 'ERROR', 'message': 'Current password is wrong'}) 
+            
         return Response({'status': 'ERROR'})
 
 

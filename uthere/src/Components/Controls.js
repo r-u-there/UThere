@@ -47,6 +47,7 @@ function Controls(props) {
 		screenTrack: null,
 		localVideoTrack: null,
 	});
+	const [leftUserName, setLeftUserName] = useState("")
 
 	const [toggle1, setToggle1] = useState();
 	const [toggle2, setToggle2] = useState();
@@ -177,7 +178,7 @@ function Controls(props) {
 
 				if (isRemoved) {
 					alert("The host has removed you from the meeting. Please press the button below to go back to dashboard!")
-					
+
 				}
 				window.location.href = "/Dashboard";
 			}
@@ -209,18 +210,18 @@ function Controls(props) {
 					//check the settings of the presenter first
 					axios.get(`http://127.0.0.1:8000/api/getsettings/${userId}/`, {
 						headers: { Authorization: `Token ${token}` }
-					}).then(response => {
-						console.log(response);
-						if (!response.data.hide_who_left) {
+					}).then(responseA => {
+						console.log(responseA);
+						if (!responseA.data.hide_who_left) {
 							//continue to check 
 							axios.get(`http://127.0.0.1:8000/api/check_departures/${channelId}/`, {
 								headers: { Authorization: `Token ${token}` }
-							}).then(response => {
-								if (response.data.length != 0) {
-									if (response.data.user !== peopleLeft) {
+							}).then(responseB => {
+								if (responseB.data.length != 0) {
+									if (responseB.data.user !== peopleLeft) {
 										//if the user left_time is before my presenter start time do not alert
-										let user_left_time = response.data.left_time
-										let left_people_id = response.data.user
+										let user_left_time = responseB.data.left_time
+										let left_people_id = responseB.data.user
 										//get my presenter start_time
 										axios.put(`http://127.0.0.1:8000/api/get_presenter_table/`,
 											{
@@ -229,13 +230,23 @@ function Controls(props) {
 											},
 											{
 												headers: { Authorization: `Token ${token}` }
-											}).then(response => {
+											}).then(responseC => {
 												const date_user_left = new Date(user_left_time)
-												const date_presenter_start = new Date(response.data.start_time)
+												const date_presenter_start = new Date(responseC.data.start_time)
 												if (date_presenter_start < date_user_left) {
 													console.log("alert should appear")
-													alert("user " + response.data.user + "left")
-													peopleLeft = left_people_id;
+													axios.get(`http://127.0.0.1:8000/api/user/info/${responseB.data.user}/`, {
+														headers: {
+															Authorization: `Token ${token}`
+														}
+													}).then(tempResponse => {
+														alert("aaaaaaaaaaa +" + tempResponse.data.username)
+														setLeftUserName(tempResponse.data.username);
+														alert("user " + leftUserName + "left")
+														peopleLeft = left_people_id;
+													}).catch((exception) => {
+														console.log(exception);
+													});
 												}
 											}).catch((exception) => {
 												console.log(exception);
