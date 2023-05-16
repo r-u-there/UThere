@@ -9,7 +9,6 @@ import {MdToggleOn} from 'react-icons/md';
 import {useState, useEffect, useCallback} from "react";
 import EditProfilePopup from "./EditProfilePopup";
 import {Cookies} from "react-cookie";
-import axios from "axios";
 import * as ReactBootStrap from "react-bootstrap"
 import { saveAs } from 'file-saver';
 import API from "./API";
@@ -155,7 +154,7 @@ function ProfilePage() {
 		}).then(response => {
 			setLoading(true);
 		}).catch((exception) => {
-			window.location = "/Login"
+			window.location = "/"
 			console.log(exception);
 		});
 	}, [toggle1, toggle2, toggle3, toggle4, toggle5, toggle6]);
