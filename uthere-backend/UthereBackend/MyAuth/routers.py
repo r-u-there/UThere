@@ -9,7 +9,6 @@ from .viewsets import LoginViewSet, RegistrationViewSet, UserViewSet, ContactVie
 CheckDeparturesViewSet, GetPresenterViewSet, GetAttentionEmotionScoreViewSet, CreateScreenShareViewSet, GetScreenShareViewSet, GetUserInfoViewSet, GiveAccessUserViewSet, \
 GetAnalysisReportsViewSet, GetAnalysisReportsNameViewSet, GetSpecificAnalysisReportViewSet, LeftUserInfoViewSet
 
-
 routes = SimpleRouter()
 
 # AUTHENTICATION

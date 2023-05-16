@@ -12,7 +12,6 @@ import axios from 'axios';
 import AttentionAnalysisPopup from "./AttentionAnalysisPopup";
 import PresenterWarningPopup from "./PresenterWarningPopup";
 
-
 function VideoCall(props) {
 	const ready = props.ready;
 	const tracks = props.tracks;
