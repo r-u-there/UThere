@@ -8,18 +8,16 @@ import { IoPeople } from 'react-icons/io5';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Cookies } from "react-cookie";
-import { Link, useNavigate } from 'react-router-dom';
 import ParticipantsPopup from "./ParticipantsPopup";
 import ClipBoardPopup from "./ClipBoardPopup";
-import AlertPopup from "./AlertPopup";
 import LeaveMeetingPopup from "./LeaveMeetingPopup";
 import { MdScreenShare, MdStopScreenShare, MdOutlineContentCopy } from "react-icons/md";
-import axios from "axios";
 import {
 	config,
 	channelName
 } from "../settings";
 import AgoraRTC from 'agora-rtc-react';
+import API from "./API";
 const token = localStorage.getItem('token');
 
 function Controls(props) {
@@ -76,7 +74,7 @@ function Controls(props) {
 			//end time in presenter table
 			if (status === "presenter") {
 				//enter end time to the presenter table for this user
-				axios.put(`http://127.0.0.1:8000/api/unset_presenter_meeting/`, {
+				API.put(`unset_presenter_meeting/`, {
 					"userId": userId,
 					"channelId": channelId,
 					"agoraToken": agora_id
@@ -87,7 +85,7 @@ function Controls(props) {
 				}).catch((exception) => {
 					console.log(exception);
 				});
-				axios.put(`http://127.0.0.1:8000/api/end_time_presenter_table/`, {
+				API.put(`end_time_presenter_table/`, {
 					"userId": userId,
 					"channelId": channelId,
 					"id": 0
@@ -101,7 +99,7 @@ function Controls(props) {
 			}
 			if (trigger5) {
 				//remove everyone from the meeting
-				axios.put(`http://127.0.0.1:8000/api/remove_all_user/`, {
+				API.put(`remove_all_user/`, {
 					"channelId": channelId
 				}, {
 					headers: { Authorization: `Token ${token}` }
@@ -145,7 +143,7 @@ function Controls(props) {
 
 				//add the left meeting info in database
 				if (!trigger5) {
-					axios.put(`http://127.0.0.1:8000/api/user_left_meeting/`, {
+					API.put(`user_left_meeting/`, {
 						"userId": userId,
 						"channelId": channelId,
 						"agoraId": agora_id
@@ -187,7 +185,7 @@ function Controls(props) {
 	useEffect(async () => {
 		const checkRemovedValue = async () => {
 			console.log(agora_token);
-			axios.put('http://127.0.0.1:8000/api/user_meeting_get_info/', {
+			API.put('user_meeting_get_info/', {
 				"userId": userId,
 				"channelId": channelId,
 				"agoraToken": cookies.get("agora_uid")
@@ -195,22 +193,22 @@ function Controls(props) {
 				headers: { Authorization: `Token ${token}` }
 			}).then(response => {
 				console.log(response.data);
-				if (response.data.is_removed == 1) {
+				if (response.data.is_removed === 1) {
 					setIsRemoved(true)
 					setTrigger4(true);
 				}
 
-				if (response.data.is_presenter == 1) {
+				if (response.data.is_presenter === 1) {
 					cookies.set("status", "presenter");
 					//check who left the meeting
 					//check the settings of the presenter first
-					axios.get(`http://127.0.0.1:8000/api/getsettings/${userId}/`, {
+					API.get(`getsettings/${userId}/`, {
 						headers: { Authorization: `Token ${token}` }
 					}).then(responseA => {
 						console.log("responseA: " + responseA);
 						if (!responseA.data.hide_who_left) {
 							//continue to check 
-							axios.get(`http://127.0.0.1:8000/api/check_departures/${channelId}/`, {
+							API.get(`check_departures/${channelId}/`, {
 								headers: { Authorization: `Token ${token}` }
 							}).then(responseB => {
 								console.log(typeof responseB.data.user)
@@ -224,7 +222,7 @@ function Controls(props) {
 										let user_left_time = responseB.data.left_time
 										let left_people_id = responseB.data.user
 										//get my presenter start_time
-										axios.put(`http://127.0.0.1:8000/api/get_presenter_table/`,
+										API.put(`get_presenter_table/`,
 											{
 												"channelId": channelId,
 												"userId": userId
@@ -238,7 +236,7 @@ function Controls(props) {
 												if (date_presenter_start < date_user_left) {
 													console.log("alert should appear")
 													console.log("the id of the left user: " + leftUserId)
-													axios.get(`http://127.0.0.1:8000/api/user/info2/${leftUserId}/`, {
+													API.get(`user/info2/${leftUserId}/`, {
 														headers: {
 															Authorization: `Token ${token}`
 														}
@@ -312,7 +310,7 @@ function Controls(props) {
 				console.log("screenshare uid is " + uid)
 				const screenTrack = await AgoraRTC.createScreenVideoTrack();
 				//send screenshare to the backend
-				const createScreenShare = await axios.post('http://127.0.0.1:8000/api/create_screenshare/', {
+				const createScreenShare = await API.post('create_screenshare/', {
 					"meeting": channelId,
 					"user": userId,
 					"agora_id": uid

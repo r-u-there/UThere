@@ -3,6 +3,7 @@ import React from 'react';
 import UThere from "./UThere";
 import {Cookies} from "react-cookie";
 import axios from "axios";
+import API from "./API";
 
 function MeetingPage() {
 	const cookies = new Cookies();
@@ -12,7 +13,7 @@ function MeetingPage() {
 
 	async function isEyeTrackingHidden() {
 		try {
-			response = await axios.get(`http://127.0.0.1:8000/api/getsettings/${userId}/`, {
+			response = await API.get(`getsettings/${userId}/`, {
 				  headers: { Authorization: `Token ${token}` }
 			  });
 		} catch(exception) {

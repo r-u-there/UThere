@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Cookies } from "react-cookie";
 import axios from 'axios';
 import ErrorMessagePopup from './ErrorMessagePopup';
+import API from "./API";
 
 function EditProfilePopup(props) {
 	const [newInfo, setNewInfo] = useState("");
@@ -22,7 +23,7 @@ function EditProfilePopup(props) {
 				"changedInfo": props.changedInfo,
 				"currentPassword": currentPassword
 			};
-			axios.put(`http://127.0.0.1:8000/api/user/update/`, data, {
+			API.put(`user/update/`, data, {
 				headers: {
 					'Authorization': `Token ${token}`
 				},
@@ -44,7 +45,7 @@ function EditProfilePopup(props) {
 	function setAttentionRatingLimit() {
 		console.log(props.settingsId);
 		var settings_id = props.settingsId
-		axios.put(`http://127.0.0.1:8000/api/settings/${props.settingsId}/`, {
+		API.put(`settings/${props.settingsId}/`, {
 			"attention_limit": newInfo
 		}, { headers: { Authorization: `Token ${token}` } }).then(response => {
 			console.log(response);

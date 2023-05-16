@@ -2,10 +2,10 @@ import React, { useEffect } from 'react';
 import UThere from './UThere';
 import { useState } from 'react';
 import Logout from './Logout';
-import axios from 'axios';
 import { Cookies } from "react-cookie";
 import * as ReactBootStrap from "react-bootstrap"
 import ErrorMessagePopup from './ErrorMessagePopup';
+import API from "./API";
 const token = localStorage.getItem('token');
 
 function ContactPage() {
@@ -21,7 +21,7 @@ function ContactPage() {
 	//get user mail from the user id
 	function getUserInfo() {
 		console.log(userId);
-		axios.get(`http://127.0.0.1:8000/api/user/info/${userId}/`, {
+		API.get(`user/info/${userId}/`, {
 			headers: { Authorization: `Token ${token}` }
 		}).then(response => {
 			setEmail(response.data.email)
@@ -36,7 +36,7 @@ function ContactPage() {
 		if (message !== "") {
 			if (category !== "Select what we can help you with.") {
 				let item = { category, message, email };
-				axios.post('http://127.0.0.1:8000/api/contact/', item, {
+				API.post('contact/', item, {
 					headers: {
 						'Authorization': 'Token ' + token,
 						'Content-Type': 'application/json'

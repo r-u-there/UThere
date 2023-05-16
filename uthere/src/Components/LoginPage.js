@@ -21,7 +21,7 @@ function LoginPage() {
 			"email": email,
 			"password": password
 		}).then(response => {
-			console.log("here")
+			console.log("here");
 			setCookie("userId", response.data.id);
 			setLoginSuccess(true);
 			localStorage.setItem('token', response.data.token);
