@@ -9,7 +9,6 @@ export default axios.create({
     baseURL: "https://uthere-l4pyduarua-uc.a.run.app/api/",
     headers: {
         'Accept':'application/json',
-        Authorization: `Token ${token}`,
         'Content-Type':'application/json',
     }
 });
