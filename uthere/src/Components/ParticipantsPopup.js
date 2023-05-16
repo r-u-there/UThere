@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from "axios";
 import { Cookies } from "react-cookie";
 import * as ReactBootStrap from "react-bootstrap"
+import API from "./API";
 
 function ParticipantsPopup(props) {
 	const { trigger, setTrigger, users } = props;
@@ -22,7 +23,7 @@ function ParticipantsPopup(props) {
 
 	async function getMeetingUser(arg) {
 		try {
-			const response = await axios.get(`http://127.0.0.1:8000/api/get_meeting_participant/${arg}/`, {
+			const response = await API.get(`get_meeting_participant/${arg}/`, {
 				headers: { Authorization: `Token ${token}` }
 			});
 			let participant_user_id = response.data.user;
@@ -32,7 +33,7 @@ function ParticipantsPopup(props) {
 			setIsParticipantHost(participant_is_host);
 			console.log(response)
 			console.log(participant_user_id)
-			axios.get(`http://127.0.0.1:8000/api/participant_user_info/${participant_user_id}/`, {
+			API.get(`participant_user_info/${participant_user_id}/`, {
 				headers: { Authorization: `Token ${token}` }
 			}).then(response => {
 				console.log(participant_user_id)
@@ -65,7 +66,7 @@ function ParticipantsPopup(props) {
 		//force user to left
 		//update left time of the use
 		console.log("token: ", token);
-		axios.put(`http://127.0.0.1:8000/api/user_kicked_meeting/`, {
+		API.put(`user_kicked_meeting/`, {
 			"userId": removed_user_id,
 			"channelId": channelId
 		}, {
@@ -77,7 +78,7 @@ function ParticipantsPopup(props) {
 		});
 	}
 	function alertUser(alerted_user_id) {
-		axios.put(`http://127.0.0.1:8000/api/alert_user_meeting/`, {
+		API.put(`alert_user_meeting/`, {
 			"userId": alerted_user_id,
 			"channelId": channelId
 		}, { headers: { Authorization: `Token ${token}` } }).then(response => {
@@ -97,7 +98,7 @@ function ParticipantsPopup(props) {
 			presenter_user_id = participantUserId
 
 		}
-		axios.put(`http://127.0.0.1:8000/api/unset_presenter_meeting/`, {
+		API.put(`unset_presenter_meeting/`, {
 			"userId": presenter_user_id,
 			"channelId": channelId,
 			"agoraToken": presenter_agora_id
@@ -109,7 +110,7 @@ function ParticipantsPopup(props) {
 			console.log(exception);
 		});
 		//enter end time to the presenter table for this user
-		axios.put(`http://127.0.0.1:8000/api/end_time_presenter_table/`, {
+		API.put(`end_time_presenter_table/`, {
 			"userId": presenter_user_id,
 			"channelId": channelId,
 			"id": presenter_id_table
@@ -136,7 +137,7 @@ function ParticipantsPopup(props) {
 
 		}
 
-		axios.put(`http://127.0.0.1:8000/api/set_presenter_meeting/`, {
+		API.put(`set_presenter_meeting/`, {
 			"userId": presenter_user_id,
 			"channelId": channelId,
 			"agoraToken": presenter_agora_id
@@ -145,7 +146,7 @@ function ParticipantsPopup(props) {
 		}).catch((exception) => {
 			console.log(exception);
 		});
-		const createPresenterResponse = await axios.post('http://127.0.0.1:8000/api/create_presenter/', {
+		const createPresenterResponse = await API.post('create_presenter/', {
 			"meeting": channelId,
 			"user": presenter_user_id,
 		},
@@ -161,7 +162,7 @@ function ParticipantsPopup(props) {
 		setsetButton(false)
 	}
 	useEffect(() => {
-		axios.get(`http://127.0.0.1:8000/api/user/info/${userId}/`, {
+		API.get(`user/info/${userId}/`, {
 			headers: { Authorization: `Token ${token}` }
 		}).then(response => {
 			setName(response.data.username);

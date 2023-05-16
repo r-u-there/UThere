@@ -2,15 +2,14 @@ import { useState, useEffect, useRef } from "react";
 import {
 	config,
 	useClient,
-	channelName
 } from "../settings";
 import Videos from "./Videos";
 import Controls from "./Controls";
 import React from 'react';
 import {Cookies} from "react-cookie";
-import axios from 'axios';
 import AttentionAnalysisPopup from "./AttentionAnalysisPopup";
 import PresenterWarningPopup from "./PresenterWarningPopup";
+import API from "./API";
 
 function VideoCall(props) {
 	const ready = props.ready;
@@ -44,7 +43,7 @@ function VideoCall(props) {
 	const [triggerPresenterWarningPopup, setTriggerPresenterWarningPopup] = useState(false)
 	var attentionLimit = 0
 	function checkAnalysisSettings(){
-		axios.get(`http://127.0.0.1:8000/api/getsettings/${userId}/`, {
+		API.get(`getsettings/${userId}/`, {
 			headers: { Authorization: `Token ${token}` }
 		}).then(response => {
 		console.log(response);
@@ -64,7 +63,7 @@ function VideoCall(props) {
 
 	async function getHostID() {
         try {
-            const response = await axios.get(`http://127.0.0.1:8000/api/get_meeting_user/${channelId}/`, {
+            const response = await API.get(`get_meeting_user/${channelId}/`, {
 				  headers: { Authorization: `Token ${token}` }
 			  });
 			console.log(response)
@@ -75,7 +74,7 @@ function VideoCall(props) {
         }
     }
 	async function meetingUserCreate(arg){
-		const createMeetingUserResponse = await axios.post('http://127.0.0.1:8000/api/create_meeting_user/', {
+		const createMeetingUserResponse = await API.post('create_meeting_user/', {
 				"meeting" : channelId,
 				"user": userId,
 				"is_host": is_host,
@@ -89,8 +88,8 @@ function VideoCall(props) {
 			  console.log("success");
 			  console.log(createMeetingUserResponse);
 			  //if it is host when created the meeting_user object, it is also presenter
-			  if(is_host == 1){
-				const createPresenterResponse = await axios.post('http://127.0.0.1:8000/api/create_presenter/', {
+			  if(is_host === 1){
+				const createPresenterResponse = await API.post('create_presenter/', {
 					"meeting" : channelId,
 					"user": userId,
 				},
@@ -275,7 +274,7 @@ function VideoCall(props) {
 		//get the all attention scores of all of the user within the 60 minutes
 		//add if it is the presenter
 		const getscoreinterval = ()=>{
-			axios.put(`http://127.0.0.1:8000/api/get_attention_emotion_score/`, {
+			API.put(`get_attention_emotion_score/`, {
 					"channelId": channelId, 
 					"time":new Date().toISOString()
 				},{

@@ -9,6 +9,17 @@ WORKDIR $APP_HOME
 
 # Copy the requirements.txt file to the container
 COPY requirements.txt .
+# Install OS dependencies for the requriements.txt libraries
+# Install system dependencies
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends gcc
+RUN apt-get update && apt-get install -y \
+    libgl1-mesa-glx \
+    libsm6 \
+    libxext6 \
+    libxrender-dev \
+    libopencv-dev \
+    libcairo2-dev
 
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
@@ -18,7 +29,7 @@ COPY . .
 
 # Expose the port that Django runs on
 ENV PORT 8080
-CMD gunicorn --bind :$PORT --workers 1 --threads 8 --preload unicodex.wsgi:application
+CMD gunicorn --bind :$PORT --workers 1 --threads 8 UthereBackend.wsgi:application
 
 
 

@@ -27,7 +27,7 @@ SECRET_KEY = "django-insecure-1a(lxb!nxv^&ri@p1!(#h9voys4r))wm4fn^(^la^w()0%#c60
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [".a.run.app", "localhost",'127.0.0.1']
 
 
 # Application definition
@@ -48,8 +48,21 @@ INSTALLED_APPS = [
 ]
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
-    "http://127.0.0.1:3000"
+    "http://127.0.0.1:3000",
+    "https://uthere.vercel.app",
+    "https://uthere-git-main-uthere.vercel.app",
+    "https://uthere-uthere.vercel.app"
 ]
+
+CORS_ALLOW_METHODS = [
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+]
+
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
@@ -73,6 +86,8 @@ SIMPLE_JWT = {
 AUTH_USER_MODEL = 'MyAuth.User'
 
 MIDDLEWARE = [
+    'django.middleware.security.SecurityMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",

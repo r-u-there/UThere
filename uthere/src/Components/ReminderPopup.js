@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import {Cookies} from "react-cookie";
 import axios from 'axios';
 import ErrorMessagePopup from './ErrorMessagePopup';
+import API from "./API";
 
 function ReminderPopup(props) {
     const cookies = new Cookies();
@@ -12,7 +13,7 @@ function ReminderPopup(props) {
     const [trigger, setTrigger] = useState(false)
 
     function joinMeeting() {
-		axios.get(`http://127.0.0.1:8000/api/get_meeting/${props.channelId}/`, {
+		API.get(`get_meeting/${props.channelId}/`, {
 			headers: {
 				'Authorization': `Token ${token}`
 			}

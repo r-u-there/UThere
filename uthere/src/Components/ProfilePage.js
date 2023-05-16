@@ -9,9 +9,9 @@ import {MdToggleOn} from 'react-icons/md';
 import {useState, useEffect, useCallback} from "react";
 import EditProfilePopup from "./EditProfilePopup";
 import {Cookies} from "react-cookie";
-import axios from "axios";
 import * as ReactBootStrap from "react-bootstrap"
 import { saveAs } from 'file-saver';
+import API from "./API";
 
 function ProfilePage() {
 	const [tabSelection, setTabSelection] = useState(0);
@@ -37,7 +37,7 @@ function ProfilePage() {
 	const [reportsName,setReportsName] = useState([])
 
 	const getUserInfo = useCallback(() => {
-		axios.get(`http://127.0.0.1:8000/api/user/info/${userId}/`, {
+		API.get(`user/info/${userId}/`, {
 		headers: {
 			'Authorization': `Token ${token}`
 		}
@@ -55,7 +55,7 @@ function ProfilePage() {
 
 
 	const getProfileSettings = useCallback(() => {
-		axios.get(`http://127.0.0.1:8000/api/getsettings/${userId}/`, {
+		API.get(`getsettings/${userId}/`, {
 				  headers: { Authorization: `Token ${token}` }
 			  }).then(response => {
 			console.log("user id is" + userId);
@@ -73,7 +73,7 @@ function ProfilePage() {
 	}, []);
 	function getSpecificAnalysisReports(id,agora_id, meeting_user_id){
 		console.log(agora_id)
-		axios.put(`http://127.0.0.1:8000/api/get_specific_analysis_reports/`,
+		API.put(`get_specific_analysis_reports/`,
 		{
 			"id":meeting_user_id,
 			"userId": userId,
@@ -95,7 +95,7 @@ function ProfilePage() {
 	}
 
 	const getAnalysisReports = useCallback(() => {
-		axios.get(`http://127.0.0.1:8000/api/get_specific_analysis_reports/${userId}/`, {
+		API.get(`get_specific_analysis_reports/${userId}/`, {
 				  headers: { Authorization: `Token ${token}` }
 			  }).then(response => {
 			console.log("user id is" + userId);
@@ -110,7 +110,7 @@ function ProfilePage() {
 	
 	}, []);
 	const getNameOfAnalysisReports = useCallback(() => {
-		axios.get(`http://127.0.0.1:8000/api/get_analysis_reports_name/${userId}/`, {
+		API.get(`get_analysis_reports_name/${userId}/`, {
 				  headers: { Authorization: `Token ${token}` }
 			  }).then(response => {
 			console.log("user id is" + userId);
@@ -131,7 +131,7 @@ function ProfilePage() {
 		}).catch((exception) => {
 			console.log(exception);
 		});
-	
+
 	}, []);
 
 
@@ -146,7 +146,7 @@ function ProfilePage() {
 		  "hide_eye_tracking": toggle6
 		};
 
-		axios.put(`http://127.0.0.1:8000/api/settings/${userId}/`, data, {
+		API.put(`settings/${userId}/`, data, {
 		  headers: {
 			'Authorization': `Token ${token}`
 		  },
@@ -154,7 +154,7 @@ function ProfilePage() {
 		}).then(response => {
 			setLoading(true);
 		}).catch((exception) => {
-			window.location = "/Login"
+			window.location = "/"
 			console.log(exception);
 		});
 	}, [toggle1, toggle2, toggle3, toggle4, toggle5, toggle6]);

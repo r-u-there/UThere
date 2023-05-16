@@ -3,13 +3,14 @@ import { IoIosLogOut } from 'react-icons/io';
 import { Link } from 'react-router-dom';
 import {Cookies} from "react-cookie";
 import axios from 'axios';
+import API from "./API";
 const token = localStorage.getItem('token');
 
 
 function Logout() {
 	const cookies = new Cookies();
 	function logout(){
-	axios.post('http://127.0.0.1:8000/api/auth/logout/', null, {
+	API.post('auth/logout/', null, {
 	  headers: { 'Authorization': `Token ${token}` }
 	});
 	Object.keys(cookies.getAll()).forEach(cookie => {

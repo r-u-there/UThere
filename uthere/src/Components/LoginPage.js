@@ -6,6 +6,7 @@ import {Link} from 'react-router-dom';
 import axios from 'axios';
 import {useState} from 'react';
 import {useCookies} from "react-cookie";
+import API from "./API";
 
 
 function LoginPage() {
@@ -16,11 +17,11 @@ function LoginPage() {
 
 
 	function login() {
-		axios.post('http://127.0.0.1:8000/api/auth/login/', {
+		API.post('auth/login/', {
 			"email": email,
 			"password": password
 		}).then(response => {
-			console.log("here")
+			console.log("here");
 			setCookie("userId", response.data.id);
 			setLoginSuccess(true);
 			localStorage.setItem('token', response.data.token);

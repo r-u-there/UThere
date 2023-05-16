@@ -33,7 +33,7 @@ function RegistrationPage() {
 			setLoginSuccess(3);
 		}
 		else {
-			axios.post('http://127.0.0.1:8000/api/auth/register/', item).then(response => {
+			API.post('auth/register/', item).then(response => {
 				window.location = "/Login";
 			}).catch((exception) => {
 				setLoginSuccess(1);

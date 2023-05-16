@@ -12,6 +12,7 @@ import axios from 'axios';
 import { useState, useEffect } from "react";
 import { config } from "../settings";
 import * as ReactBootStrap from "react-bootstrap"
+import API from "./API";
 
 function Dashboard() {
 	const [trigger, setTrigger] = useState(false);
@@ -24,27 +25,25 @@ function Dashboard() {
 
 	async function createMeetingAndUser() {
 		try {
-			const createMeetingResponse = await axios.post(
-				'http://127.0.0.1:8000/api/create_meeting/',
-				{
-					"appId": config.appId,
-					"certificate": config.certificate,
-					"role": 2,
-					"privilegeExpiredTs": 36000000
-				},
-				{
+			  const createMeetingResponse = await API.post('create_meeting/', {
+				"appId": config.appId,
+				"certificate": config.certificate,
+				"role": 2,
+				"privilegeExpiredTs": 36000000
+			  },
+				  {
 					headers: { Authorization: `Token ${token}` }
-				}
-			);
-
-			console.log(createMeetingResponse.data)
-			console.log(createMeetingResponse.data.agora_token)
-			console.log("channel name is " + createMeetingResponse.data.channel_name)
-			cookies.set("token", createMeetingResponse.data.agora_token)
-			cookies.set("channel_name", createMeetingResponse.data.channel_name)
-			cookies.set("channel_id", createMeetingResponse.data.id)
-			cookies.set("is_host", 1)
-			cookies.set("status", "presenter")
+				});
+			  // Handle the response data
+			console.log(createMeetingResponse.data);
+			console.log(createMeetingResponse.data);
+			console.log(createMeetingResponse.data.agora_token);
+			console.log("channel name is " + createMeetingResponse.data.channel_name);
+			cookies.set("token", createMeetingResponse.data.agora_token);
+			cookies.set("channel_name", createMeetingResponse.data.channel_name);
+			cookies.set("channel_id", createMeetingResponse.data.id);
+			cookies.set("is_host", 1);
+			cookies.set("status", "presenter");
 			setMeetingId(createMeetingResponse.data.id);
 			console.log("1- " + createMeetingResponse.data.id);
 
@@ -56,7 +55,7 @@ function Dashboard() {
 	useEffect(() => {
 		console.log(token);
 		function getUserInfo() {
-			axios.get(`http://127.0.0.1:8000/api/user/info/${userId}/`, {
+			API.get(`user/info/${userId}/`, {
 				headers: {
 					Authorization: `Token ${token}`
 				}
@@ -64,7 +63,7 @@ function Dashboard() {
 				setName(response.data.username);
 				setLoading(true);
 			}).catch((exception) => {
-				window.location = "/Login"
+				window.location = "/Login";
 				console.log(exception);
 			});
 

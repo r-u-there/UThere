@@ -5,6 +5,7 @@ import { useLocation } from "react-router-dom";
 import { Cookies } from "react-cookie";
 import axios from "axios";
 import * as ReactBootStrap from "react-bootstrap"
+import API from "./API";
 
 function MeetingEnding() {
   const location = useLocation();
@@ -25,7 +26,7 @@ function MeetingEnding() {
 
   function giveShareAccess(id, agora_id) {
     //updat the database of this user
-    axios.put(`http://127.0.0.1:8000/api/give_access_user/`, {
+    API.put(`give_access_user/`, {
       "userId": id,
       "channelId": meetingId,
       "agoraToken": agora_id
@@ -42,7 +43,7 @@ function MeetingEnding() {
   async function getMeetingParticipants(meetingId) {
     const newData = [];
     try {
-      const response = await axios.get(`http://127.0.0.1:8000/api/get_all_meeting_participants/${meetingId}/`, {
+      const response = await API.get(`get_all_meeting_participants/${meetingId}/`, {
         headers: { Authorization: `Token ${token}` }
       });
       console.log(meetingId)
@@ -52,14 +53,14 @@ function MeetingEnding() {
       response.data.forEach(function (current, index) {
         var agora_uid = current.agora_id
         console.log(agora_uid)
-        axios.get(`http://127.0.0.1:8000/api/get_user_info/${current.user}/`, {
+        API.get(`get_user_info/${current.user}/`, {
           headers: { Authorization: `Token ${token}` }
         }).then(response => {
           console.log(response.data.username);
           var name = response.data.username
           if (current.user != userId) {
             //check whether this user becomes presenter at the any point of this meeting 
-            axios.put(`http://127.0.0.1:8000/api/get_presenter_table/`,
+            API.put(`get_presenter_table/`,
               {
                 "channelId": meetingId,
                 "userId": current.user

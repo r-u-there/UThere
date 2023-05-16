@@ -361,6 +361,8 @@ class GetSettingsViewSet(ModelViewSet):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
     queryset = Settings.objects.all()
+    http_method_names = ['get']
+
 
     def retrieve(self, request, pk=None):
         my_object = request.user.settings
@@ -481,8 +483,6 @@ class GetMeetingUserViewSet(ModelViewSet):
         return Response(serializer.data)
 
 
-
-
 class GetMeetingUserParticipantViewSet(ModelViewSet):
     serializer_class = MeetingUserSerializer
     authentication_classes = [TokenAuthentication]
@@ -536,7 +536,8 @@ class GetMeetingUserInfoViewSet(ModelViewSet):
         user_meeting = user_meeting_queryset.first()
         serializer = MeetingUserSerializer(user_meeting)
         return Response(serializer.data)
-    
+
+
 class GetAttentionEmotionScoreViewSet(ModelViewSet):
     serializer_class = AttentionEmotionScoreSerializer,AttentionEmotionScoreAverageSerializer
     authentication_classes = [TokenAuthentication]
@@ -570,7 +571,8 @@ class GetAttentionEmotionScoreViewSet(ModelViewSet):
         # Serialize the AttentionEmotionScore instances and return the response
         serializer = AttentionEmotionScoreSerializer(attention_score, many=True)
         return Response(serializer.data)
-    
+
+
 class GetPresenterViewSet(ModelViewSet):
     serializer_class = PresenterSerializer
     authentication_classes = [TokenAuthentication]
@@ -588,7 +590,8 @@ class GetPresenterViewSet(ModelViewSet):
         presenter_row = presenter_queryset.last()
         serializer = PresenterSerializer(presenter_row)
         return Response(serializer.data)
-    
+
+
 class GetScreenShareViewSet(ModelViewSet):
     serializer_class = ScreenShareSerializer
     authentication_classes = [TokenAuthentication]
@@ -605,7 +608,6 @@ class GetScreenShareViewSet(ModelViewSet):
         screenshare_row = queryset.first()
         serializer = ScreenShareSerializer(screenshare_row)
         return Response(serializer.data)
-
 
 
 class UserLeftMeetingViewSet(ModelViewSet):
@@ -668,6 +670,7 @@ class CreatePresenterViewSet(ModelViewSet):
             raise InvalidToken(e.args[0])
 
         return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 class CreateScreenShareViewSet(ModelViewSet):
     serializer_class = ScreenShareSerializer
@@ -1162,7 +1165,8 @@ class GetAnalysisReportsViewSet(ModelViewSet):
         else:
             response =[]
         return response
-    
+
+
 class GetAnalysisReportsNameViewSet(ModelViewSet):
     serializer_class = MeetingUserSerializer
     authentication_classes = [TokenAuthentication]

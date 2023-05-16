@@ -1,30 +1,29 @@
 import { AgoraVideoPlayer } from "agora-rtc-react";
 import React, {useEffect, useState} from 'react';
-import axios from "axios";
 import {Cookies} from "react-cookie";
-import AttentionAnalysisPopup from "./AttentionAnalysisPopup";
+import API from "./API";
 
 function Videos(props) {
 	const users = props.users;
 	const tracks = props.tracks;
-	const agorauid = props.agorauid
-	const setUsers = props.serUsers
+	const agorauid = props.agorauid;
+	const setUsers = props.serUsers;
 	const [name, setName] = useState("");
 	const [participantName, setParticipantName] = useState("");
 	const cookies = new Cookies();
 	const userId = cookies.get("userId");
 	const channelId = cookies.get("channel_id");
 	const token = localStorage.getItem("token");
-	const status = cookies.get("status")
-	const [trigger, setTrigger] = useState(true)
+	const status = cookies.get("status");
+	const [trigger, setTrigger] = useState(true);
 	const [isScreenShare,setIsScreenShare] = useState(false)
 	const [showPopup, setShowPopup] = useState(true);
 	const [usersData, setUsersData] = useState([]);
-	console.log(users)
+	console.log(users);
 	
 	async function checkUserIsScreenShare(arg) {
 		try {
-			const response = await axios.put(`http://127.0.0.1:8000/api/get_screenshare_table/`, {
+			const response = await API.put(`get_screenshare_table/`, {
 				"channelId": channelId,
 				"agora_id": arg
 			}, {
@@ -46,19 +45,19 @@ function Videos(props) {
 
 	async function getMeetingUser(arg) {
 		try {
-		  console.log("arg is " + arg)
-		  const response = await axios.get(`http://127.0.0.1:8000/api/get_meeting_participant/${arg}/`, {
+		  console.log("arg is " + arg);
+		  const response = await API.get(`get_meeting_participant/${arg}/`, {
+			headers: { Authorization: `Token ${token}` }
+		  });
+		  console.log(response);
+		  const participant_user_id = response.data.user;
+		  console.log(participant_user_id);
+		  const userResponse = await API.get(`http://127.0.0.1:8000/api/get_user_info/${participant_user_id}/`, {
 			headers: { Authorization: `Token ${token}` }
 		  })
-		  console.log(response)
-		  const participant_user_id = response.data.user
-		  console.log(participant_user_id)
-		  const userResponse = await axios.get(`http://127.0.0.1:8000/api/get_user_info/${participant_user_id}/`, {
-			headers: { Authorization: `Token ${token}` }
-		  })
-		  console.log(userResponse.data.username)
+		  console.log(userResponse.data.username);
 		  setParticipantName(userResponse.data.username);
-		  return userResponse.data.username
+		  return userResponse.data.username;
 		} catch (error) {
 		  console.log("error", error);
 		}
@@ -67,7 +66,7 @@ function Videos(props) {
 	useEffect(() =>{
 		if(status === "presenter"){
 			//trigger attention popup
-			setTrigger(true)
+			setTrigger(true);
 		}
 
 	},[status])
@@ -90,7 +89,7 @@ function Videos(props) {
 					const isScreenShare = await checkUserIsScreenShare(user.uid);
 					if (!isScreenShare) {
 						const participantName = await getMeetingUser(user.uid);
-						console.log(user)
+						console.log(user);
 						newData.push({ uid: user.uid, participantName: participantName, isScreenShare: false });
 	
 					} else {
@@ -108,10 +107,10 @@ function Videos(props) {
 
 	useEffect(()=>{
 		setShowPopup(status==="presenter")
-		console.log(status)
+		console.log(status);
 	},[status])
 	useEffect(() => {
-		axios.get(`http://127.0.0.1:8000/api/user/info/${userId}/`, {
+		API.get(`user/info/${userId}/`, {
 				  headers: { Authorization: `Token ${token}` }
 			  }).then(response => {
 			setName(response.data.username);
@@ -132,10 +131,10 @@ function Videos(props) {
 				{
 					usersData.length > 0 &&
 					usersData.map((userData) => {
-						console.log(users)
+						console.log(users);
 						const { uid, participantName, isScreenShare, video } = userData;
 						if (video) {
-							console.log(isScreenShare)
+							console.log(isScreenShare);
 							if(!isScreenShare){
 								console.log(1 +" "+ uid)
 								return (
@@ -149,7 +148,7 @@ function Videos(props) {
 								
 							}
 							else {
-								console.log(2 +" "+ uid)
+								console.log(2 +" "+ uid);
 								return (
 									<div>
 										<AgoraVideoPlayer className="vid2" id = "play" videoTrack={video} key={uid}/>
@@ -160,7 +159,7 @@ function Videos(props) {
 						}
 						else {
 							if (!isScreenShare) {
-								console.log(3 +" "+ uid)
+								console.log(3 +" "+ uid);
 								return (
 									<div key={uid} className='vid'>
 										<div className='video-label-container'>

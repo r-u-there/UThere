@@ -1,3 +1,7 @@
+reportlab
+psycopg2-binary>=2.9.1
+agora_token_builder
+gunicorn==20.1.0
 absl-py==1.4.0
 anyio==3.6.2
 astunparse==1.6.3
@@ -68,3 +72,5 @@ uvicorn==0.22.0
 Werkzeug==2.3.3
 wrapt==1.14.1
 zipp==3.15.0
+djangorestframework_simplejwt>=4.8.0
+yagmail>=0.14.0
