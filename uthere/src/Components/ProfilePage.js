@@ -162,7 +162,7 @@ function ProfilePage() {
 	useEffect(() => {
 		getUserInfo();
 		getProfileSettings();
-		getNameOfAnalysisReports();
+		// getNameOfAnalysisReports();
 	}, [getUserInfo, getProfileSettings, userId]);
 
 	useEffect(() => {
