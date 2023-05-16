@@ -25,9 +25,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = "django-insecure-1a(lxb!nxv^&ri@p1!(#h9voys4r))wm4fn^(^la^w()0%#c60"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
-ALLOWED_HOSTS = [".a.run.app"]
+ALLOWED_HOSTS = [".a.run.app", "localhost",'127.0.0.1']
 
 
 # Application definition
@@ -49,9 +49,9 @@ INSTALLED_APPS = [
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
-    "https://uthere.vercel.app/",
-    "https://uthere-git-main-uthere.vercel.app/",
-    "https://uthere-uthere.vercel.app/"
+    "https://uthere.vercel.app",
+    "https://uthere-git-main-uthere.vercel.app",
+    "https://uthere-uthere.vercel.app"
 ]
 
 CORS_ALLOW_METHODS = [
