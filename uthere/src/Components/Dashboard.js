@@ -30,7 +30,10 @@ function Dashboard() {
 				"certificate": config.certificate,
 				"role": 2,
 				"privilegeExpiredTs": 36000000
-			  });
+			  },
+				  {
+					headers: { Authorization: `Token ${token}` }
+				});
 			  // Handle the response data
 			console.log(createMeetingResponse.data);
 			console.log(createMeetingResponse.data);

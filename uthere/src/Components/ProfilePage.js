@@ -109,30 +109,30 @@ function ProfilePage() {
 		});
 	
 	}, []);
-	// const getNameOfAnalysisReports = useCallback(() => {
-	// 	API.get(`get_analysis_reports_name/${userId}/`, {
-	// 			  headers: { Authorization: `Token ${token}` }
-	// 		  }).then(response => {
-	// 		console.log("user id is" + userId);
-	// 		console.log(response);
-	// 		response.data.forEach(element => {
-	// 			var name = "Attention-Emotion Report-"+element.join_time
-	// 			var id = element.meeting
-	// 			var meeting_user_id = element.id
-	// 			var agora_id = element.agora_id
-	// 			console.log(name)
-	// 			console.log(id)
-	// 			console.log(agora_id)
-	// 			var meetinguserobj = {name:name,id:id,agora_id:agora_id, meeting_user_id:meeting_user_id}
-	// 			setReportsName((prevReportsName) => {
-	// 				return [...prevReportsName, meetinguserobj];
-	// 			});
-	// 		});
-	// 	}).catch((exception) => {
-	// 		console.log(exception);
-	// 	});
-	//
-	// }, []);
+	const getNameOfAnalysisReports = useCallback(() => {
+		API.get(`get_analysis_reports_name/${userId}/`, {
+				  headers: { Authorization: `Token ${token}` }
+			  }).then(response => {
+			console.log("user id is" + userId);
+			console.log(response);
+			response.data.forEach(element => {
+				var name = "Attention-Emotion Report-"+element.join_time
+				var id = element.meeting
+				var meeting_user_id = element.id
+				var agora_id = element.agora_id
+				console.log(name)
+				console.log(id)
+				console.log(agora_id)
+				var meetinguserobj = {name:name,id:id,agora_id:agora_id, meeting_user_id:meeting_user_id}
+				setReportsName((prevReportsName) => {
+					return [...prevReportsName, meetinguserobj];
+				});
+			});
+		}).catch((exception) => {
+			console.log(exception);
+		});
+
+	}, []);
 
 
 	const setProfilePreferences = useCallback(() => {
@@ -162,7 +162,7 @@ function ProfilePage() {
 	useEffect(() => {
 		getUserInfo();
 		getProfileSettings();
-		// getNameOfAnalysisReports();
+		getNameOfAnalysisReports();
 	}, [getUserInfo, getProfileSettings, userId]);
 
 	useEffect(() => {
