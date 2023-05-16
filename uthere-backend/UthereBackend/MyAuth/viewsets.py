@@ -361,6 +361,8 @@ class GetSettingsViewSet(ModelViewSet):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
     queryset = Settings.objects.all()
+    http_method_names = ['get']
+
 
     def retrieve(self, request, pk=None):
         my_object = request.user.settings
