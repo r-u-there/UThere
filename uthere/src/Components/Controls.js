@@ -193,12 +193,12 @@ function Controls(props) {
 				headers: { Authorization: `Token ${token}` }
 			}).then(response => {
 				console.log(response.data);
-				if (response.data.is_removed === 1) {
+				if (response.data.is_removed == 1) {
 					setIsRemoved(true)
 					setTrigger4(true);
 				}
 
-				if (response.data.is_presenter === 1) {
+				if (response.data.is_presenter == 1) {
 					cookies.set("status", "presenter");
 					//check who left the meeting
 					//check the settings of the presenter first
