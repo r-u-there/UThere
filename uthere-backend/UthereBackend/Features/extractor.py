@@ -250,5 +250,5 @@ class FeatureExtractor():
         face_pose_list = self._calculate_face_pose_batch(facial_landmark_list)
         iris_in_out_list = self._calculate_iris(right_irises_list, left_irises_list)
         results = np.column_stack((avg_ear_list, lip_distance_list, face_pose_list, iris_in_out_list))
-        return results.reshape((1, 200, 4))
+        return results.reshape((1, self.num_frames, 4))
     
