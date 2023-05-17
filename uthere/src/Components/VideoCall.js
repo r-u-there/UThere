@@ -88,7 +88,7 @@ function VideoCall(props) {
 			  console.log("success");
 			  console.log(createMeetingUserResponse);
 			  //if it is host when created the meeting_user object, it is also presenter
-			  if(is_host === 1){
+			  if(is_host == 1){
 				const createPresenterResponse = await API.post('create_presenter/', {
 					"meeting" : channelId,
 					"user": userId,
