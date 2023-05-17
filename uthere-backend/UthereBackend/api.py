@@ -25,9 +25,9 @@ from deepface import DeepFace
 from datetime import datetime
 
 # Load the saved model
-model = load_model('attention_model/my_model.h5')
+model = load_model('attention_model/model_5second2.h5')
 
-feature_extractor = FeatureExtractor(num_frames=200)
+feature_extractor = FeatureExtractor(num_frames=100)
 
 app = FastAPI(title="Image Process", version="1.0")
 # Set up CORS
@@ -56,19 +56,19 @@ async def upload_video(file: UploadFile = File(...), timestamp: str = Form(...),
         bytes = file.file.read()
         frames = iio.imread(bytes, index=None, format_hint=".webm")
 
-        # Pad the frames to 200
+        # Pad the frames to 100
         selected_frames = []
-        if len(frames) > 200:
+        if len(frames) > 100:
             i = 0
             while int(math.ceil(i)) < len(frames):
                 ind = int(math.ceil(i))
                 selected_frames.append(frames[ind])
-                i += len(frames)/200 
-        elif len(frames) == 200:
+                i += len(frames)/100 
+        elif len(frames) == 100:
             selected_frames = frames
         else:
             num_frames = len(frames)
-            num_to_pad = 200 - num_frames
+            num_to_pad = 100 - num_frames
             values = np.linspace(0, len(frames)-1, num_to_pad, dtype=int)
             for i, frame in enumerate(frames):
                 selected_frames.append(frame)
@@ -88,7 +88,7 @@ async def upload_video(file: UploadFile = File(...), timestamp: str = Form(...),
         print(f'Got prediction for frames: {pred_class}')
 
         emotions = []
-        for i in range(0, 200, 20):
+        for i in range(0, 100, 10):
             result = DeepFace.analyze(selected_frames[i], actions = ['emotion'], detector_backend = "mediapipe", silent = True)
             emotions.append(result[0]['dominant_emotion'])
         

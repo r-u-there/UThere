@@ -5,7 +5,7 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.settings import api_settings
 from django.contrib.auth.models import update_last_login
 from django.core.exceptions import ObjectDoesNotExist
-from .models import User, ContactForm, Profile, Settings, Meeting, MeetingUser,Presenter, AttentionEmotionScore,ScreenShare, Poll, Options
+from .models import User, ContactForm, Profile, Settings, Meeting, MeetingUser,Presenter, AttentionEmotionScore,ScreenShare, AttentionEmotionScoreAverage
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -110,7 +110,7 @@ class MeetingSerializer(serializers.ModelSerializer):
 class MeetingUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = MeetingUser
-        fields = ['id', 'is_host', 'is_presenter', 'join_time', 'left_time', 'meeting','user','agora_id','is_removed','alert_num']
+        fields = ['id', 'is_host','access_report', 'is_presenter', 'join_time', 'left_time', 'meeting','user','agora_id','is_removed','alert_num', 'access_report', 'latest_poll']
 
     def create(self, instance):
         return MeetingUser.objects.create(**self.validated_data)
@@ -131,6 +131,15 @@ class AttentionEmotionScoreSerializer(serializers.ModelSerializer):
     def create(self, instance):
         return AttentionEmotionScore.objects.create(**self.validated_data)
     
+class AttentionEmotionScoreAverageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AttentionEmotionScoreAverage
+        fields = ['id', 'meeting','time_start','time_end','avg_attention_score']
+
+    def create(self, instance):
+        return AttentionEmotionScoreAverage.objects.create(**self.validated_data)
+    
+    
 class ScreenShareSerializer(serializers.ModelSerializer):
     class Meta:
         model = ScreenShare
@@ -139,19 +148,5 @@ class ScreenShareSerializer(serializers.ModelSerializer):
     def create(self, instance):
         return ScreenShare.objects.create(**self.validated_data)
 
-class PollSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Poll
-        fields = ['meeting', 'creator', 'question_body']
 
-    def create(self, instance):
-        return Poll.objects.create(**self.validated_data)
 
-class OptionsSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Options
-        fields = ['poll', 'option_body', 'count']
-
-    def create(self, instance):
-        return Options.objects.create(**self.validated_data)
-    

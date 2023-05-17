@@ -80,7 +80,8 @@ function VideoCall(props) {
 				"meeting" : channelId,
 				"user": userId,
 				"is_host": is_host,
-				"agora_id": arg 
+				"agora_id": arg ,
+				"access_report": is_host
 			  },
 			{
 					headers: { Authorization: `Token ${token}` }
@@ -257,8 +258,8 @@ function VideoCall(props) {
 					if( recorder && recorder.state === "recording") {
 						recorder.stop();
 					}
-				}, 10000);
-			}, 10000);
+				}, 5000);
+			}, 5000);
 		};
 
 		if (mediaStream == null && trackState.video) {
@@ -281,6 +282,7 @@ function VideoCall(props) {
 				},{
 					headers: { Authorization: `Token ${token}` }
 				}).then(response => {
+					console.log(response)
 					console.log("attention_scoreeee")
 					console.log(response);
 					if(response.data.hasOwnProperty('status') && response.data.status==='Attention score not found'){
@@ -314,6 +316,7 @@ function VideoCall(props) {
 						var attentionLimitToCompare = 3 *attentionLimit / 100
 						console.log("min attention limit for presenter is " + attentionLimitToCompare)
 						console.log("actual attention limit " + averageScore)
+						//post average score to the database
 						if(averageScore<=attentionLimitToCompare){
 							setTriggerPresenterWarningPopup(true)
 						}

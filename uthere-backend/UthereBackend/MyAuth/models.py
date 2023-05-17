@@ -96,13 +96,15 @@ class MeetingUser(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     meeting = models.ForeignKey(Meeting, on_delete=models.CASCADE)
     agora_id = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    access_report = models.BooleanField(default=False)
     is_host = models.BooleanField(default=False)
     is_presenter = models.BooleanField(default=False)
     join_time = models.DateTimeField(auto_now_add=True)
     left_time = models.DateTimeField(blank=True, null=True, auto_now_add=False)
     is_removed = models.BooleanField(default=False)
     alert_num = models.DecimalField(max_digits=10, decimal_places=0, default=0)
-
+    latest_poll = models.DecimalField(max_digits=10, decimal_places=0, default=-1)
+    access_report = models.BooleanField(default=False)
 
 class Presenter(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -128,6 +130,12 @@ class AttentionEmotionScore(models.Model):
     time = models.CharField(max_length=50, null=False, blank=False)
     attention_score = models.IntegerField(default=0)
     emotion= models.IntegerField(default=0)
+
+class AttentionEmotionScoreAverage(models.Model):
+    meeting = models.ForeignKey(Meeting, on_delete=models.CASCADE)
+    time_start = models.CharField(max_length=50, null=False, blank=False)
+    time_end= models.CharField(max_length=50, null=False, blank=False)
+    avg_attention_score = models.IntegerField(default=0)
     #Emotion Scores Encoding
     #1-Sad
     #2-Angry
