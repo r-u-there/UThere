@@ -286,7 +286,6 @@ class EndTimePresenterViewSet(ModelViewSet):
         return Response({'status': 'presenter is unsetted in presenter table'})
 
 
-
 class AlertUserMeetingViewSet(ModelViewSet):
     serializer_class = MeetingUserSerializer
     authentication_classes = [TokenAuthentication]
@@ -367,7 +366,7 @@ class GetSettingsViewSet(ModelViewSet):
     def retrieve(self, request, pk=None):
         my_object = request.user.settings
         if my_object is None:
-            return Response(status=404)
+            return Response(status=204)
 
         serializer = SettingsSerializer(my_object)
         return Response(serializer.data)
@@ -1163,7 +1162,7 @@ class GetAnalysisReportsViewSet(ModelViewSet):
             # save the PDF file and return the response
             pdf.save()
         else:
-            response =[]
+            response = []
         return response
 
 
@@ -1179,7 +1178,7 @@ class GetAnalysisReportsNameViewSet(ModelViewSet):
         queryset = MeetingUser.objects.filter(user_id=pk, access_report=True)
         print(queryset)
         if not queryset.exists():
-            return Response(status=404)
+            return Response(status=204)
 
         serializer = MeetingUserSerializer(queryset, many=True)
         return Response(serializer.data)
