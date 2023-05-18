@@ -50,7 +50,7 @@ INSTALLED_APPS = [
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
-    "uthere.vercel.app"
+    "https://uthere-yyffjz5wna-uc.a.run.app/api/auth/login/"
 ]
 
 CORS_ALLOW_METHODS = [
