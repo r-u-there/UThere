@@ -50,7 +50,7 @@ INSTALLED_APPS = [
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
-    "https://uthere-yyffjz5wna-uc.a.run.app/api/"
+    "https://uthere-yyffjz5wna-uc.a.run.app"
 ]
 
 CORS_ALLOW_METHODS = [
