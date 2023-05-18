@@ -608,6 +608,60 @@ class GetScreenShareViewSet(ModelViewSet):
         serializer = ScreenShareSerializer(screenshare_row)
         return Response(serializer.data)
 
+class EndScreenShareViewSet(ModelViewSet):
+    serializer_class = ScreenShareSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    http_method_names = ['put']
+    queryset = ScreenShare.objects.all()
+
+    def put(self, request, *args, **kwargs):
+        user_id = request.data.get("userId")
+        channel_id = request.data.get("channelId")
+        agora_id = request.data.get("agoraToken")
+        print(agora_id)
+        queryset = ScreenShare.objects.filter( meeting_id=channel_id, agora_id = agora_id, user_id=user_id, end_time__isnull=True)
+        if not queryset.exists():
+            return Response({'status':'Not Ended Screenshare'})
+        screenshare_row = queryset.first()
+        screenshare_row.end_time = datetime.now()
+        screenshare_row.save()
+        return Response({'status':'Ended Screenshare'})
+    
+class GetCountScreenShareViewSet(ModelViewSet):
+    serializer_class = ScreenShareSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    http_method_names = ['put']
+    queryset = ScreenShare.objects.all()
+
+    def put(self, request, *args, **kwargs):
+        channel_id = request.data.get("channelId")
+        queryset = ScreenShare.objects.filter( meeting_id=channel_id, end_time__isnull=True )
+        if not queryset.exists():
+            return Response(0)
+        screenshare_row = queryset.all()
+        return Response(len(screenshare_row))
+
+class IsParticipantScreenshareViewSet(ModelViewSet):
+    serializer_class = ScreenShareSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    http_method_names = ['put']
+    queryset = ScreenShare.objects.all()
+
+    def put(self, request, *args, **kwargs):
+        channel_id = request.data.get("channelId")
+        agora_id = request.data.get("agoraId")
+        print(agora_id)
+        print(channel_id)
+        queryset = ScreenShare.objects.filter( meeting_id=channel_id, agora_id = agora_id)
+        if queryset.exists():
+            return Response({'status': True})
+        else:
+            return Response({'status': False})
+        return Response(serializer.data)
+
 
 class UserLeftMeetingViewSet(ModelViewSet):
     serializer_class = MeetingUserSerializer

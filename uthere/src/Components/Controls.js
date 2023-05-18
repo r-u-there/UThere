@@ -23,11 +23,15 @@ const token = localStorage.getItem('token');
 function Controls(props) {
 	const client = useClient();
 	const { tracks, setStart, webgazer, users, trackState, setTrackState } = props;
+
+	const [users_new, setUsersNew] = useState([]);
 	const [trigger, setTrigger] = useState(false);
 	const [trigger2, setTrigger2] = useState(false);
 	const [trigger3, setTrigger3] = useState(false);
 	const [trigger4, setTrigger4] = useState(false);
 	const [trigger5, setTrigger5] = useState(false);
+	const [screenShareCount,setScreenShareCount] = useState(0);
+	const [screenShareUid,setScreenShareUid] = useState(-1)
 	let alertNum = "0";
 	const cookies = new Cookies();
 	const agora_token = cookies.get("token");
@@ -42,6 +46,7 @@ function Controls(props) {
 		screenTrack: null,
 		localVideoTrack: null,
 	});
+	const [client2, setClient2] = useState(null);
 
 	const [isRemoved, setIsRemoved] = useState(false);
 	let peopleLeft = -1
@@ -67,6 +72,25 @@ function Controls(props) {
 			});
 		}
 	};
+	function getCountOfScreenshare(){
+		//for the current meeting get the number of current screenshare
+		API.put(`count_screenshare/`, {
+			"channelId": channelId
+		}, {
+			headers: { Authorization: `Token ${token}` }
+		}).then(response => {
+			console.log(response);
+			if(response.data === "Not Screenshare"){
+				setScreenShareCount(0)
+			}
+			else{
+				setScreenShareCount(response.data)
+			}
+		}).catch((exception) => {
+			console.log(exception);
+		});
+
+	}
 	useEffect(() => {
 
 		const leaveChannel = async () => {
@@ -184,6 +208,7 @@ function Controls(props) {
 
 	useEffect(async () => {
 		const checkRemovedValue = async () => {
+			getCountOfScreenshare()
 			console.log(agora_token);
 			API.put('user_meeting_get_info/', {
 				"userId": userId,
@@ -211,12 +236,16 @@ function Controls(props) {
 							API.get(`check_departures/${channelId}/`, {
 								headers: { Authorization: `Token ${token}` }
 							}).then(responseB => {
-								console.log(typeof responseB.data.user)
+
+								if(responseB.length != 0){
+									console.log("buraya giriyor")
+									console.log(typeof responseB.data.user)
 								leftUserId = responseB.data.user
 								console.log("The users in the channel shown here: ")
 								console.log(responseB)
 								console.log(leftUserId)
 								if (responseB.data.length != 0) {
+									
 									if (responseB.data.user !== peopleLeft) {
 										//if the user left_time is before my presenter start time do not alert
 										let user_left_time = responseB.data.left_time
@@ -256,6 +285,8 @@ function Controls(props) {
 												console.log(exception);
 											});
 									}
+								}
+
 								}
 							}).catch((exception) => {
 								console.log(exception);
@@ -299,14 +330,18 @@ function Controls(props) {
 		if (isSharingEnabled) {
 
 			if (channelParameters.screenTrack) {
+				setIsSharingEnabled(true);
 				await channelParameters.screenTrack.replaceTrack(channelParameters.localVideoTrack, true);
-				setIsSharingEnabled(false);
+				
 			}
 			//setIsSharingEnabled(false);
 		} else {
 			try {
+				setIsSharingEnabled(true);
 				const client2 = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
+				setClient2(client2)
 				let uid = await client2.join(config.appId, channelName, agora_token, null);
+				setScreenShareUid(uid)
 				console.log("screenshare uid is " + uid)
 				const screenTrack = await AgoraRTC.createScreenVideoTrack();
 				//send screenshare to the backend
@@ -330,12 +365,31 @@ function Controls(props) {
 					}
 				});
 				setChannelParameters({ ...channelParameters, screenTrack });
-				setIsSharingEnabled(false);
+				
 			} catch (error) {
 				console.error('Error creating screen track:', error);
 			}
 		}
 	};
+	async function stopSharing() {
+		try {
+		  await client2.unpublish(channelParameters.screenTrack);
+		  await client2.leave();
+		  console.log("Screen sharing stopped successfully");
+		  setChannelParameters({ ...channelParameters, screenTrack: null });
+		  setIsSharingEnabled(false);
+		  //add end time to screen sharing
+		  API.put('end_screen_share/', {
+			"userId": userId,
+			"channelId": channelId,
+			"agoraToken": screenShareUid
+		}, {
+			headers: { Authorization: `Token ${token}` }
+		})
+		} catch (error) {
+		  console.error('Error stopping screen sharing:', error);
+		}
+	  }
 
 
 	return (
@@ -344,8 +398,8 @@ function Controls(props) {
 			<div className="meeting-controls">
 				<div className="meeting-control">
 
-					{status === "presenter" && !isSharingEnabled ? <button onClick={handleScreenShare}><div>{!isSharingEnabled ? <MdScreenShare size={20} /> : <MdStopScreenShare size={20} />}<br></br>Share Screen</div></button> : <></>}
-					<button onClick={() => { setTrigger(true); }}><div><IoPeople size={20} /><br></br>Participants ({users.length + 1})</div></button>
+					{status === "presenter" ? !isSharingEnabled ? <button onClick={handleScreenShare}><div> <MdScreenShare size={20} /><br></br>Share Screen</div></button> :  <button onClick={stopSharing}><div> <MdStopScreenShare size={20} /><br></br>Share Screen</div></button> :<></>}
+					<button onClick={() => { setTrigger(true); }}><div><IoPeople size={20} /><br></br>Participants ({users.length+ 1-screenShareCount})</div></button>
 					<button onClick={() => mute("video")}>
 						{trackState.video ? <div><BsCameraVideo size={20} /><br></br>Turn Off</div> :
 							<div><BsCameraVideoOff size={20} /><br></br>Turn On</div>}

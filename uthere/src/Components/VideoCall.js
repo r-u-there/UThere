@@ -258,6 +258,9 @@ function VideoCall(props) {
 						recorder.stop();
 					}
 				}, 5000);
+				if(!cookies.hasOwnProperty('channelId')){
+					stopMediaStream();
+				}
 			}, 5000);
 		};
 
