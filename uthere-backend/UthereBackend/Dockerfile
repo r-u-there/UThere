@@ -9,8 +9,6 @@ WORKDIR $APP_HOME
 
 # Copy the requirements.txt file to the container
 COPY requirements.txt .
-# Copy the api.py to the container
-COPY api.py .
 
 # Install OS dependencies for the requriements.txt libraries
 # Install system dependencies
@@ -32,7 +30,7 @@ COPY . .
 
 # Expose the port that Django runs on
 ENV PORT 8080
-CMD python api.py && gunicorn --bind :$PORT --workers 1 --threads 8 UthereBackend.wsgi:application
+CMD gunicorn --bind :$PORT --workers 1 --threads 8 UthereBackend.wsgi:application
 
 
 
