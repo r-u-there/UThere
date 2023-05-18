@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'drf_registration',
+    'deepface',
 
 ]
 CORS_ALLOWED_ORIGINS = [

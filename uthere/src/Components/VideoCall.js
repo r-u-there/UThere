@@ -241,7 +241,7 @@ function VideoCall(props) {
 					formData.append('user_id', userId);
 					formData.append('meeting_id',channelId);
 					console.log(formData);
-					fetch('http://127.0.0.1:8008/upload-video/', {
+					fetch('https://uthere-l4pyduarua-uc.a.run.app/upload-video/', {
 					method: 'POST',
 					body: formData,
 					headers: {
