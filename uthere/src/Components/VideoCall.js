@@ -241,7 +241,7 @@ function VideoCall(props) {
 					formData.append('user_id', userId);
 					formData.append('meeting_id',channelId);
 					console.log(formData);
-					fetch('https://uthere-l4pyduarua-uc.a.run.app/upload-video/', {
+					fetch('https://uthere-yyffjz5wna-uc.a.run.app/upload-video/', {
 					method: 'POST',
 					body: formData,
 					headers: {
