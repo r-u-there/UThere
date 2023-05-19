@@ -11,8 +11,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
 from .serializers import UserSerializer, LoginSerializer, RegisterSerializer, ContactFormSerializer, ProfileSerializer, \
     MeetingSerializer, MeetingUserSerializer, SettingsSerializer,PresenterSerializer,AttentionEmotionScoreSerializer, ScreenShareSerializer,\
-    AttentionEmotionScoreAverageSerializer
-from .models import User, Profile, Meeting, Settings, MeetingUser, Presenter,AttentionEmotionScore, ScreenShare, AttentionEmotionScoreAverage
+    AttentionEmotionScoreAverageSerializer, PollSerializer, OptionsSerializer
+from .models import User, Profile, Meeting, Settings, MeetingUser, Presenter,AttentionEmotionScore, ScreenShare, AttentionEmotionScoreAverage, Poll, Options
 from django.contrib.auth import authenticate, login
 from .sendmail import send_email
 from agora_token_builder import RtcTokenBuilder
@@ -1184,4 +1184,100 @@ class GetAnalysisReportsNameViewSet(ModelViewSet):
         return Response(serializer.data)
 
 
+class CreatePollViewSet(ModelViewSet):
+    serializer_class = PollSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    http_method_names = ['post']
 
+    def create(self, request, *args, **kwargs):
+        print(request.data, flush= True)
+        user_id = request.data.get("user")
+        meeting_id = request.data.get("meeting")
+        question_body = request.data.get("question")
+        options = request.data.get("options")
+
+        poll_data = {'meeting': meeting_id, 'user':user_id, 'creator': user_id, 'question_body': question_body}
+        poll_serializer = PollSerializer(data=poll_data)
+        try:
+            poll_serializer.is_valid(raise_exception=True)
+            poll = poll_serializer.save()
+        except TokenError as e:
+            raise InvalidToken(e.args[0])
+        
+        for option in options:
+            options_data = {'poll': poll.pk, 'option_body':option}
+            options_serializer = OptionsSerializer(data=options_data)
+            try:
+                options_serializer.is_valid(raise_exception=True)
+                options_serializer.save()
+            except TokenError as e:
+                raise InvalidToken(e.args[0])
+        
+        queryset = MeetingUser.objects.filter(meeting=meeting_id, is_presenter= False)
+
+        if queryset is not None:
+            for meeting_user in queryset:
+                meeting_user.latest_poll = poll.pk
+                meeting_user.save()
+
+        return Response(status=202)
+
+class GetPollViewSet(ModelViewSet):
+    serializer_class = PollSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    http_method_names = ['get']
+    queryset = Poll.objects.all()
+
+    def retrieve(self, request, pk=None):
+        queryset = Poll.objects.filter(id=pk)
+        poll = queryset.first()
+
+        options = Options.objects.filter(poll_id=pk)
+        options_strings = []
+        if options is not None:
+            for option in options:
+                options_strings.append(option.option_body)
+        resp = {'poll_id':pk, 'question_body': poll.question_body,'option1' :options_strings[0],'option2':options_strings[1],'option3':options_strings[2]}
+
+        return Response(resp)
+
+class AnswerPollViewSet(ModelViewSet):
+    serializer_class = OptionsSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    http_method_names = ['put']
+    queryset = Options.objects.all()
+
+    def put(self, request, *args, **kwargs):
+        poll_id = request.data.get("poll_id")
+        selection = request.data.get("selected_option")
+        option = Options.objects.filter(poll=poll_id, option_body=selection).first()
+        if option is not None:
+            option.count = option.count + 1
+            option.save()
+            return Response({'status': 'answer saved'})
+        else:
+            return Response({'status': 'option could not found'})
+
+class GetLatestPollViewSet(ModelViewSet):
+    serializer_class = PollSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    http_method_names = ['get']
+    queryset = Poll.objects.all()
+
+    def retrieve(self, request, pk=None):
+        queryset = Poll.objects.filter(meeting=pk)
+        poll = queryset.last()
+        if poll is not None:
+            options = Options.objects.filter(poll=poll)
+            resp = {'question_body': poll.question_body}
+            results = [["Options", "Counts"]]
+            for option in options:
+                results.append([option.option_body, int(option.count)])
+            resp['poll_results'] = results
+            return Response(resp)
+        else:
+            return Response({'status': 404})

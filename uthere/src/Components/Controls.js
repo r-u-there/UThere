@@ -4,6 +4,7 @@ import React from 'react';
 import { BsCameraVideo, BsCameraVideoOff } from 'react-icons/bs';
 import { BsMic, BsMicMute } from 'react-icons/bs';
 import { IoCloseCircleOutline } from 'react-icons/io5';
+import { MdOutlinePoll } from "react-icons/md";
 import { IoPeople } from 'react-icons/io5';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -11,6 +12,8 @@ import { Cookies } from "react-cookie";
 import ParticipantsPopup from "./ParticipantsPopup";
 import ClipBoardPopup from "./ClipBoardPopup";
 import LeaveMeetingPopup from "./LeaveMeetingPopup";
+import CreatePollPopup from "./CreatePollPopup";
+import AnswerPollPopup from "./AnswerPollPopup";
 import { MdScreenShare, MdStopScreenShare, MdOutlineContentCopy } from "react-icons/md";
 import {
 	config,
@@ -28,7 +31,11 @@ function Controls(props) {
 	const [trigger3, setTrigger3] = useState(false);
 	const [trigger4, setTrigger4] = useState(false);
 	const [trigger5, setTrigger5] = useState(false);
+	const [pollTrigger, setPollTrigger] = useState(false);
+	const [pollTrigger2, setPollTrigger2] = useState(false);
+	const [polldata, setPollData] = useState({});
 	let alertNum = "0";
+	let latest_poll = "-1";
 	const cookies = new Cookies();
 	const agora_token = cookies.get("token");
 	const agora_id = cookies.get("agora_uid")
@@ -281,6 +288,19 @@ function Controls(props) {
 						autoClose: 5000 // Time in milliseconds
 					});
 				}
+				if (response.data.is_presenter == 0 && response.data.latest_poll != latest_poll) {
+
+					latest_poll = response.data.latest_poll;
+					API.get(`get_poll/${response.data.latest_poll}/`, {
+						headers: { Authorization: `Token ${token}` }
+					}).then(response => {
+						console.log(response);
+						setPollData(response.data);
+						setPollTrigger2(true);
+					}).catch((exception) => {
+						console.log(exception);
+					});
+				}
 
 			}).catch((exception) => {
 				console.log(exception);
@@ -355,7 +375,7 @@ function Controls(props) {
 							<div><BsMicMute size={20} /><br></br>Unmute</div>}
 					</button>
 					{is_host == 1 ? <button onClick={() => { copyLink() }}><div><MdOutlineContentCopy size={20} /><br></br>Copy Link</div></button> : <></>}
-
+					{status === "presenter" ? <button onClick={() => { setPollTrigger(true); }}><div><MdOutlinePoll size={20} /><br></br>Poll</div></button> : <></>}
 					{/*
 					The following line of code will be changed.
 					For now, it directs the user to Dashboard page, but it should direct to MeetingEnding page.
@@ -366,6 +386,8 @@ function Controls(props) {
 				<ParticipantsPopup trigger={trigger} users={users} setTrigger={setTrigger}></ParticipantsPopup>
 				<ClipBoardPopup trigger2={trigger2} setTrigger2={setTrigger2}></ClipBoardPopup>
 				<LeaveMeetingPopup trigger3={trigger3} setTrigger3={setTrigger3} trigger4={trigger4} setTrigger4={setTrigger4} trigger5={trigger5} setTrigger5={setTrigger5}></LeaveMeetingPopup>
+				<CreatePollPopup trigger={pollTrigger} setTrigger={setPollTrigger}></CreatePollPopup>
+				<AnswerPollPopup trigger={pollTrigger2} setTrigger={setPollTrigger2} polldata ={polldata}></AnswerPollPopup>
 			</div>
 		</div>
 
