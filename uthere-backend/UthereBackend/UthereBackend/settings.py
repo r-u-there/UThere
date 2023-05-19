@@ -50,7 +50,7 @@ INSTALLED_APPS = [
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
-    "https://uthere-yyffjz5wna-uc.a.run.app"
+    "https://uthere-git-27-adding-ml-server-to-cloud-uthere.vercel.app"
 ]
 
 CORS_ALLOW_METHODS = [
