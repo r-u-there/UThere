@@ -160,14 +160,33 @@ function ProfilePage() {
 	}, [toggle1, toggle2, toggle3, toggle4, toggle5, toggle6]);
 
 	useEffect(() => {
-		getUserInfo();
-		getProfileSettings();
-		getNameOfAnalysisReports();
-	}, [getUserInfo, getProfileSettings, userId]);
+	  const fetchData = async () => {
+		try {
+		  await getUserInfo();
+		  await getProfileSettings();
+		  await getNameOfAnalysisReports();
+		} catch (error) {
+		  // Handle any errors that occurred during the requests
+		  console.error('An error occurred:', error);
+		}
+	  };
 
-	useEffect(() => {
-		setProfilePreferences();
-	}, [setProfilePreferences]);
+	  fetchData();
+}, [getUserInfo, getProfileSettings, getNameOfAnalysisReports, userId]);
+
+useEffect(() => {
+  const setProfilePreferencesAsync = async () => {
+    try {
+      await setProfilePreferences();
+    } catch (error) {
+      // Handle any errors that occurred during the request
+      console.error('An error occurred:', error);
+    }
+  };
+
+  setProfilePreferencesAsync();
+}, [setProfilePreferences]);
+
 
 
 	function displayProfile() {
