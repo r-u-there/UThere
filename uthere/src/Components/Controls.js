@@ -33,14 +33,14 @@ function Controls(props) {
 	const [trigger3, setTrigger3] = useState(false);
 	const [trigger4, setTrigger4] = useState(false);
 	const [trigger5, setTrigger5] = useState(false);
-<<<<<<< HEAD
+
 	const [pollTrigger, setPollTrigger] = useState(false);
 	const [pollTrigger2, setPollTrigger2] = useState(false);
 	const [polldata, setPollData] = useState({});
-=======
+
 	const [screenShareCount,setScreenShareCount] = useState(0);
 	const [screenShareUid,setScreenShareUid] = useState(-1)
->>>>>>> 6c1e0c5cd77230ef9424b1563ed03bca6f59dacf
+
 	let alertNum = "0";
 	let latest_poll = "-1";
 	const cookies = new Cookies();
@@ -211,7 +211,7 @@ function Controls(props) {
 				}
 			}
 		};
-		if (trigger3 || trigger4 || trigger5) {
+		if (trigger4 || trigger5) {
 			leaveChannel();
 		}
 	}, [trigger3, trigger4, trigger5]);

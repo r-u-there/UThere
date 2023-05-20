@@ -188,6 +188,7 @@ function ParticipantsPopup(props) {
 		setNewUsers([])
 		createNewUsers()
 	},[users])
+	
 	useEffect(() => {
 		API.get(`user/info/${userId}/`, {
 			headers: { Authorization: `Token ${token}` }

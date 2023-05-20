@@ -196,7 +196,7 @@ class RemoveAllUserMeetingViewSet(ModelViewSet):
         print(request.user)
         channel_id = request.data.get("channelId")
         print(channel_id)
-        user_meeting_all = MeetingUser.objects.filter( meeting_id=channel_id)
+        user_meeting_all = MeetingUser.objects.filter( meeting_id=channel_id).all()
         print(user_meeting_all)
         for user_meeting in user_meeting_all:
             print(user_meeting)
@@ -206,8 +206,7 @@ class RemoveAllUserMeetingViewSet(ModelViewSet):
                 user_meeting.left_time = datetime.now(tz=timezone.utc)
                 user_meeting.is_removed = True
                 user_meeting.save()
-                return Response({'status': 'user is kicked out of the meeting'})
-        return Response({'status': 'ERROR'})
+        return Response({'status': 'user is kicked out of the meeting'})
 
 
 class SetPresenterMeetingViewSet(ModelViewSet):

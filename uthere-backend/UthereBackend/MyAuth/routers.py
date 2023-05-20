@@ -53,18 +53,17 @@ routes.register(r'get_user_info', GetUserInfoViewSet, basename='get_user_info')
 routes.register(r'give_access_user', GiveAccessUserViewSet, basename='give_access_user')
 routes.register(r'get_analysis_reports_name', GetAnalysisReportsNameViewSet, basename='getanalysisreportsname')
 routes.register(r'get_specific_analysis_reports', GetSpecificAnalysisReportViewSet, basename='getspecificanalysisreportsname')
-<<<<<<< HEAD
+
 routes.register(r'create_poll', CreatePollViewSet, basename='create_poll')
 routes.register(r'get_poll', GetPollViewSet, basename='get_poll')
 routes.register(r'answer_poll', AnswerPollViewSet, basename='answer_poll')
 routes.register(r'get_latest_poll_result', GetLatestPollViewSet, basename='get_latest_poll_result')
-=======
+
 routes.register(r'is_participant_screenshare', IsParticipantScreenshareViewSet, basename='is-participant-screenshare')
 routes.register(r'count_screenshare', GetCountScreenShareViewSet, basename='get-count-screenshare')
 routes.register(r'end_screen_share', EndScreenShareViewSet, basename='end-screenshare')
 routes.register(r'is_user_left', IsUserLeftViewSet, basename='is-user-left')
 
->>>>>>> 6c1e0c5cd77230ef9424b1563ed03bca6f59dacf
 
 urlpatterns = [
     *routes.urls
