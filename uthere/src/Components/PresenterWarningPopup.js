@@ -21,7 +21,7 @@ function PresenterWarningPopup(props) {
         <div className="popup-inner-clipboard">
           <br />
           <center>
-            <h5>The attention level of participants tend to decrease. You may consider creating a poll or alert users to attract their attention.</h5>
+            <h5>The attention level of participants tends to decrease. You may consider creating a poll or alert users to attract their attention.</h5>
           </center>
         </div>
       </div>
