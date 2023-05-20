@@ -135,7 +135,14 @@ function ProfilePage() {
 	}, []);
 
 
-	const setProfilePreferences = useCallback(() => {
+
+	useEffect(() => {
+		getUserInfo();
+		getProfileSettings();
+		getNameOfAnalysisReports();
+	}, [getUserInfo, getProfileSettings, userId]);
+
+	useEffect(() => {
 		console.log("token is:",token);
 		const data = {
 		  "get_analysis_report": toggle1,
@@ -157,17 +164,7 @@ function ProfilePage() {
 			window.location = "/"
 			console.log(exception);
 		});
-	}, [toggle1, toggle2, toggle3, toggle4, toggle5, toggle6]);
-
-	useEffect(() => {
-		getUserInfo();
-		getProfileSettings();
-		getNameOfAnalysisReports();
-	}, [getUserInfo, getProfileSettings, userId]);
-
-	useEffect(() => {
-		setProfilePreferences();
-	}, [setProfilePreferences]);
+		}, [toggle1, toggle2, toggle3, toggle4, toggle5, toggle6]);
 
 
 	function displayProfile() {
