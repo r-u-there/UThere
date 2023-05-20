@@ -142,7 +142,8 @@ function ProfilePage() {
 		getNameOfAnalysisReports();
 	}, [getUserInfo, getProfileSettings, userId]);
 
-	useLayoutEffect(() => {
+
+	const handleSubmit = () => {
 		console.log("token is:",token);
 		const data = {
 		  "get_analysis_report": toggle1,
@@ -163,9 +164,7 @@ function ProfilePage() {
 			window.location = "/"
 			console.log(exception);
 		});
-		}, [toggle1, toggle2, toggle3, toggle4, toggle5, toggle6]);
-
-
+	  };
 	function displayProfile() {
 		if (tabSelection == 0) {
 			return (
@@ -252,6 +251,7 @@ function ProfilePage() {
 							<td>&emsp;&emsp;{!toggle6 ? <MdToggleOff onClick={() => {setToggle6(!toggle6); }} size={40}/> : <MdToggleOn onClick={() => {setToggle6(!toggle6); }} size={40} color="green"/>}</td>
 						</tr>
 					</table>
+					      <button onClick={handleSubmit}>Submit</button>
 				</div>
 			);
 		}
