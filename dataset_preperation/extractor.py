@@ -1,8 +1,13 @@
+import os
 import cv2
 import math
 import numpy as np
 import mediapipe as mp
 from scipy.spatial import distance as dist
+from PIL import Image
+# from torchvision import transforms
+# import torch
+from emonet.models import EmoNet
 
 def get_mediapipe_app(
     max_num_faces=1,
@@ -21,6 +26,12 @@ def get_mediapipe_app(
  
     return face_mesh
 
+# def load_model():
+#     model = EmoNet(num_modules=2, n_expression=5, n_reg=2, n_blocks=4, attention=True, temporal_smoothing=False)
+#     weights_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "emonet/emonet_5.pth")
+#     model.load_state_dict(torch.load(weights_path))
+#     model.eval()
+#     return model
 
 # Left eyes indices 
 LEFT_EYE = [362, 385, 386, 263, 374, 380]
@@ -48,7 +59,16 @@ class FeatureExtractor():
         self.frame_width = frame_width
         self.frame_height = frame_height
         self.facemesh_model = get_mediapipe_app()
+        # self.transform = transforms.Compose([transforms.Resize((256, 256)), transforms.ToTensor()])
+        # self.model = load_model()
 
+    def _adjust_frames(self, frames):
+        adjusted = []
+        for frame in frames:
+            new_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            adjusted.append(new_frame)
+        
+        return adjusted
     
     def _find_facial_landmarks(self, frame_list):
         """
@@ -206,6 +226,33 @@ class FeatureExtractor():
         # If no label is assigned, return "CENTER"
         return 1
 
+    # def _preprocess_frames(self, frames):
+    #     tensor_frames = []
+    #     for frame in frames:
+    #         img = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    #         pil_img = Image.fromarray(img)
+    #         image = self.transform(pil_img).unsqueeze(0)
+    #         tensor_frames.append(image)
+
+    #     tensor = torch.cat(tensor_frames, dim=0)
+    #     return tensor
+
+    # def _after_process(self, prediction):
+    #     expressions = torch.argmax(prediction['expression'], dim=1).numpy()
+    #     valences = prediction['valence'].numpy()
+    #     arousals = prediction['arousal'].numpy()
+    #     return expressions, valences, arousals
+
+    # def _estimate_emotion(self, frames):
+    #     """
+    #     This function estimates the emotion class, valence and arousal values in multiple frames
+    #     """
+    #     tensor = self._preprocess_frames(frames)
+        
+    #     with torch.no_grad():
+    #         prediction = self.model(tensor)
+        
+    #     return self._after_process(prediction)
     
     def get_iris_direction(self, eye_landmarks):
         left = abs(eye_landmarks[0][0] - eye_landmarks[1][0])
@@ -233,22 +280,26 @@ class FeatureExtractor():
 
         return iris_in_out_list
     
-    def extract_features(self, frames, time):
+    def extract_features(self, frames, video_name, chunk_index):
         """
         This function extract the following features from multiple frames;
-        - EAR (Eye Aspect Ratio) (1 for Open, 0 for Closed)
+        - EAR (Eye Aspect Ratio) 
         - Lip Distance (1 for Open, 0 for Closed)
-        - Face Pose 
-        - Expression (Emotion Class)
-        - Valence
-        - Arousal
+        - Face Pose (1 for in, 0 for out)
+        - Irıs pose (1 for in, 0 for out)
         """ 
-
+        # adjusted_frames = self._adjust_frames(frames)
         facial_landmark_list, right_irises_list, left_irises_list = self._find_facial_landmarks(frames)
+        # expressions, valences, arousals = self._estimate_emotion(frames)
         avg_ear_list = self._calculate_avg_ear(facial_landmark_list)
         lip_distance_list = self._calculate_lip_distance(facial_landmark_list)
         face_pose_list = self._calculate_face_pose_batch(facial_landmark_list)
         iris_in_out_list = self._calculate_iris(right_irises_list, left_irises_list)
-        results = np.column_stack((avg_ear_list, lip_distance_list, face_pose_list, iris_in_out_list))
-        return results.reshape((1, self.num_frames, 4))
+        
+        results = []
+        for i in range(self.num_frames):
+            result = {'video_name' : video_name , 'chunk_index': chunk_index, 'frame': i, 'ear': avg_ear_list[i], 'lip_distance': lip_distance_list[i], 'face_pose': face_pose_list[i], 'iris_pose': iris_in_out_list[i]}
+            results.append(result)
+
+        return results
     

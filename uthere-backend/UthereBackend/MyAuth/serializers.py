@@ -5,7 +5,7 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.settings import api_settings
 from django.contrib.auth.models import update_last_login
 from django.core.exceptions import ObjectDoesNotExist
-from .models import User, ContactForm, Profile, Settings, Meeting, MeetingUser,Presenter, AttentionEmotionScore,ScreenShare, AttentionEmotionScoreAverage
+from .models import User, ContactForm, Profile, Settings, Meeting, MeetingUser,Presenter, AttentionEmotionScore,ScreenShare, AttentionEmotionScoreAverage, Poll, Options
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -148,5 +148,19 @@ class ScreenShareSerializer(serializers.ModelSerializer):
     def create(self, instance):
         return ScreenShare.objects.create(**self.validated_data)
 
+class PollSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Poll
+        fields = ['id', 'meeting', 'creator','question_body']
 
+    def create(self, instance):
+        return Poll.objects.create(**self.validated_data)
+    
 
+class OptionsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Options
+        fields = ['id', 'poll', 'option_body','count']
+
+    def create(self, instance):
+        return Options.objects.create(**self.validated_data)

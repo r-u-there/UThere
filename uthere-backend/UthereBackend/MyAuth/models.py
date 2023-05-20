@@ -104,8 +104,6 @@ class MeetingUser(models.Model):
     is_removed = models.BooleanField(default=False)
     alert_num = models.DecimalField(max_digits=10, decimal_places=0, default=0)
     latest_poll = models.DecimalField(max_digits=10, decimal_places=0, default=-1)
-    access_report = models.BooleanField(default=False)
-    latest_poll = models.DecimalField(max_digits=10, decimal_places=0, default=-1)
 
 
 class Presenter(models.Model):

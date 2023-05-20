@@ -256,8 +256,8 @@ function VideoCall(props) {
 					if( recorder && recorder.state === "recording") {
 						recorder.stop();
 					}
-				}, 10000);
-			}, 10000);
+				}, 5000);
+			}, 5000);
 		};
 
 		if (mediaStream == null && trackState.video) {
@@ -326,7 +326,7 @@ function VideoCall(props) {
 
 		};
 		// Set the interval to check the value every 1 seconds
-		const intervalscore = setInterval(getscoreinterval, 10000);
+		const intervalscore = setInterval(getscoreinterval, 5000);
 
 		// Clean up the interval when the component unmounts
 		return () => clearInterval(intervalscore);
