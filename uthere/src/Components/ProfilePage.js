@@ -6,7 +6,7 @@ import {BiChevronRightCircle} from 'react-icons/bi'
 import {TbEdit} from 'react-icons/tb';
 import {MdToggleOff} from 'react-icons/md';
 import {MdToggleOn} from 'react-icons/md';
-import {useState, useEffect, useCallback} from "react";
+import {useState, useEffect, useCallback, useLayoutEffect} from "react";
 import EditProfilePopup from "./EditProfilePopup";
 import {Cookies} from "react-cookie";
 import * as ReactBootStrap from "react-bootstrap"
@@ -142,7 +142,7 @@ function ProfilePage() {
 		getNameOfAnalysisReports();
 	}, [getUserInfo, getProfileSettings, userId]);
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		console.log("token is:",token);
 		const data = {
 		  "get_analysis_report": toggle1,
