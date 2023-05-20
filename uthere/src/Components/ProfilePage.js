@@ -167,7 +167,7 @@ function ProfilePage() {
 
 	useEffect(() => {
 		setProfilePreferences();
-	}, [toggle1, toggle2, toggle3, toggle4, toggle5, toggle6]);
+	}, [setProfilePreferences]);
 
 
 	function displayProfile() {
