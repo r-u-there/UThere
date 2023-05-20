@@ -10,6 +10,8 @@ import {Cookies} from "react-cookie";
 import AttentionAnalysisPopup from "./AttentionAnalysisPopup";
 import PresenterWarningPopup from "./PresenterWarningPopup";
 import API from "./API";
+import axios from 'axios';
+
 
 
 function VideoCall(props) {
@@ -243,10 +245,11 @@ function VideoCall(props) {
 					console.log(formData);
 					fetch('https://uthere-yyffjz5wna-uc.a.run.app/upload-video/', {
 					method: 'POST',
-					body: formData,
-					headers: {
-						Accept: 'application/json',
-					},
+							body: formData,
+							headers: {
+								Accept: 'application/json',
+								'X-CSRFToken': axios.defaults.xsrfCookieName, //
+							},
 					});
 				};
 				setIntervalId(interval)
