@@ -256,14 +256,17 @@ body {
 
 .popup-clipboard {
 	position: fixed;
-  top: 230px;
-  right: 240px;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(0, 0, 0, 0.5);
+	display: flex;
+	align-items: center;
+	justify-content: center
+
 }
+
 .popup-inner-clipboard {
 	position: relative;
 	padding: 10px;
@@ -273,17 +276,7 @@ body {
 	display: flex;
 }
 
-.popup-inner-clipboard::after {
-	content: "";
-	position: absolute;
-	left: 50%;
-	bottom: -10px;
-	transform: translateX(-50%);
-	border-style: solid;
-	border-width: 10px 10px 0 10px;
-	border-color: #FFF transparent transparent transparent;
-	z-index: 9999;
-  }
+
 .popup-inner-clipboard h5 {
 	position: relative;
 	display: inline-block;
@@ -329,26 +322,26 @@ body {
 .popup-participants {
 	position: fixed;
 	top: 0;
-	right: 0;
+	left: 0;
 	width: 100%;
 	height: 100%;
 	display: flex;
 	align-items: center;
-	justify-content: flex-end;
+	justify-content: center;
 	z-index: 100;
 }
 
 .popup-inner-participants {
 	position: relative;
 	width: 60%;
-	max-width: 600px;
-	max-height: 65%;
+	max-width: 330px;
+	max-height: 40%;
 	border-radius: 15px;
 	background-color: #f5f5f5;
 	box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3);
 	overflow: auto;
 	padding: 10px;
-	font-size: 1rem;
+	font-size: 0.9rem;
 }
 
 .popup-close2 {
@@ -379,7 +372,7 @@ body {
 
 .popup-inner-participants th,
 .popup-inner-participants td {
-	padding: 10px;
+	padding: 5px;
 	border: 1px solid #ddd;
 	text-align: left;
 }
@@ -396,11 +389,10 @@ body {
 	background-color: #f8931f;
 	color: #fff;
 	border: none;
-	padding: 5px 8px;
-	border-radius: 10px;
-	font-size: 1rem;
+	padding: 1px 1px;
+	border-radius: 4px;
+	font-size: 0.9rem;
 	cursor: pointer;
-	margin-left: 10px;
 	transition: background-color 0.2s ease-in-out;
 }
 
@@ -416,13 +408,15 @@ body {
 
 .popup2 {
 	position: fixed;
-	top: 200px;
-	right: 10px;
+	top: 0;
+	left: 0;
 	width: 100%;
 	height: 100%;
+	background-color: rgba(0, 0, 0, 0.5);
 	display: flex;
 	align-items: center;
-	justify-content: flex-end;
+	justify-content: center;
+	
 }
 
 .popup-inner2 {
@@ -437,6 +431,8 @@ body {
 	padding: 20px;
 	font-size: 0.7rem;
 }
+
+
 .popup-inner2 h2 {
 	font-size: 1.2rem;
 	color: #4d4d4d;
@@ -677,12 +673,12 @@ z-index: 5;
 
   .vid2 {
 	position: absolute;
-  top: 0;
+  top: 20%;
   right: 10px;
   width: 62%;
   height: 68%;
   background-color: black;
-  transform: scale(0.7);
+  transform: scale(0.5);
   transform-origin: top right;
   }
   
@@ -815,3 +811,43 @@ z-index: 5;
 	padding: 20px;
 	font-size: 1.1rem;
 }
+
+.popup-poll {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(0, 0, 0, 0.5);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.popup-poll-inner {
+	position: relative;
+	width: 26%;
+	max-width: 600px;
+	max-height: 80%;
+	border-radius: 15px;
+	background-color: #FFF;
+	box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3);
+	overflow: auto;
+	padding: 20px;
+	font-size: 1.1rem;
+}
+
+.popup-poll-inner button {
+	background-color: orange;
+	color: #f8fff9;
+	border: none;
+	padding: 5px 8px;
+	border-radius: 5px;
+	font-size: 1rem;
+	cursor: pointer;
+  }
+  
+  .popup-poll-inner button:hover {
+	background-color: orange;
+  }
+  

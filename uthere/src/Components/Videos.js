@@ -2,6 +2,7 @@ import { AgoraVideoPlayer } from "agora-rtc-react";
 import React, {useEffect, useState} from 'react';
 import {Cookies} from "react-cookie";
 import API from "./API";
+import { toast } from 'react-toastify';
 
 function Videos(props) {
 	const users = props.users;
@@ -152,7 +153,6 @@ function Videos(props) {
 								return (
 									<div>
 										<AgoraVideoPlayer className="vid2" id = "play" videoTrack={video} key={uid}/>
-										
 									</div>
 								);	
 							}

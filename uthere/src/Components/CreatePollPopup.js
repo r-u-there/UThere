@@ -8,7 +8,7 @@ const token = localStorage.getItem('token');
 function CreatePollPopup(props) {
     const cookies = new Cookies();
     const user = cookies.get("userId");
-	const meeting = cookies.get("channel_id");
+    const meeting = cookies.get("channel_id");
     const [question, setQuestion] = useState('');
     const [option1, setOption1] = useState('');
     const [option2, setOption2] = useState('');
@@ -16,23 +16,24 @@ function CreatePollPopup(props) {
     const [buttonText, setButtonText] = useState('Share Poll');
     const [pollResult, setPollResult] = useState(null);
     const [chartOptions, setChartOptions] = useState(null);
+    const [tabSelection, setTabSelection] = useState(0);
 
     const handleQuestionChange = (e) => {
-      setQuestion(e.target.value);
+        setQuestion(e.target.value);
     };
-  
+
     const handleOption1Change = (e) => {
-      setOption1(e.target.value);
+        setOption1(e.target.value);
     };
-  
+
     const handleOption2Change = (e) => {
-      setOption2(e.target.value);
+        setOption2(e.target.value);
     };
-  
+
     const handleOption3Change = (e) => {
-      setOption3(e.target.value);
+        setOption3(e.target.value);
     };
-  
+
     const handleSubmit = (e) => {
         e.preventDefault();
         setButtonText('Shared!');
@@ -42,111 +43,121 @@ function CreatePollPopup(props) {
             question,
             options: [option1, option2, option3],
         };
-        
-            API.post(`create_poll/`, JSON.stringify(request_data) , { headers: { Authorization: `Token ${token}` } }).then(response => {
-                console.log(response);
-                props.setTrigger(false);
-            }).catch((exception) => {
-                console.log(exception);
-            });
-    
+
+        API.post(`create_poll/`, JSON.stringify(request_data), { headers: { Authorization: `Token ${token}` } }).then(response => {
+            console.log(response);
+            props.setTrigger(false);
+        }).catch((exception) => {
+            console.log(exception);
+        });
+
     };
 
     useEffect(() => {
         const interval = setInterval(() => {
-          API.get(`get_latest_poll_result/${meeting}/`, { headers: { Authorization: `Token ${token}` } })
-            .then(response => {
-                if(response.status != 404){
-                    setPollResult(response.data.poll_results);
-                    setChartOptions({
-                        title: response.data.question_body,
-                        is3D: true,
-                    });
-                }
-            })
-            .catch((exception) => {
-              console.log(exception);
-            });
+            API.get(`get_latest_poll_result/${meeting}/`, { headers: { Authorization: `Token ${token}` } })
+                .then(response => {
+                    if (response.status != 404) {
+                        setPollResult(response.data.poll_results);
+                        setChartOptions({
+                            title: response.data.question_body,
+                            is3D: true,
+                        });
+                    }
+                })
+                .catch((exception) => {
+                    console.log(exception);
+                });
         }, 3000);
-    
-        return () => {
-          clearInterval(interval);
-        };
-      }, []);
 
-	function insidePopup() {
-		return (
-			<div className="popup">
-				<div className="popup-inner">
-                    <div class="two-side">
-                    <button type="button" onClick={() => props.setTrigger(false)} className="close popup-close3" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        return () => {
+            clearInterval(interval);
+        };
+    }, []);
+
+    function displayProfile() {
+        if (tabSelection == 0) {
+            return (
+                <div>
                     <form onSubmit={handleSubmit}>
+                        <br></br>
                         <center>
-                            <h2>Create Poll</h2><br></br>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">Question:</span>
+                                </div>
+                                <textarea value={question} onChange={handleQuestionChange} type="text" class="form-control" placeholder="Please type the poll question." />
+                            </div>
+                            <div class="input-group mt-3">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">Option 1:</span>
+                                </div>
+                                <input value={option1} onChange={handleOption1Change} type="text" class="form-control" placeholder="Please type the first option." />
+                            </div>
+                            <div class="input-group mt-3">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">Option 2:</span>
+                                </div>
+                                <input value={option2} onChange={handleOption2Change} type="text" class="form-control" placeholder="Please type the second option." />
+                            </div>
+                            <div class="input-group mt-3">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">Option 3:</span>
+                                </div>
+                                <input value={option3} onChange={handleOption3Change} type="text" class="form-control" placeholder="Please type the third option." />
+                            </div>
                         </center>
-                        <div className="form-group">
-                        <label htmlFor="question">Question:</label>
-                        <input
-                            type="text"
-                            id="question"
-                            value={question}
-                            onChange={handleQuestionChange}
-                        />
-                        </div>
-                        <div className="form-group">
-                        <label htmlFor="option1">Option 1:</label>
-                        <input
-                            type="text"
-                            id="option1"
-                            value={option1}
-                            onChange={handleOption1Change}
-                        />
-                        </div>
-                        <div className="form-group">
-                        <label htmlFor="option2">Option 2:</label>
-                        <input
-                            type="text"
-                            id="option2"
-                            value={option2}
-                            onChange={handleOption2Change}
-                        />
-                        </div>
-                        <div className="form-group">
-                        <label htmlFor="option3">Option 3:</label>
-                        <input
-                            type="text"
-                            id="option3"
-                            value={option3}
-                            onChange={handleOption3Change}
-                        />
-                        </div>
                         <center>
-                            <button id="sharePoll" type="submit" >{buttonText}</button>
+                            <button type="submit" className="mt-3">{buttonText}</button>
                         </center>
                     </form>
+                </div>
+            );
+        }
+        else if (tabSelection == 1) {
+            return (
+                <div>
+                    <br></br>
+                    {pollResult !== null ? <Chart
+                        chartType="PieChart"
+                        data={pollResult}
+                        options={chartOptions}
+                        width={"100%"}
+                        height={"300px"}
+                    /> : <p>You didn't create any poll yet.</p>}
+                </div>
+            );
+        }
+    }
+
+    function insidePopup() {
+        return (
+            <div className="popup-poll">
+                <div className="popup-poll-inner">
                     <div>
-                        <center>
-                            <h2>Latest Poll Result</h2><br></br>
-                        </center>
-                        {pollResult !== null ? <Chart
-                                                chartType="PieChart"
-                                                data={pollResult}
-                                                options={chartOptions}
-                                                width={"100%"}
-                                                height={"300px"}
-                                                />:<p>You didn't create any poll yet.</p>}
+                        <button type="button" onClick={() => props.setTrigger(false)} className="close popup-close3" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <div>
+                        <ul className="nav nav-tabs">
+                            <li className="nav-item">
+                                <a className="nav-link active" data-toggle="tab" href="" onClick={() => { setTabSelection(0) }}>Create Poll</a>
+                            </li>
+                            <li className="nav-item">
+                                <a className="nav-link" data-toggle="tab" href="" onClick={() => setTabSelection(1)}>Latest Poll Result</a>
+                            </li>
+                        </ul>
+                        {displayProfile()}
+                        </div>
                     </div>
-                    </div>
-				</div>
-			</div>
-		)
-	}
-	
-	return (
-		<div>
-			{props.trigger === true ? insidePopup() : null}
-		</div>
-	);
+                </div>
+            </div>
+        )
+    }
+
+    return (
+        <div>
+            {props.trigger === true ? insidePopup() : null}
+        </div>
+    );
 }
 
 export default CreatePollPopup;

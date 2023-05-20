@@ -316,6 +316,7 @@ function Controls(props) {
 
 	}, []);
 	const handleScreenShare = async () => {
+		
 		if (isSharingEnabled) {
 
 			if (channelParameters.screenTrack) {
