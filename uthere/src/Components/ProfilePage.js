@@ -157,7 +157,6 @@ function ProfilePage() {
 		  headers: {
 			'Authorization': `Token ${token}`
 		  },
-			method: 'PUT'
 		}).then(response => {
 			setLoading(true);
 		}).catch((exception) => {
