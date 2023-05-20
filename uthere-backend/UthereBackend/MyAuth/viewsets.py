@@ -535,6 +535,25 @@ class GetMeetingUserInfoViewSet(ModelViewSet):
         user_meeting = user_meeting_queryset.first()
         serializer = MeetingUserSerializer(user_meeting)
         return Response(serializer.data)
+    
+class IsUserLeftViewSet(ModelViewSet):
+    serializer_class = MeetingUserSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    http_method_names = ['put']
+    queryset = MeetingUser.objects.all()
+
+    def put(self, request, *args, **kwargs):
+        channel_id = request.data.get("channelId")
+        agora_id = request.data.get("agora_id")
+        user_meeting_queryset = MeetingUser.objects.filter(meeting_id=channel_id,agora_id=agora_id)
+        if not user_meeting_queryset.exists():
+            return Response({'status': 'MeetingUser not found'})
+        user_meeting = user_meeting_queryset.first()
+        if user_meeting.left_time is None:
+            return Response({'status': False})
+        return Response({'status': True})
+
 
 
 class GetAttentionEmotionScoreViewSet(ModelViewSet):

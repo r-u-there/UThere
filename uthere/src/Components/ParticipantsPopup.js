@@ -23,15 +23,26 @@ function ParticipantsPopup(props) {
 	const token = localStorage.getItem('token');
 	const presenter_id = cookies.get("presenter_id")
 
+	async function createNewUsers(){
+		users.map(async (user) => {
+			const response_screenshare = await API.put(`is_participant_screenshare/`, {
+				"agoraId": user.uid,
+				"channelId": channelId
+			}, { headers: { Authorization: `Token ${token}` } });
+			if(!response_screenshare.data.status){
+				setNewUsers(new_users => [...new_users, user])
+			}
+		})
+	}
+
 	async function getMeetingUser(arg) {
 		try {
 			const response_screenshare = await API.put(`is_participant_screenshare/`, {
 				"agoraId": arg,
 				"channelId": channelId
 			}, { headers: { Authorization: `Token ${token}` } });
-			console.log(response_screenshare)
 			if(!response_screenshare.data.status){
-				
+				console.log(arg + " is not screenshare")
 				const response = await API.get(`get_meeting_participant/${arg}/`, {
 					headers: { Authorization: `Token ${token}` }
 				});
@@ -40,16 +51,11 @@ function ParticipantsPopup(props) {
 				let participant_is_host = response.data.is_host;
 				setIsParticipantPresenter(participant_is_presenter);
 				setIsParticipantHost(participant_is_host);
-				console.log(response)
-				console.log(participant_user_id)
 				API.get(`participant_user_info/${participant_user_id}/`, {
 					headers: { Authorization: `Token ${token}` }
 				}).then(response => {
-					console.log(participant_user_id)
-					console.log(response)
 					let name = response.data.username;
 					setparticipantUserId(participant_user_id)
-					console.log(participantUserId)
 					if (participant_is_host == 1 && participant_is_presenter == 1) {
 						name = name + " (Host)(Presenter)";
 					}
@@ -179,6 +185,10 @@ function ParticipantsPopup(props) {
 		setsetButton(false)
 	}
 	useEffect(() => {
+		setNewUsers([])
+		createNewUsers()
+	},[users])
+	useEffect(() => {
 		API.get(`user/info/${userId}/`, {
 			headers: { Authorization: `Token ${token}` }
 		}).then(response => {
@@ -221,12 +231,8 @@ function ParticipantsPopup(props) {
 									<td>---</td>
 								</tr>
 
-								{users.map((user) => {
+								{new_users.map((user) => {
 									    getMeetingUser(user.uid);
-										console.log("return val" + screenshare)
-										if(participantName === "Screen Share"){
-											return <></>
-										}else{
 											return <tr>
 											<td>{participantName}</td>
 											{is_host == 1 ? <td><button id={user.uid + "-remove"} onClick={() => removeUser(user.uid)}>Remove</button></td> : <td>---</td>}
@@ -234,8 +240,9 @@ function ParticipantsPopup(props) {
 												<td><button id={user.uid + "-set"} onClick={() => setPresenter(user.uid)}>Set Presenter</button></td> : <td>---</td>}
 											{status === "presenter" && !isParticipantPresenter ? <td><button onClick={() => alertUser(user.uid)}>Alert</button></td> : <td>---</td>}
 										</tr>
-										}
-								})}
+									
+
+								})} 
 							</table>
 							<button type="button" onClick={() => { setTrigger(false) }} className="close popup-close2" aria-label="Close"><span aria-hidden="true">&times;</span></button>
 						</center>

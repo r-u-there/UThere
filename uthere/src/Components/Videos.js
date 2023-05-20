@@ -90,7 +90,16 @@ function Videos(props) {
 					if (!isScreenShare) {
 						const participantName = await getMeetingUser(user.uid);
 						console.log(user);
-						newData.push({ uid: user.uid, participantName: participantName, isScreenShare: false });
+						//api to check left or not
+						const response = await API.put(`is_user_left/`, {
+							"channelId": channelId,
+							"agora_id": user.uid
+						}, {
+							headers: { Authorization: `Token ${token}` }
+						});
+						if(!response.data.status){
+							newData.push({ uid: user.uid, participantName: participantName, isScreenShare: false });
+						}
 	
 					} else {
 						newData.push({ uid: user.uid, participantName: "ScreenShare", isScreenShare:true});
