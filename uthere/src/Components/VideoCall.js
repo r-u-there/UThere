@@ -13,7 +13,6 @@ import API from "./API";
 import axios from 'axios';
 
 
-
 function VideoCall(props) {
 	const ready = props.ready;
 	const tracks = props.tracks;
@@ -263,6 +262,9 @@ function VideoCall(props) {
 						recorder.stop();
 					}
 				}, 5000);
+				if(!cookies.hasOwnProperty('channelId')){
+					stopMediaStream();
+				}
 			}, 5000);
 		};
 
