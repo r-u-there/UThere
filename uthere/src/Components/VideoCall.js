@@ -323,7 +323,7 @@ function VideoCall(props) {
 					console.log("min attention limit for presenter is " + attentionLimitToCompare)
 					console.log("actual attention limit " + averageScore)
 					//post average score to the database
-					if (averageScore <= attentionLimitToCompare) {
+					if (averageScore <= attentionLimitToCompare && status === "presenter" && !hideRealTimeAnalysis) {
 						toast("The attention level of participants tends to decrease. You may consider creating a poll or alert users to attract their attention.", {
 							position: toast.POSITION.TOP_RIGHT,
 							autoClose: 5000 // Time in milliseconds

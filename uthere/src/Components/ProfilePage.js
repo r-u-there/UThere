@@ -11,6 +11,8 @@ import EditProfilePopup from "./EditProfilePopup";
 import {Cookies} from "react-cookie";
 import * as ReactBootStrap from "react-bootstrap"
 import { saveAs } from 'file-saver';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import API from "./API";
 
 function ProfilePage() {
@@ -161,10 +163,10 @@ function ProfilePage() {
     }).then(response => {
       setLoading(true);
       // Display the alert using Bootstrap styles
-      const alertDiv = document.createElement('div');
-      alertDiv.className = 'alert alert-success';
-      alertDiv.innerHTML = 'Info has been saved!';
-      document.body.appendChild(alertDiv);
+      toast("Meeting preferences has been saved!", {
+		position: toast.POSITION.TOP_CENTER,
+		autoClose: 5000 // Time in milliseconds
+	});
 
       // Hide the alert after 3 seconds
       setTimeout(() => {
