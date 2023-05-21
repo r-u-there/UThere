@@ -45,7 +45,8 @@ from reportlab.graphics.charts.piecharts import Pie
 from django.db import IntegrityError
 from django.contrib.auth.hashers import check_password
 from django.db import transaction
-
+import math
+import os
 
 class UserViewSet(viewsets.ModelViewSet):
     http_method_names = ['get']
@@ -196,7 +197,7 @@ class RemoveAllUserMeetingViewSet(ModelViewSet):
         print(request.user)
         channel_id = request.data.get("channelId")
         print(channel_id)
-        user_meeting_all = MeetingUser.objects.filter( meeting_id=channel_id)
+        user_meeting_all = MeetingUser.objects.filter( meeting_id=channel_id).all()
         print(user_meeting_all)
         for user_meeting in user_meeting_all:
             print(user_meeting)
@@ -206,8 +207,7 @@ class RemoveAllUserMeetingViewSet(ModelViewSet):
                 user_meeting.left_time = datetime.now(tz=timezone.utc)
                 user_meeting.is_removed = True
                 user_meeting.save()
-                return Response({'status': 'user is kicked out of the meeting'})
-        return Response({'status': 'ERROR'})
+        return Response({'status': 'user is kicked out of the meeting'})
 
 
 class SetPresenterMeetingViewSet(ModelViewSet):
@@ -535,6 +535,25 @@ class GetMeetingUserInfoViewSet(ModelViewSet):
         user_meeting = user_meeting_queryset.first()
         serializer = MeetingUserSerializer(user_meeting)
         return Response(serializer.data)
+    
+class IsUserLeftViewSet(ModelViewSet):
+    serializer_class = MeetingUserSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    http_method_names = ['put']
+    queryset = MeetingUser.objects.all()
+
+    def put(self, request, *args, **kwargs):
+        channel_id = request.data.get("channelId")
+        agora_id = request.data.get("agora_id")
+        user_meeting_queryset = MeetingUser.objects.filter(meeting_id=channel_id,agora_id=agora_id)
+        if not user_meeting_queryset.exists():
+            return Response({'status': 'MeetingUser not found'})
+        user_meeting = user_meeting_queryset.first()
+        if user_meeting.left_time is None:
+            return Response({'status': False})
+        return Response({'status': True})
+
 
 
 class GetAttentionEmotionScoreViewSet(ModelViewSet):
@@ -549,12 +568,21 @@ class GetAttentionEmotionScoreViewSet(ModelViewSet):
         time = request.data.get("time")
         time_curr = datetime.strptime(time,'%Y-%m-%dT%H:%M:%S.%fZ')
         one_minute_before = time_curr - timedelta(seconds=20)
+
         queryset = AttentionEmotionScore.objects.filter( meeting_id=meeting_id, time__gte=one_minute_before)
         if not queryset.exists():
             return Response({'status': 'Attention score not found'})
+        
+        for score in queryset:
+            user_id = score.user_id
+            user_meeting_queryset = MeetingUser.objects.filter(user_id=user_id, meeting_id=meeting_id)
+            if user_meeting_queryset.get().is_host or user_meeting_queryset.get().is_presenter:
+                score.delete()
         attention_score = queryset.all()
         total = sum(at_score.attention_score for at_score in attention_score)
-        avg_attention_score = total / len(attention_score)
+        avg_attention_score = 0
+        if len(attention_score) != 0:
+            avg_attention_score = total / len(attention_score)
         
         # Create and save the AttentionEmotionScoreAverage instance
         with transaction.atomic():
@@ -606,6 +634,77 @@ class GetScreenShareViewSet(ModelViewSet):
             return Response({'status':'Not Screenshare'})
         screenshare_row = queryset.first()
         serializer = ScreenShareSerializer(screenshare_row)
+        return Response(serializer.data)
+
+class EndScreenShareViewSet(ModelViewSet):
+    serializer_class = ScreenShareSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    http_method_names = ['put']
+    queryset = ScreenShare.objects.all()
+
+    def put(self, request, *args, **kwargs):
+        user_id = request.data.get("userId")
+        channel_id = request.data.get("channelId")
+        agora_id = request.data.get("agoraToken")
+        print(agora_id)
+        queryset = ScreenShare.objects.filter( meeting_id=channel_id, agora_id = agora_id, user_id=user_id, end_time__isnull=True)
+        if not queryset.exists():
+            return Response({'status':'Not Ended Screenshare'})
+        screenshare_row = queryset.first()
+        screenshare_row.end_time = datetime.now()
+        screenshare_row.save()
+        return Response({'status':'Ended Screenshare'})
+    
+class EndMeetingViewSet(ModelViewSet):
+    serializer_class = MeetingSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    http_method_names = ['put']
+    queryset = Meeting.objects.all()
+
+    def put(self, request, *args, **kwargs):
+        channel_id = request.data.get("channelId")
+        queryset = Meeting.objects.filter( id=channel_id, end_time__isnull=True)
+        if not queryset.exists():
+            return Response({'status':'Not Found Meeting'})
+        meeting_row = queryset.first()
+        meeting_row.end_time = datetime.now()
+        meeting_row.save()
+        return Response({'status':'Meeting Ended'})
+    
+class GetCountScreenShareViewSet(ModelViewSet):
+    serializer_class = ScreenShareSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    http_method_names = ['put']
+    queryset = ScreenShare.objects.all()
+
+    def put(self, request, *args, **kwargs):
+        channel_id = request.data.get("channelId")
+        queryset = ScreenShare.objects.filter( meeting_id=channel_id, end_time__isnull=True )
+        if not queryset.exists():
+            return Response(0)
+        screenshare_row = queryset.all()
+        return Response(len(screenshare_row))
+
+class IsParticipantScreenshareViewSet(ModelViewSet):
+    serializer_class = ScreenShareSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    http_method_names = ['put']
+    queryset = ScreenShare.objects.all()
+
+    def put(self, request, *args, **kwargs):
+        channel_id = request.data.get("channelId")
+        agora_id = request.data.get("agoraId")
+        print(agora_id)
+        print(channel_id)
+        queryset = ScreenShare.objects.filter( meeting_id=channel_id, agora_id = agora_id)
+        if queryset.exists():
+            return Response({'status': True})
+        else:
+            return Response({'status': False})
         return Response(serializer.data)
 
 
@@ -810,62 +909,103 @@ class GetSpecificAnalysisReportViewSet(ModelViewSet):
         user_id = request.data.get("userId")
         channel_id = request.data.get("channelId")
         agora_id = request.data.get("agora_id")
-        print(user_id)
-        print(channel_id)
-        print(agora_id)
         user_meeting = MeetingUser.objects.get(id=meeting_user_id,user_id=user_id, meeting_id=channel_id,agora_id=agora_id)
         if user_meeting is not None:
             #create report
             #get meeting info
             meeting =  Meeting.objects.filter(id=channel_id)
-            #find the host of the meeting
+            #find the host of the meeting, presenter and other participants
             host_query = MeetingUser.objects.filter(meeting_id=channel_id,is_host=True)
+            participants_query = MeetingUser.objects.filter(meeting_id=channel_id,is_host=False)
             user_info_host = User.objects.filter(id=host_query.first().user_id)
             presenters = Presenter.objects.filter(meeting_id=channel_id)
+            #find all polls in this meeting
+            polls = Poll.objects.filter(meeting_id=channel_id)
+            poll_questions =[]
+            poll_options_and_counts=[]
+            for poll in polls:
+                poll_questions.append(poll.question_body)
+                #for this question find options and counts
+                poll_options ={}
+                poll_options_query = Options.objects.filter(poll_id=poll.id)
+                for option in poll_options_query:
+                    poll_options[option.option_body]=option.count
+                poll_options_and_counts.append(poll_options)
+
             presenter_names=[]
             presenter_emails=[]
+            presenter_start_times=[]
+            presenter_end_times=[]
             for presenter in presenters:
                 user_info_presenters=  User.objects.filter(id=presenter.user_id)
                 presenter_names.append(user_info_presenters.get().username)
                 presenter_emails.append(user_info_presenters.get().email)
+                presenter_start_times.append(presenter.start_time)
+                presenter_end_times.append(presenter.end_time)
+            #get participant related information
+            participant_names=[]
+            participant_emails=[]
+            participant_join_times=[]
+            participant_left_times=[]
+            participant_alert_nums =[]
+            for participant in participants_query:
+                user_info_participants=  User.objects.filter(id=participant.user_id)
+                participant_names.append(user_info_participants.get().username)
+                participant_emails.append(user_info_participants.get().email)
+                participant_join_times.append(participant.join_time)
+                participant_left_times.append(participant.left_time)
+                participant_alert_nums.append(participant.alert_num)
             #get total average attention and emotion score
             emotions =[0,0,0,0,0,0,0]
             emotion_name = ['Sad','Angry','Surprise','Fear','Happy','Disgust','Neutral']
             total_avg_attention = AttentionEmotionScore.objects.filter(meeting_id=channel_id)
             points_for_attention_graph = AttentionEmotionScoreAverage.objects.filter(meeting_id=channel_id)
-            total = 0
-            attention_graph_points = []
-            attention_graph_points_average = []
-            for attention in total_avg_attention:
-                total = total + attention.attention_score
-                emotions[attention.emotion] = emotions[attention.emotion] +1
-                point = {'attention_score': attention.attention_score, 'time': attention.time}
-                attention_graph_points.append(point)
-            for points in points_for_attention_graph:
-                point ={'attention_score':points.avg_attention_score,'time_start':points.time_start,'time_end':points.time_end}
-                attention_graph_points_average.append(point)
-            max_index = emotions.index(max(emotions))
-            attention_graph_points = sorted(attention_graph_points, key=lambda point: point['time'])
-            attention_graph_points_average = sorted(attention_graph_points_average, key=lambda point: point['time_start'])
-            print(attention_graph_points_average)
-            average_attention=0
-            avg_emotion='Not available'
-            if len(total_avg_attention) != 0: 
-                average_attention = total /len(total_avg_attention)
-                avg_emotion = emotion_name[max_index]
-                   
-            avg_attention= average_attention * 100/3
-            #find total average emotion score
+            show_atttention_anlaysis= True
+            if len(total_avg_attention)==0 or len(points_for_attention_graph) == 0:
+                show_atttention_anlaysis =False
+            elif total_avg_attention and points_for_attention_graph is not None:
+                total = 0
+                attention_graph_points = []
+                attention_graph_points_average = []
+                for attention in total_avg_attention:
+                    total = total + attention.attention_score
+                    emotions[attention.emotion] = emotions[attention.emotion] +1
+                    point = {'attention_score': attention.attention_score, 'time': attention.time}
+                    attention_graph_points.append(point)
+                for points in points_for_attention_graph:
+                    point ={'attention_score':points.avg_attention_score,'time_start':points.time_start,'time_end':points.time_end}
+                    attention_graph_points_average.append(point)
+                max_index = emotions.index(max(emotions))
+                attention_graph_points = sorted(attention_graph_points, key=lambda point: point['time'])
+                attention_graph_points_average = sorted(attention_graph_points_average, key=lambda point: point['time_start'])
+                average_attention=0
+                avg_emotion='Not available'
+                if len(total_avg_attention) != 0: 
+                    average_attention = total /len(total_avg_attention)
+                    avg_emotion = emotion_name[max_index]
+                    
+                avg_attention= average_attention * 100/3
+                #find total average emotion score
 
-            if len(total_avg_attention) != 0: 
-                average_attention = total /len(total_avg_attention)
-                avg_emotion = emotion_name[max_index]
-                   
-            avg_attention= average_attention * 100/3
-            meeting_report = {'start_time':meeting.first().start_time, 'end_time':meeting.first().end_time,'join_time': user_meeting.join_time,
-                                  'user_left_time':user_meeting.left_time, 'host_username':user_info_host.get().username, 'host_email':user_info_host.get().email,
-                                   'presenter_names': presenter_names, 'presenter_emails': presenter_emails,'average_attention':avg_attention, 'average_emotion': avg_emotion,
-                                    'attention_graph_points':attention_graph_points,'attention_graph_points_average':attention_graph_points_average,'emotions':emotions}
+                if len(total_avg_attention) != 0: 
+                    average_attention = total /len(total_avg_attention)
+                    avg_emotion = emotion_name[max_index]
+                    
+                avg_attention= average_attention * 100/3
+            if show_atttention_anlaysis:
+                meeting_report = {'start_time':meeting.first().start_time, 'end_time':meeting.first().end_time,'join_time': user_meeting.join_time,
+                                    'user_left_time':user_meeting.left_time, 'host_username':user_info_host.get().username, 'host_email':user_info_host.get().email,
+                                    'presenter_names': presenter_names, 'presenter_emails': presenter_emails,'average_attention':avg_attention, 'average_emotion': avg_emotion,
+                                        'attention_graph_points':attention_graph_points,'attention_graph_points_average':attention_graph_points_average,'emotions':emotions, 'presenter_start_times':presenter_start_times,
+                                            'presenter_end_times':presenter_end_times, 'participant_names':participant_names,'participant_emails':participant_emails,'participant_join_times':participant_join_times,'participant_left_times':participant_left_times,'participant_alert_nums':participant_alert_nums,
+                                                'poll_questions':poll_questions,'poll_options_and_counts':poll_options_and_counts}
+            else:
+                meeting_report = {'start_time':meeting.first().start_time, 'end_time':meeting.first().end_time,'join_time': user_meeting.join_time,
+                                    'user_left_time':user_meeting.left_time, 'host_username':user_info_host.get().username, 'host_email':user_info_host.get().email,
+                                    'presenter_names': presenter_names, 'presenter_emails': presenter_emails, 'presenter_start_times':presenter_start_times,'presenter_end_times':presenter_end_times,
+                                    'participant_names':participant_names,'participant_emails':participant_emails,'participant_join_times':participant_join_times,'participant_left_times':participant_left_times,'participant_alert_nums':participant_alert_nums,
+                                        'poll_questions':poll_questions,'poll_options_and_counts':poll_options_and_counts}
+
             #find total average emotion score
             # create a new PDF file
             response = HttpResponse(content_type='application/pdf')
@@ -874,114 +1014,266 @@ class GetSpecificAnalysisReportViewSet(ModelViewSet):
             # create a new PDF document with ReportLab
             # write the reports to the PDF file
             y = 750
-            pdf.setFont("Helvetica", 14)
+            script_path = os.path.abspath(__file__)
+
+            # Get the directory path of the script
+            script_directory = os.path.dirname(script_path)
+
+            # Image filename
+            image_filename = "UThereIcon.png"
+
+            # Create the image path
+            image_path = os.path.join(script_directory, image_filename)
+            width = 50  # Width of the image
+            height = 50  # Height of the image
+            pdf.drawImage(image_path, 100, y, width, height)
+            y -= 30
+            pdf.setFont("Helvetica-Bold", 14)
             pdf.drawString(100, y, f"General Meeting Information")
             y -= 20
 
             start_time = meeting_report['start_time']
+            pdf.setFont("Helvetica-Bold", 12)
+            new_date_format = "%d-%m-%Y %H:%M:%S"
+            formatted_start_time = start_time.strftime(new_date_format)
+            pdf.drawString(100, y, f"Meeting start time: ")
             pdf.setFont("Helvetica", 12)
-            pdf.drawString(100, y, f"Meeting start time: {start_time}")
+            pdf.drawString(100 + pdf.stringWidth("Meeting start time:   "), y, formatted_start_time)
             y -= 20
 
             end_time = meeting_report['end_time']
-            pdf.drawString(100, y, f"Meeting end time: {end_time}")
+            pdf.setFont("Helvetica-Bold", 12)
+            formatted_end_time = end_time.strftime(new_date_format)
+            pdf.drawString(100, y, f"Meeting end time: ")
+            pdf.setFont("Helvetica", 12)
+            pdf.drawString(100 + pdf.stringWidth("Meeting end time:   "), y, formatted_start_time)
             y -= 20
 
             host_user_name = meeting_report['host_username']
             host_email = meeting_report['host_email']
-            pdf.drawString(100, y, f"Host of the meeting (name): {host_user_name}, (email): {host_email}")
+            pdf.setFont("Helvetica-Bold", 12)
+            pdf.drawString(100, y, f"Host of the meeting (name): ")
+            pdf.setFont("Helvetica", 12)
+            pdf.drawString(100 + pdf.stringWidth("Host of the meeting (name):   "), y, host_user_name)
+            pdf.setFont("Helvetica-Bold", 12)
+            pdf.drawString(100 + pdf.stringWidth("Host of the meeting (name):   " + host_user_name), y, f"(email): ")
+            pdf.setFont("Helvetica", 12)
+            pdf.drawString(100 + pdf.stringWidth("Host of the meeting (name):   " + host_user_name + "(email):    "), y, host_email)
             y -= 20
 
             join_time = meeting_report['join_time']
-            pdf.drawString(100, y, f"The time you join to the meeting: {join_time}")
+            formatted_join_time = join_time.strftime(new_date_format)
+            pdf.setFont("Helvetica-Bold", 12)
+            pdf.drawString(100, y, f"The time you join to the meeting: ")
+            pdf.setFont("Helvetica", 12)
+            pdf.drawString(100 + pdf.stringWidth("The time you join to the meeting:    "), y, formatted_join_time)
             y -= 20
 
             left_time = meeting_report['user_left_time']
-            pdf.drawString(100, y, f"The time you left the meeting: {left_time}")
+            formatted_left_time = left_time.strftime(new_date_format)
+            pdf.setFont("Helvetica-Bold", 12)
+            pdf.drawString(100, y, f"The time you left the meeting: ")
+            pdf.setFont("Helvetica", 12)
+            pdf.drawString(100 + pdf.stringWidth("The time you left the meeting:     "), y, formatted_left_time)
             y -= 20
 
             y-=40
+            pdf.setFont("Helvetica-Bold", 14)
+            
+            if show_atttention_anlaysis:
+                pdf.drawString(100, y, f"Attention and Emotion Scores")
+                y -= 20
 
-            pdf.setFont("Helvetica", 14)
+                pdf.setFont("Helvetica-Bold", 12)
+                total_avg_attention_score = meeting_report['average_attention']
+                pdf.drawString(100, y, f"The average attention score: ")
+                pdf.setFont("Helvetica", 12)
+                pdf.drawString(100 + pdf.stringWidth("The average attention score:     "), y, str(total_avg_attention_score))
+                y -= 20
+
+                total_avg_emotion_score = meeting_report['average_emotion']
+                pdf.setFont("Helvetica-Bold", 12)
+                pdf.drawString(100, y, f"The most common emotion during the meeting: ")
+                pdf.setFont("Helvetica", 12)
+                pdf.drawString(100 + pdf.stringWidth("The most common emotion during the meeting:       "), y, str(total_avg_emotion_score))
+                
+
+                emotions=  meeting_report['emotions']
+                y-= 40
+                #draw attention graph
+                pdf.setFont("Helvetica-Bold", 14)
+                pdf.drawString(100, y, f"Attention Graph")
+                y -= 330
+                drawing = Drawing(width=500, height=300)
+                # your existing code
+                x_values = [datetime.strptime(point['time_end'], '%Y-%m-%d %H:%M:%S.%f').timestamp() for point in attention_graph_points_average]
+                #reverse_x_values = [datetime.fromtimestamp(timestamp) for timestamp in x_values]
+                #x_labels = [dt.strftime("%Y-%m-%d %H:%M:%S") for dt in reverse_x_values]
+                y_values = [point['attention_score'] for point in attention_graph_points_average]
+
+                # Filter out invalid data points and corresponding labels
+                valid_points = [(x, y) for x, y in zip(x_values, y_values) if not math.isnan(x) and not math.isnan(y)]
+                x_values, y_values = zip(*valid_points)  
+
+                # Convert timestamp values back to datetime objects
+                reverse_x_values = [datetime.fromtimestamp(timestamp) for timestamp in x_values]
+
+                # Format datetime objects as time strings
+                x_labels = [dt.strftime("%H:%M:%S") for dt in reverse_x_values]
+                lp = LinePlot()
+                lp.x = 50
+                lp.y = 50
+                lp.width = 400
+                lp.height = 200
+                lp.data = [list(zip(x_values, y_values))]
+                lp.lines[0].symbol = makeMarker('FilledCircle')
+                lp.lines[0].strokeWidth = 2
+                lp.lines[0].strokeColor = colors.blue
+                lp.xValueAxis.labelTextFormat = '%2.1f'
+                
+                # Set x-axis labels as time strings
+                lp.xValueAxis.labels.boxAnchor = 'n'
+                lp.xValueAxis.labels.angle = 45
+                lp.xValueAxis.labels.dx = -10
+                lp.xValueAxis.labels.dy = -10
+                lp.xValueAxis.labels.textAnchor = 'start'
+                lp.xValueAxis.labels.fontName = 'Helvetica'
+                lp.xValueAxis.labels.fontSize = 10
+                lp.xValueAxis.labelTextFormat = x_labels
+                
+                drawing.add(lp)
+                drawing.drawOn(pdf, 50, y,450)
+                    
+                pdf.showPage()
+                y+=600
+
+                
+                #emotion pie
+                pdf.setFont("Helvetica-Bold", 14)
+                pdf.drawString(100, y, f"Emotion Graph")
+                y-=300
+                d = Drawing(300, 200)
+                pc = Pie()
+                pc.x = 200
+                pc.y = 15
+                pc.width = 200
+                pc.height = 200
+                pc.data = emotions
+                pc.labels = ['Sad','Angry','Surprise','Fear','Happy','Disgust','Neutral']
+                pc.slices[3].fontColor = colors.red
+                pc.sideLabels = True
+                d.add(pc)
+                d.drawOn(pdf, 0, y,50)
+                #legend part
+                legend = Legend()
+                legend.alignment = 'right'
+                legend.x = 100
+                legend.y = 0
+                total_emotion = sum(pc.data)
+                legend.colorNamePairs = [(pc.slices[i].fillColor, f"{pc.labels[i]} ({pc.data[i]*100/total_emotion:.2f}%)") for i in range(len(pc.labels))]
+                d.add(legend)
+                
+        
+                d.drawOn(pdf, 0, y,50)
+                y-=100
+
+            pdf.setFont("Helvetica-Bold", 14)
             pdf.drawString(100, y, f"Presenters")
             y -= 20
 
             pdf.setFont("Helvetica", 12)
             presenter_names = meeting_report['presenter_names']
             presenter_emails = meeting_report['presenter_emails']
-            for name, email in zip(presenter_names,presenter_emails):
-                pdf.drawString(100, y, f"Presenter (name): {name}, (email): {email}")
+            presenter_start_times = meeting_report['presenter_start_times']
+            presenter_end_times = meeting_report['presenter_end_times']
+            for name, email,start_time,end_time in zip(presenter_names,presenter_emails,presenter_start_times,presenter_end_times):
+                formatted_start_time = start_time.strftime(new_date_format)
+                formatted_end_time = end_time.strftime(new_date_format)
+                pdf.setFont("Helvetica-Bold", 12)
+                pdf.drawString(100, y, f"Presenter (name): ")
+                pdf.setFont("Helvetica", 12)
+                pdf.drawString(100 + pdf.stringWidth("Presenter (name):   "), y, name)
+                pdf.setFont("Helvetica-Bold", 12)
+                pdf.drawString(100 + pdf.stringWidth("Presenter (name):   " + name), y, f"(email): ")
+                pdf.setFont("Helvetica", 12)
+                pdf.drawString(100 + pdf.stringWidth("Presenter (name):   " + name + "(email):    "), y, email)
                 y -= 20
+                pdf.setFont("Helvetica-Bold", 12)
+                pdf.drawString(100, y, f"Presenter start time: ")
+                pdf.setFont("Helvetica", 12)
+                pdf.drawString(100 + pdf.stringWidth("Presenter start time:   "), y, formatted_start_time)
+                pdf.setFont("Helvetica-Bold", 12)
+                pdf.drawString(100 + pdf.stringWidth("Presenter start time:   " + formatted_start_time), y, f" Presenter end time: ")
+                pdf.setFont("Helvetica", 12)
+                pdf.drawString(100 + pdf.stringWidth("Presenter start time:   " + formatted_start_time + " Presenter end time:     "), y, formatted_end_time)
+                y -= 30
             
-            y-=40
-            pdf.setFont("Helvetica", 14)
-            pdf.drawString(100, y, f"Attention and Emotion Scores")
+           
+            #more detailed informations (alerts, poll and results,all particapants)
+            pdf.setFont("Helvetica-Bold", 14)
+            pdf.drawString(100, y, f"Participants")
             y -= 20
 
             pdf.setFont("Helvetica", 12)
-            total_avg_attention_score = meeting_report['average_attention']
-            pdf.drawString(100, y, f"The average attention score: {total_avg_attention_score}")
-            y -= 20
-
-            total_avg_emotion_score = meeting_report['average_emotion']
-            pdf.drawString(100, y, f"The most common emotion during the meeting: {total_avg_emotion_score}")
-            
-
-            emotions=  meeting_report['emotions']
-            y-= 40
-            #draw attention graph
-            pdf.setFont("Helvetica", 14)
-            pdf.drawString(100, y, f"Attention Graph")
-            y -= 330
-            drawing = Drawing(width=500, height=300)
-            # your existing code
-            x_values = [datetime.strptime(point['time_end'], '%Y-%m-%d %H:%M:%S.%f').timestamp() for point in attention_graph_points_average]
-            reverse_x_values = [datetime.fromtimestamp(timestamp) for timestamp in x_values]
-            x_labels = [dt.strftime("%Y-%m-%d %H:%M:%S") for dt in reverse_x_values]
-            y_values = [point['attention_score'] for point in attention_graph_points_average]   
-            print(x_values)
-            print(y_values)
-
-            lp = LinePlot()
-            lp.x = 50
-            lp.y = 50
-            lp.width = 400
-            lp.height = 200
-            lp.data = [list(zip(x_values, y_values))]
-            lp.lines[0].symbol = makeMarker('FilledCircle')
-            lp.lines[0].strokeWidth = 2
-            lp.lines[0].strokeColor = colors.blue
-            lp.xValueAxis.labelTextFormat = '%2.1f'
-               
-            drawing.add(lp)
-            drawing.add(lp)
-            drawing.drawOn(pdf, 50, y,450)
-                
-            pdf.showPage()
-            y+=650
-            #emotion pie
-            pdf.setFont("Helvetica", 14)
-            pdf.drawString(100, y, f"Emotion Graph")
-            y-=300
-            d = Drawing(300, 200)
-            pc = Pie()
-            pc.x = 200
-            pc.y = 15
-            pc.width = 200
-            pc.height = 200
-            pc.data = emotions
-            pc.labels = ['Sad','Angry','Surprise','Fear','Happy','Disgust','Neutral']
-            pc.slices[3].fontColor = colors.red
-            d.add(pc)
-            d.drawOn(pdf, 0, y,50)
-            #legend part
-            legend = Legend()
-            legend.alignment = 'right'
-            legend.x = 100
-            legend.y = 0
-            legend.colorNamePairs = [(pc.slices[i].fillColor, pc.labels[i]) for i in range(len(pc.labels))]
-            d.add(legend)
-            d.drawOn(pdf, 0, y,50)
+            participant_names = meeting_report['participant_names']
+            participant_emails = meeting_report['participant_emails']
+            participant_join_times = meeting_report['participant_join_times']
+            participant_left_times = meeting_report['participant_left_times']
+            participant_alert_nums = meeting_report['participant_alert_nums']
+            for name, email,join_time,left_time,alert_num in zip(participant_names,participant_emails,participant_join_times,participant_left_times,participant_alert_nums):
+                formatted_join_time = join_time.strftime(new_date_format)
+                formatted_left_time = left_time.strftime(new_date_format)
+                pdf.setFont("Helvetica-Bold", 12)
+                pdf.drawString(100, y, f"Participant (name): ")
+                pdf.setFont("Helvetica", 12)
+                pdf.drawString(100 + pdf.stringWidth("Participant (name):     "), y, name)
+                pdf.setFont("Helvetica-Bold", 12)
+                pdf.drawString(100+pdf.stringWidth("Participant (name):     "+ name), y, f"  (email): ")
+                pdf.setFont("Helvetica", 12)
+                pdf.drawString(100+pdf.stringWidth("Participant (name):     "+ name + "  (email):   "), y, email)
+                y -= 20
+                pdf.setFont("Helvetica-Bold", 12)
+                pdf.drawString(100, y, f"Participant join time: ")
+                pdf.setFont("Helvetica", 12)
+                pdf.drawString(100 + pdf.stringWidth("Participant join time:     "), y, formatted_join_time)
+                pdf.setFont("Helvetica-Bold", 12)
+                pdf.drawString(100+pdf.stringWidth("Participant join time:      "+ formatted_join_time), y, f"  left time: ")
+                pdf.setFont("Helvetica", 12)
+                pdf.drawString(100+pdf.stringWidth("Participant join time:      "+ formatted_join_time + "  left time:     "), y, formatted_left_time)
+                y -= 20
+                if alert_num != 0:
+                    pdf.setFont("Helvetica", 12)
+                    pdf.drawString(100, y, f"This participant is alerted ")
+                    pdf.setFont("Helvetica-Bold", 12)
+                    pdf.drawString(100+pdf.stringWidth("This participant is alerted  "), y, f"{alert_num}")
+                    pdf.setFont("Helvetica", 12)
+                    pdf.drawString(100+pdf.stringWidth("This participant is alerted  "+f"{alert_num}  "), y, f"  times")
+                    y -= 30
+            y-=20
+            #poll related information
+            poll_questions = meeting_report['poll_questions']
+            if len(poll_questions)!=0:
+                pdf.setFont("Helvetica-Bold", 14)
+                pdf.drawString(100, y, f"Polls")
+                y -= 20
+                pdf.setFont("Helvetica", 12)
+                poll_options_and_counts = meeting_report['poll_options_and_counts']
+                for question, options_and_counts in zip(poll_questions,poll_options_and_counts):
+                    pdf.setFont("Helvetica-Bold", 12)
+                    pdf.drawString(100, y, f"Poll question:  ")
+                    pdf.setFont("Helvetica", 12)
+                    pdf.drawString(100 + pdf.stringWidth("Poll question:     "), y, question)
+                    y -= 20
+                    for option,count in options_and_counts.items():
+                        pdf.setFont("Helvetica-Bold", 12)
+                        pdf.drawString(100, y, f"Option: ")
+                        pdf.setFont("Helvetica", 12)
+                        pdf.drawString(100 + pdf.stringWidth("Option:     "), y, option)
+                        pdf.setFont("Helvetica-Bold", 12)
+                        pdf.drawString(100+pdf.stringWidth(f"Option:     {option}"), y, f"  Count:  ")
+                        pdf.setFont("Helvetica", 12)
+                        pdf.drawString(100+pdf.stringWidth(f"Option:     {option}  Count:  "), y, f"  {count}")
+                        y -= 20
             # save the PDF file and return the response
             pdf.save()
             return response

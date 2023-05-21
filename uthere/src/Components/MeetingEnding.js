@@ -15,6 +15,7 @@ function MeetingEnding() {
   const [participants, setParticipants] = useState([]);
   const token = localStorage.getItem('token');
   const [loading, setLoading] = useState(false)
+  const [triggerShareButton, setTriggerShareButton] = useState(true);
   
   useEffect(() => {
     getMeetingParticipants(meetingId);
@@ -37,6 +38,7 @@ function MeetingEnding() {
     }).catch((exception) => {
       console.log(exception);
     });
+    setTriggerShareButton(false)
   }
 
   // Retrieves the meeting participants.
@@ -108,7 +110,7 @@ function MeetingEnding() {
                 return (
                   <tr>
                     <td>{participantName}</td>
-                    <td><button className="btn btn-success" onClick={() => { giveShareAccess(uid, agora_id) }}>Share Report</button></td>
+                    {triggerShareButton? <td><button className="btn btn-success" onClick={() => { giveShareAccess(uid, agora_id) }}>Share Report</button></td>: <td><button className="btn btn-light">Shared!</button></td>}
                   </tr>
                 );
               })}

@@ -14,7 +14,7 @@ function AnswerPollPopup(props) {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        setSubmitText("Submited")
+        setSubmitText("Submitted")
         API.put(`answer_poll/`, {
             "poll_id": poll.poll_id,
             "selected_option": selectedOption
@@ -29,60 +29,60 @@ function AnswerPollPopup(props) {
         });
     };
 
-	function insidePopup() {
-		return (
-			<div className="popup">
-				<div className="popup-inner">
+    function insidePopup() {
+        return (
+            <div className="popup-poll">
+                <div className="popup-poll-inner">
                     <button type="button" onClick={() => props.setTrigger(false)} className="close popup-close3" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                     <center>
-                        <h2>Poll</h2><br></br>
+                        <h4>Please answer the following question:</h4><br></br>
                     </center>
-                    <h3>{poll.question_body}</h3>
+                    <h4>{poll.question_body}</h4>
                     <form onSubmit={handleSubmit}>
                         <label>
-                        <input
-                            type="radio"
-                            value={poll.option1}
-                            checked={selectedOption === poll.option1}
-                            onChange={handleOptionChange}
-                        />
-                        {poll.option1}
+                            <input
+                                type="radio"
+                                value={poll.option1}
+                                checked={selectedOption === poll.option1}
+                                onChange={handleOptionChange}
+                            />&ensp;
+                            {poll.option1}
                         </label>
                         <br />
                         <label>
-                        <input
-                            type="radio"
-                            value={poll.option2}
-                            checked={selectedOption === poll.option2}
-                            onChange={handleOptionChange}
-                        />
-                        {poll.option2}
+                            <input
+                                type="radio"
+                                value={poll.option2}
+                                checked={selectedOption === poll.option2}
+                                onChange={handleOptionChange}
+                            />&ensp;
+                            {poll.option2}
                         </label>
                         <br />
                         <label>
-                        <input
-                            type="radio"
-                            value={poll.option3}
-                            checked={selectedOption === poll.option3}
-                            onChange={handleOptionChange}
-                        />
-                        {poll.option3}
+                            <input
+                                type="radio"
+                                value={poll.option3}
+                                checked={selectedOption === poll.option3}
+                                onChange={handleOptionChange}
+                            />&ensp;
+                            {poll.option3}
                         </label>
                         <br />
                         <center>
-                            <button id="submitAnswer" type="submit">{submitText}</button>
+                            <button type="submit">{submitText}</button>
                         </center>
                     </form>
-				</div>
-			</div>
-		)
-	}
-	
-	return (
-		<div>
-			{props.trigger === true ? insidePopup() : null}
-		</div>
-	);
+                </div>
+            </div>
+        )
+    }
+
+    return (
+        <div>
+            {props.trigger === true ? insidePopup() : null}
+        </div>
+    );
 }
 
 export default AnswerPollPopup;

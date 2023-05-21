@@ -11,7 +11,6 @@ import AttentionAnalysisPopup from "./AttentionAnalysisPopup";
 import PresenterWarningPopup from "./PresenterWarningPopup";
 import API from "./API";
 
-
 function VideoCall(props) {
 	const ready = props.ready;
 	const tracks = props.tracks;
@@ -241,6 +240,7 @@ function VideoCall(props) {
 					formData.append('user_id', userId);
 					formData.append('meeting_id',channelId);
 					console.log(formData);
+					
 					fetch('http://127.0.0.1:8008/upload-video/', {
 					method: 'POST',
 					body: formData,
@@ -258,6 +258,9 @@ function VideoCall(props) {
 						recorder.stop();
 					}
 				}, 5000);
+				if(!cookies.hasOwnProperty('channelId')){
+					stopMediaStream();
+				}
 			}, 5000);
 		};
 
