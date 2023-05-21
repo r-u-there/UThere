@@ -50,24 +50,19 @@ function MeetingEnding() {
       const response = await API.get(`get_all_meeting_participants/${meetingId}/`, {
         headers: { Authorization: `Token ${token}` }
       });
-      console.log(meetingId)
-      console.log(response);
-
-
       response.data.forEach(function (current, index) {
         var agora_uid = current.agora_id
-        console.log(agora_uid)
         console.log(current.user)
-        if (current.user.toString() !== userId) {
+        console.log(typeof(current.user))
+        console.log(userId)
+        console.log(typeof(userId))
+        if ((current.user).toString() !== userId) {
           API.get(`get_user_info/${current.user}/`, {
             headers: { Authorization: `Token ${token}` }
           }).then(res => {
             console.log(res.data.username);
             let name = res.data.username
-            console.log(userId)
-            console.log(typeof(current.user))
-            console.log(typeof(userId))
-            if (current.user.toString() !== userId) {
+            if ((current.user).toString() !== userId) {
               //check whether this user becomes presenter at the any point of this meeting 
               API.put(`get_presenter_table/`,
                 {
@@ -79,12 +74,14 @@ function MeetingEnding() {
                 }).then(resx => {
                   if (resx.data.hasOwnProperty('status') && resx.data.status === 'MeetingUser not found') {
                     newData.push({ uid: current.user, participantName: name, agora_id: agora_uid });
+                    console.log(newData)
                   }
                   else {
                     name = name + " (Presenter)"
                     newData.push({ uid: current.user, participantName: name, agora_id: agora_uid });
+                    console.log(newData)
                   }
-                  setParticipants((participants) => [...participants, ...newData])
+                  setParticipants(newData)
                 }).catch((exception) => {
                   console.log(exception);
                 });
@@ -119,9 +116,10 @@ function MeetingEnding() {
               {participants.map((participant) => {
                 const { uid, participantName, agora_id } = participant;
                 const isShared = sharedParticipants.includes(uid);
+                console.log("------------------")
                 console.log(userId)
-                console.log(uid)
                 console.log(typeof(userId))
+                console.log(uid)
                 console.log(typeof(uid))
                 if (userId === uid.toString()) {
                   return <div></div>
