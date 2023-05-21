@@ -40,11 +40,11 @@ function LeaveMeetingPopup(props) {
 			headers: { Authorization: `Token ${token}` }
 		}).then(response => {
 			console.log(response);
+			window.location="/MeetingEnding"
+			props.setTrigger5(true)
 		}).catch((exception) => {
 			console.log(exception);
 		});
-		window.location="/MeetingEnding"
-		props.setTrigger5(true)
 		
 	}
 
