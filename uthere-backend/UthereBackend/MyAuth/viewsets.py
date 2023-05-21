@@ -341,15 +341,8 @@ class SettingsViewSet(ModelViewSet):
     def update(self, request, *args, **kwargs):
         data = request.data
         serializer = self.serializer_class(data=data)
-        print(data)
-
         if serializer.is_valid():
-            setting = Settings.objects.get(id=request.user.settings_id)
-            print(setting.attention_limit)
-            for key, value in data.items():
-                setattr(setting, key, value)
-            setting.save()
-            print(setting)
+            serializer.update()
             return Response(data=serializer.data, status=status.HTTP_204_NO_CONTENT)
         else:
             return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -573,11 +566,11 @@ class GetAttentionEmotionScoreViewSet(ModelViewSet):
         if not queryset.exists():
             return Response({'status': 'Attention score not found'})
         
-        for score in queryset:
-            user_id = score.user_id
-            user_meeting_queryset = MeetingUser.objects.filter(user_id=user_id, meeting_id=meeting_id)
-            if user_meeting_queryset.get().is_host or user_meeting_queryset.get().is_presenter:
-                score.delete()
+        #for score in queryset:
+        #    user_id = score.user_id
+        #    user_meeting_queryset = MeetingUser.objects.filter(user_id=user_id, meeting_id=meeting_id)
+        #    if user_meeting_queryset.get().is_host or user_meeting_queryset.get().is_presenter:
+        #        score.delete()
         attention_score = queryset.all()
         total = sum(at_score.attention_score for at_score in attention_score)
         avg_attention_score = 0
@@ -1046,7 +1039,7 @@ class GetSpecificAnalysisReportViewSet(ModelViewSet):
             formatted_end_time = end_time.strftime(new_date_format)
             pdf.drawString(100, y, f"Meeting end time: ")
             pdf.setFont("Helvetica", 12)
-            pdf.drawString(100 + pdf.stringWidth("Meeting end time:   "), y, formatted_start_time)
+            pdf.drawString(100 + pdf.stringWidth("Meeting end time:   "), y, formatted_end_time)
             y -= 20
 
             host_user_name = meeting_report['host_username']

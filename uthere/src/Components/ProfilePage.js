@@ -6,7 +6,7 @@ import {BiChevronRightCircle} from 'react-icons/bi'
 import {TbEdit} from 'react-icons/tb';
 import {MdToggleOff} from 'react-icons/md';
 import {MdToggleOn} from 'react-icons/md';
-import {useState, useEffect, useCallback} from "react";
+import {useState, useEffect, useCallback, useLayoutEffect} from "react";
 import EditProfilePopup from "./EditProfilePopup";
 import {Cookies} from "react-cookie";
 import * as ReactBootStrap from "react-bootstrap"
@@ -135,7 +135,15 @@ function ProfilePage() {
 	}, []);
 
 
-	const setProfilePreferences = useCallback(() => {
+
+	useEffect(() => {
+		getUserInfo();
+		getProfileSettings();
+		getNameOfAnalysisReports();
+	}, [getUserInfo, getProfileSettings, userId]);
+
+
+	const handleSubmit = () => {
 		console.log("token is:",token);
 		const data = {
 		  "get_analysis_report": toggle1,
@@ -150,26 +158,13 @@ function ProfilePage() {
 		  headers: {
 			'Authorization': `Token ${token}`
 		  },
-			method: 'PUT'
 		}).then(response => {
 			setLoading(true);
 		}).catch((exception) => {
-			window.location = "/"
+			window.location = "/Dashboard"
 			console.log(exception);
 		});
-	}, [toggle1, toggle2, toggle3, toggle4, toggle5, toggle6]);
-
-	useEffect(() => {
-		getUserInfo();
-		getProfileSettings();
-		getNameOfAnalysisReports();
-	}, [getUserInfo, getProfileSettings, userId]);
-
-	useEffect(() => {
-		setProfilePreferences();
-	}, [setProfilePreferences]);
-
-
+	  };
 	function displayProfile() {
 		if (tabSelection == 0) {
 			return (
@@ -256,6 +251,7 @@ function ProfilePage() {
 							<td>&emsp;&emsp;{!toggle6 ? <MdToggleOff onClick={() => {setToggle6(!toggle6); }} size={40}/> : <MdToggleOn onClick={() => {setToggle6(!toggle6); }} size={40} color="green"/>}</td>
 						</tr>
 					</table>
+					      <button onClick={handleSubmit}>Submit</button>
 				</div>
 			);
 		}
