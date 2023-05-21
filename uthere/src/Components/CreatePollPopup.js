@@ -86,25 +86,25 @@ function CreatePollPopup(props) {
                                 <div class="input-group-prepend">
                                     <span class="input-group-text">Question:</span>
                                 </div>
-                                <textarea value={question} onChange={handleQuestionChange} type="text" class="form-control" placeholder="Please type the poll question." />
+                                <textarea onChange={handleQuestionChange} type="text" className="form-control" placeholder="Please type the poll question." />
                             </div>
                             <div class="input-group mt-3">
                                 <div class="input-group-prepend">
                                     <span class="input-group-text">Option 1:</span>
                                 </div>
-                                <input value={option1} onChange={handleOption1Change} type="text" class="form-control" placeholder="Please type the first option." />
+                                <input onChange={handleOption1Change} type="text" className="form-control" placeholder="Please type the first option." />
                             </div>
                             <div class="input-group mt-3">
                                 <div class="input-group-prepend">
                                     <span class="input-group-text">Option 2:</span>
                                 </div>
-                                <input value={option2} onChange={handleOption2Change} type="text" class="form-control" placeholder="Please type the second option." />
+                                <input onChange={handleOption2Change} type="text" className="form-control" placeholder="Please type the second option." />
                             </div>
                             <div class="input-group mt-3">
                                 <div class="input-group-prepend">
                                     <span class="input-group-text">Option 3:</span>
                                 </div>
-                                <input value={option3} onChange={handleOption3Change} type="text" class="form-control" placeholder="Please type the third option." />
+                                <input onChange={handleOption3Change} type="text" className="form-control" placeholder="Please type the third option." />
                             </div>
                         </center>
                         <center>
@@ -121,9 +121,12 @@ function CreatePollPopup(props) {
                     {pollResult !== null ? <Chart
                         chartType="PieChart"
                         data={pollResult}
-                        options={chartOptions}
-                        width={"100%"}
-                        height={"300px"}
+                        options={{
+                            ...chartOptions,
+                            fontSize: 15, // Set the desired font size here
+                        }}
+                        width= "100%"
+                        height="200px"
                     /> : <p>You didn't create any poll yet.</p>}
                 </div>
             );
@@ -137,15 +140,15 @@ function CreatePollPopup(props) {
                     <div>
                         <button type="button" onClick={() => props.setTrigger(false)} className="close popup-close3" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                         <div>
-                        <ul className="nav nav-tabs">
-                            <li className="nav-item">
-                                <a className="nav-link active" data-toggle="tab" href="" onClick={() => { setTabSelection(0) }}>Create Poll</a>
-                            </li>
-                            <li className="nav-item">
-                                <a className="nav-link" data-toggle="tab" href="" onClick={() => setTabSelection(1)}>Latest Poll Result</a>
-                            </li>
-                        </ul>
-                        {displayProfile()}
+                            <ul className="nav nav-tabs">
+                                <li className="nav-item">
+                                    <a className="nav-link active" data-toggle="tab" href="" onClick={() => { setTabSelection(0) }}>Create Poll</a>
+                                </li>
+                                <li className="nav-item">
+                                    <a className="nav-link" data-toggle="tab" href="" onClick={() => setTabSelection(1)}>Latest Poll Result</a>
+                                </li>
+                            </ul>
+                            {displayProfile()}
                         </div>
                     </div>
                 </div>

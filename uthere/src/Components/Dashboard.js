@@ -13,44 +13,18 @@ import { useState, useEffect } from "react";
 import { config } from "../settings";
 import * as ReactBootStrap from "react-bootstrap"
 import API from "./API";
+import ReminderPopup2 from './ReminderPopup2';
 
 function Dashboard() {
 	const [trigger, setTrigger] = useState(false);
 	const cookies = new Cookies();
 	const userId = cookies.get("userId");
 	const [name, setName] = useState("");
-	const [meetingId, setMeetingId] = useState("");
 	const token = localStorage.getItem('token');
 	const [loading, setLoading] = useState(false);
+	const [trigger2, setTrigger2] = useState(false);
 
-	async function createMeetingAndUser() {
-		try {
-			  const createMeetingResponse = await API.post('create_meeting/', {
-				"appId": config.appId,
-				"certificate": config.certificate,
-				"role": 2,
-				"privilegeExpiredTs": 36000000
-			  },
-				  {
-					headers: { Authorization: `Token ${token}` }
-				});
-			  // Handle the response data
-			console.log(createMeetingResponse.data);
-			console.log(createMeetingResponse.data);
-			console.log(createMeetingResponse.data.agora_token);
-			console.log("channel name is " + createMeetingResponse.data.channel_name);
-			cookies.set("token", createMeetingResponse.data.agora_token);
-			cookies.set("channel_name", createMeetingResponse.data.channel_name);
-			cookies.set("channel_id", createMeetingResponse.data.id);
-			cookies.set("is_host", 1);
-			cookies.set("status", "presenter");
-			setMeetingId(createMeetingResponse.data.id);
-			console.log("1- " + createMeetingResponse.data.id);
-
-		} catch (exception) {
-			console.log(exception);
-		}
-	}
+	
 
 	useEffect(() => {
 		console.log(token);
@@ -85,13 +59,13 @@ function Dashboard() {
 						<hr></hr>
 						<table className='dashboard-table-columns'>
 							<tr>
-								<td><Link to="/Meeting"><label onClick={createMeetingAndUser}><BsCameraVideo color="#6666ff" size={100} /></label></Link></td>
+								<td><label onClick={() => {setTrigger2(true)}}><BsCameraVideo color="#6666ff" size={100} /></label></td>
 								<td><AiOutlinePlusCircle onClick={() => setTrigger(true)} color="#ffb3e6" size={100} /></td>
 								<td><Link to="/Profile"><CgProfile color="gray" size={100} /></Link></td>
 								<td><Link to="/Contact"><BsQuestionCircle color="orange" size={100} /></Link></td>
 							</tr>
 							<tr>
-								<td><center><Link to="/Meeting"><label style={{ "color": "black" }} onClick={createMeetingAndUser}>New Meeting</label></Link></center></td>
+								<td><center><label style={{ "color": "black" }} onClick={() => {setTrigger2(true)}}>New Meeting</label></center></td>
 								<td><center><label onClick={() => setTrigger(true)}>Join Meeting</label></center></td>
 								<td><center><Link to="/Profile"><label style={{ "color": "black" }}>Profile</label></Link></center></td>
 								<td><center><Link to="/Contact"><label style={{ "color": "black" }}>Contact Us</label></Link></center></td>
@@ -100,6 +74,7 @@ function Dashboard() {
 					</div>
 				</div> : <div className="loading"><ReactBootStrap.Spinner style={{ height: "100px", width: "100px" }} animation="border" /></div>}
 			<JoinMeetingPopup trigger={trigger} setTrigger={setTrigger}></JoinMeetingPopup>
+			<ReminderPopup2 trigger2={trigger2} setTrigger2={setTrigger2}></ReminderPopup2>
 		</div>
 	);
 }
