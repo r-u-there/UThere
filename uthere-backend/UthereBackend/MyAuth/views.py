@@ -20,14 +20,12 @@ upp = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 model_path = os.path.join(upp, 'attention_model/model_5second2.h5')
 model = load_model(model_path)
 
-feature_extractor = FeatureExtractor(num_frames=100)
-
 
 @csrf_exempt
 def upload_video(request):
     try:
+        feature_extractor = FeatureExtractor(num_frames=100)
         start = time.time()
-        global feature_extractor
         global model
 
         timestamp = request.POST.get('timestamp')
