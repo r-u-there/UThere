@@ -23,7 +23,7 @@ function MeetingEnding() {
 
     setTimeout(() => {
       setLoading(true);
-    }, 4000); // Replace with your actual data fetching logic
+    }, 6000); // Replace with your actual data fetching logic
   }, []);
 
   function giveShareAccess(id, agora_id) {
@@ -82,6 +82,7 @@ function MeetingEnding() {
                     console.log(newData)
                   }
                   setParticipants(newData)
+                  console.log(participants)
                 }).catch((exception) => {
                   console.log(exception);
                 });
