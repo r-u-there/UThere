@@ -144,6 +144,7 @@ function Videos(props) {
 						const { uid, participantName, isScreenShare, video } = userData;
 						if (video) {
 							console.log(isScreenShare);
+							console.log(participantName);
 							if(!isScreenShare){
 								console.log(1 +" "+ uid)
 								return (
