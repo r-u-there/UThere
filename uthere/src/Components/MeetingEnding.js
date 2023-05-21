@@ -58,7 +58,7 @@ function MeetingEnding() {
         var agora_uid = current.agora_id
         console.log(agora_uid)
         console.log(current.user)
-        if (current.user != userId) {
+        if (current.user.toString() !== userId) {
           API.get(`get_user_info/${current.user}/`, {
             headers: { Authorization: `Token ${token}` }
           }).then(res => {
@@ -67,7 +67,7 @@ function MeetingEnding() {
             console.log(userId)
             console.log(typeof(current.user))
             console.log(typeof(userId))
-            if (current.user != userId) {
+            if (current.user.toString() !== userId) {
               //check whether this user becomes presenter at the any point of this meeting 
               API.put(`get_presenter_table/`,
                 {
@@ -122,8 +122,8 @@ function MeetingEnding() {
                 console.log(userId)
                 console.log(uid)
                 console.log(typeof(userId))
-                console.logt(typeof(uid))
-                if (userId == uid) {
+                console.log(typeof(uid))
+                if (userId === uid.toString()) {
                   return <div></div>
                 }
                 else {
