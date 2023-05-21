@@ -43,6 +43,8 @@ function LeaveMeetingPopup(props) {
 		}).catch((exception) => {
 			console.log(exception);
 		});
+		props.setTrigger5(true)
+		window.location="\MeetingEnding"
 	}
 
 	function insidePopup() {
@@ -55,7 +57,7 @@ function LeaveMeetingPopup(props) {
 					</center>
 					<button type="button" onClick={() => props.setTrigger3(false)} className="popup-close3" aria-label="Close"><span aria-hidden="true">&times;</span></button>
 					<center>
-						{is_Host == 1? <button onClick={() => {endMeeting();props.setTrigger5(true);window.location="\MeetingEnding"}} className="btn btn-primary">End Meeting For All</button>: 
+						{is_Host == 1? <button onClick={() => {endMeeting()}} className="btn btn-primary">End Meeting For All</button>: 
 						 <button onClick={() => {mute("video") }} className="btn btn-primary">Leave</button>
 						 }
                         <button onClick={() => props.setTrigger3(false)} className="btn btn-primary"  style={{ marginLeft: '10px' }}>Return to Meeting</button>
