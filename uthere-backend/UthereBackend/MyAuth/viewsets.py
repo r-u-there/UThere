@@ -1044,7 +1044,7 @@ class GetSpecificAnalysisReportViewSet(ModelViewSet):
             formatted_end_time = end_time.strftime(new_date_format)
             pdf.drawString(100, y, f"Meeting end time: ")
             pdf.setFont("Helvetica", 12)
-            pdf.drawString(100 + pdf.stringWidth("Meeting end time:   "), y, formatted_start_time)
+            pdf.drawString(100 + pdf.stringWidth("Meeting end time:   "), y, formatted_end_time)
             y -= 20
 
             host_user_name = meeting_report['host_username']

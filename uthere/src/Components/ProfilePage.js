@@ -161,7 +161,7 @@ function ProfilePage() {
 		}).then(response => {
 			setLoading(true);
 		}).catch((exception) => {
-			window.location = "/"
+			window.location = "/Dashboard"
 			console.log(exception);
 		});
 	  };
