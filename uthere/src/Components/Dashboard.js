@@ -14,6 +14,7 @@ import { config } from "../settings";
 import * as ReactBootStrap from "react-bootstrap"
 import API from "./API";
 import ReminderPopup2 from './ReminderPopup2';
+import {BsBook} from "react-icons/bs"
 
 function Dashboard() {
 	const [trigger, setTrigger] = useState(false);
@@ -63,12 +64,14 @@ function Dashboard() {
 								<td><AiOutlinePlusCircle onClick={() => setTrigger(true)} color="#ffb3e6" size={100} /></td>
 								<td><Link to="/Profile"><CgProfile color="gray" size={100} /></Link></td>
 								<td><Link to="/Contact"><BsQuestionCircle color="orange" size={100} /></Link></td>
+								<td><BsBook size={100}/></td>
 							</tr>
 							<tr>
 								<td><center><label style={{ "color": "black" }} onClick={() => {setTrigger2(true)}}>New Meeting</label></center></td>
 								<td><center><label onClick={() => setTrigger(true)}>Join Meeting</label></center></td>
 								<td><center><Link to="/Profile"><label style={{ "color": "black" }}>Profile</label></Link></center></td>
 								<td><center><Link to="/Contact"><label style={{ "color": "black" }}>Contact Us</label></Link></center></td>
+								<td><center><label style={{ "color": "black" }}>User Manual</label></center></td>
 							</tr>
 						</table>
 					</div>

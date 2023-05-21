@@ -22,17 +22,14 @@ body {
 }
 
 .dashboard {
-	position: absolute;
-	top: 45.5%;
-	left: 29.5%;
-	margin-top: -100px;
-	margin-left: -150px;
-	border: 1px solid;
-	padding-top: 25px;
-	padding-left: 50px;
-	padding-right: 50px;
-	padding-bottom: 25px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border: 1px solid;
+  padding: 25px 50px;
 }
+
 .grid-container {
 	position:absolute;
 	top:0px;
