@@ -43,8 +43,9 @@ function LeaveMeetingPopup(props) {
 		}).catch((exception) => {
 			console.log(exception);
 		});
-		props.setTrigger5(true)
 		window.location="/MeetingEnding"
+		props.setTrigger5(true)
+		
 	}
 
 	function insidePopup() {
