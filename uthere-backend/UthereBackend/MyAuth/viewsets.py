@@ -907,16 +907,47 @@ class GetSpecificAnalysisReportViewSet(ModelViewSet):
             #create report
             #get meeting info
             meeting =  Meeting.objects.filter(id=channel_id)
-            #find the host of the meeting
+            #find the host of the meeting, presenter and other participants
             host_query = MeetingUser.objects.filter(meeting_id=channel_id,is_host=True)
+            participants_query = MeetingUser.objects.filter(meeting_id=channel_id,is_host=False)
             user_info_host = User.objects.filter(id=host_query.first().user_id)
             presenters = Presenter.objects.filter(meeting_id=channel_id)
+            #find all polls in this meeting
+            polls = Poll.objects.filter(meeting_id=channel_id)
+            poll_questions =[]
+            poll_options_and_counts=[]
+            for poll in polls:
+                poll_questions.append(poll.question_body)
+                #for this question find options and counts
+                poll_options ={}
+                poll_options_query = Options.objects.filter(poll_id=poll.id)
+                for option in poll_options_query:
+                    poll_options[option.option_body]=option.count
+                poll_options_and_counts.append(poll_options)
+
             presenter_names=[]
             presenter_emails=[]
+            presenter_start_times=[]
+            presenter_end_times=[]
             for presenter in presenters:
                 user_info_presenters=  User.objects.filter(id=presenter.user_id)
                 presenter_names.append(user_info_presenters.get().username)
                 presenter_emails.append(user_info_presenters.get().email)
+                presenter_start_times.append(presenter.start_time)
+                presenter_end_times.append(presenter.end_time)
+            #get participant related information
+            participant_names=[]
+            participant_emails=[]
+            participant_join_times=[]
+            participant_left_times=[]
+            participant_alert_nums =[]
+            for participant in participants_query:
+                user_info_participants=  User.objects.filter(id=participant.user_id)
+                participant_names.append(user_info_participants.get().username)
+                participant_emails.append(user_info_participants.get().email)
+                participant_join_times.append(participant.join_time)
+                participant_left_times.append(participant.left_time)
+                participant_alert_nums.append(participant.alert_num)
             #get total average attention and emotion score
             emotions =[0,0,0,0,0,0,0]
             emotion_name = ['Sad','Angry','Surprise','Fear','Happy','Disgust','Neutral']
@@ -960,11 +991,15 @@ class GetSpecificAnalysisReportViewSet(ModelViewSet):
                 meeting_report = {'start_time':meeting.first().start_time, 'end_time':meeting.first().end_time,'join_time': user_meeting.join_time,
                                     'user_left_time':user_meeting.left_time, 'host_username':user_info_host.get().username, 'host_email':user_info_host.get().email,
                                     'presenter_names': presenter_names, 'presenter_emails': presenter_emails,'average_attention':avg_attention, 'average_emotion': avg_emotion,
-                                        'attention_graph_points':attention_graph_points,'attention_graph_points_average':attention_graph_points_average,'emotions':emotions}
+                                        'attention_graph_points':attention_graph_points,'attention_graph_points_average':attention_graph_points_average,'emotions':emotions, 'presenter_start_times':presenter_start_times,
+                                            'presenter_end_times':presenter_end_times, 'participant_names':participant_names,'participant_emails':participant_emails,'participant_join_times':participant_join_times,'participant_left_times':participant_left_times,'participant_alert_nums':participant_alert_nums,
+                                                'poll_questions':poll_questions,'poll_options_and_counts':poll_options_and_counts}
             else:
                 meeting_report = {'start_time':meeting.first().start_time, 'end_time':meeting.first().end_time,'join_time': user_meeting.join_time,
                                     'user_left_time':user_meeting.left_time, 'host_username':user_info_host.get().username, 'host_email':user_info_host.get().email,
-                                    'presenter_names': presenter_names, 'presenter_emails': presenter_emails}
+                                    'presenter_names': presenter_names, 'presenter_emails': presenter_emails, 'presenter_start_times':presenter_start_times,'presenter_end_times':presenter_end_times,
+                                    'participant_names':participant_names,'participant_emails':participant_emails,'participant_join_times':participant_join_times,'participant_left_times':participant_left_times,'participant_alert_nums':participant_alert_nums,
+                                        'poll_questions':poll_questions,'poll_options_and_counts':poll_options_and_counts}
 
             #find total average emotion score
             # create a new PDF file
@@ -1014,9 +1049,15 @@ class GetSpecificAnalysisReportViewSet(ModelViewSet):
             pdf.setFont("Helvetica", 12)
             presenter_names = meeting_report['presenter_names']
             presenter_emails = meeting_report['presenter_emails']
-            for name, email in zip(presenter_names,presenter_emails):
+            presenter_start_times = meeting_report['presenter_start_times']
+            presenter_end_times = meeting_report['presenter_end_times']
+            for name, email,start_time,end_time in zip(presenter_names,presenter_emails,presenter_start_times,presenter_end_times):
+                formatted_start_time = start_time.strftime(new_date_format)
+                formatted_end_time = end_time.strftime(new_date_format)
                 pdf.drawString(100, y, f"Presenter (name): {name}, (email): {email}")
                 y -= 20
+                pdf.drawString(100, y, f"Presenter start time: {formatted_start_time}, end time: {formatted_end_time}")
+                y -= 30
             
             y-=40
             pdf.setFont("Helvetica", 14)
@@ -1089,6 +1130,49 @@ class GetSpecificAnalysisReportViewSet(ModelViewSet):
                 legend.colorNamePairs = [(pc.slices[i].fillColor, pc.labels[i]) for i in range(len(pc.labels))]
                 d.add(legend)
                 d.drawOn(pdf, 0, y,50)
+                y-=100
+            #more detailed informations (alerts, poll and results,all particapants)
+            pdf.setFont("Helvetica", 14)
+            pdf.drawString(100, y, f"Participants")
+            y -= 20
+
+            pdf.setFont("Helvetica", 12)
+            participant_names = meeting_report['participant_names']
+            participant_emails = meeting_report['participant_emails']
+            participant_join_times = meeting_report['participant_join_times']
+            participant_left_times = meeting_report['participant_left_times']
+            participant_alert_nums = meeting_report['participant_alert_nums']
+            for name, email,join_time,left_time,alert_num in zip(participant_names,participant_emails,participant_join_times,participant_left_times,participant_alert_nums):
+                formatted_join_time = join_time.strftime(new_date_format)
+                formatted_left_time = left_time.strftime(new_date_format)
+                pdf.drawString(100, y, f"Participant (name): {name}, (email): {email}")
+                y -= 20
+                pdf.drawString(100, y, f"Participant join time: {formatted_join_time}, left time: {formatted_left_time}")
+                y -= 20
+                if alert_num != 0:
+                    pdf.drawString(100, y, f"This participant is alerted {alert_num} times")
+                    y -= 30
+            y-=20
+            #poll related information
+
+           
+            poll_questions = meeting_report['poll_questions']
+            if len(poll_questions)!=0:
+                pdf.setFont("Helvetica", 14)
+                pdf.drawString(100, y, f"Polls")
+                y -= 20
+                pdf.setFont("Helvetica", 12)
+                poll_options_and_counts = meeting_report['poll_options_and_counts']
+                for question, options_and_counts in zip(poll_questions,poll_options_and_counts):
+                    pdf.drawString(100, y, f"Poll question: {question}")
+                    y -= 20
+                    print(question)
+                    print(options_and_counts)
+                    for option,count in options_and_counts.items():
+                        print(option)
+                        print(count)
+                        pdf.drawString(100, y, f"*{option}, count: {count}")
+                        y -= 20
             # save the PDF file and return the response
             pdf.save()
             return response
