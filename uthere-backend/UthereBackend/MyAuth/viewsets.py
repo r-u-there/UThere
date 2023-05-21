@@ -340,10 +340,13 @@ class SettingsViewSet(ModelViewSet):
 
     def update(self, request, *args, **kwargs):
         data = request.data
-        serializer = self.serializer_class(data=data)
+        user = User.objects.get(id=kwargs['pk'])
+        instance = Settings.objects.get(id=user.settings_id) 
+        serializer = self.serializer_class(instance,data=data)
+        print(data)
         if serializer.is_valid():
-            serializer.update()
-            return Response(data=serializer.data, status=status.HTTP_204_NO_CONTENT)
+            serializer.update(instance, serializer.validated_data)
+            return Response(data=serializer.data, status=status.HTTP_200_OK)
         else:
             return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

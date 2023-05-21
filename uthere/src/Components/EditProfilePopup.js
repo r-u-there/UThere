@@ -45,7 +45,7 @@ function EditProfilePopup(props) {
 	function setAttentionRatingLimit() {
 		console.log(props.settingsId);
 		var settings_id = props.settingsId
-		API.put(`settings/${props.settingsId}/`, {
+		API.put(`settings/${userId}/`, {
 			"attention_limit": newInfo
 		}, { headers: { Authorization: `Token ${token}` } }).then(response => {
 			console.log(response);
