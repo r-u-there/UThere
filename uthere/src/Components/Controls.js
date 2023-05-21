@@ -379,17 +379,21 @@ function Controls(props) {
 						headers: { Authorization: `Token ${token}` }
 					}
 				);
-				console.log(createScreenShare)
-				await client2.publish([screenTrack]);
-				client2.on("user-published", async (user, mediaType) => {
-					if (mediaType === "video" && user.videoTrack) {
-						await client2.subscribe(user, "screen");
-						const screenTrack = user.videoTrack;
-						// Play the remote screen track in the new div element
-						screenTrack.play("yyy");
-					}
-				});
-				setChannelParameters({ ...channelParameters, screenTrack });
+
+				if (createScreenShare.status === 200){
+					console.log(createScreenShare)
+					await client2.publish([screenTrack]);
+					client2.on("user-published", async (user, mediaType) => {
+						if (mediaType === "video" && user.videoTrack) {
+							await client2.subscribe(user, "screen");
+							const screenTrack = user.videoTrack;
+							// Play the remote screen track in the new div element
+							screenTrack.play("yyy");
+						}
+					});
+					setChannelParameters({ ...channelParameters, screenTrack });
+				}
+				
 				
 			} catch (error) {
 				console.error('Error creating screen track:', error);
