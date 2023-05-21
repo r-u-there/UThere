@@ -92,15 +92,15 @@ function Videos(props) {
 						const participantName = await getMeetingUser(user.uid);
 						console.log(user);
 						//api to check left or not
-						const response = await API.put(`is_user_left/`, {
+						/*const response = await API.put(`is_user_left/`, {
 							"channelId": channelId,
 							"agora_id": user.uid
 						}, {
 							headers: { Authorization: `Token ${token}` }
 						});
-						if(!response.data.status){
+						if(!response.data.status){*/
 							newData.push({ uid: user.uid, participantName: participantName, isScreenShare: false });
-						}
+						//}
 	
 					} else {
 						newData.push({ uid: user.uid, participantName: "ScreenShare", isScreenShare:true});
@@ -114,7 +114,6 @@ function Videos(props) {
 		fetchData();
 	}, [users,users.map(user => user.videoTrack).join(),users.map(user => user.uid).join()]);
 	
-
 	useEffect(()=>{
 		setShowPopup(status==="presenter")
 		console.log(status);
