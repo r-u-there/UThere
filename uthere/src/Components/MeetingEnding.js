@@ -16,7 +16,7 @@ function MeetingEnding() {
   const token = localStorage.getItem('token');
   const [loading, setLoading] = useState(false)
   const [sharedParticipants, setSharedParticipants] = useState([]);
-  
+
   useEffect(() => {
     getMeetingParticipants();
 
@@ -56,37 +56,41 @@ function MeetingEnding() {
       response.data.forEach(function (current, index) {
         var agora_uid = current.agora_id
         console.log(agora_uid)
-        API.get(`get_user_info/${current.user}/`, {
-          headers: { Authorization: `Token ${token}` }
-        }).then(res => {
-          console.log(res.data.username);
-          let name = res.data.username
-          if (current.user != userId) {
-            //check whether this user becomes presenter at the any point of this meeting 
-            API.put(`get_presenter_table/`,
-              {
-                "channelId": meetingId,
-                "userId": current.user
-              },
-              {
-                headers: { Authorization: `Token ${token}` }
-              }).then(resx => {
-                if (resx.data.hasOwnProperty('status') && resx.data.status === 'MeetingUser not found') {
-                  newData.push({ uid: current.user, participantName: name, agora_id: agora_uid });
-                }
-                else {
-                  name = name + " (Presenter)"
-                  newData.push({ uid: current.user, participantName: name, agora_id: agora_uid });
-                }
-                setParticipants((participants) => [...participants, ...newData])
-              }).catch((exception) => {
-                console.log(exception);
-              });
-          }
+        if (current.user != userId) {
+          API.get(`get_user_info/${current.user}/`, {
+            headers: { Authorization: `Token ${token}` }
+          }).then(res => {
+            console.log(res.data.username);
+            let name = res.data.username
+            if (current.user != userId) {
+              //check whether this user becomes presenter at the any point of this meeting 
+              API.put(`get_presenter_table/`,
+                {
+                  "channelId": meetingId,
+                  "userId": current.user
+                },
+                {
+                  headers: { Authorization: `Token ${token}` }
+                }).then(resx => {
+                  if (resx.data.hasOwnProperty('status') && resx.data.status === 'MeetingUser not found') {
+                    newData.push({ uid: current.user, participantName: name, agora_id: agora_uid });
+                  }
+                  else {
+                    name = name + " (Presenter)"
+                    newData.push({ uid: current.user, participantName: name, agora_id: agora_uid });
+                  }
+                  setParticipants((participants) => [...participants, ...newData])
+                }).catch((exception) => {
+                  console.log(exception);
+                });
+            }
 
-        }).catch((exception) => {
-          console.log(exception);
-        });
+          }).catch((exception) => {
+            console.log(exception);
+          });
+
+        }
+
       });
 
 
@@ -106,14 +110,14 @@ function MeetingEnding() {
             <h1>Meeting is over!</h1>
             <h4>With whom do you want to share the analysis report?</h4>
             <table class="meeting-participants-table">
-            
+
               {participants.map((participant) => {
                 const { uid, participantName, agora_id } = participant;
                 const isShared = sharedParticipants.includes(uid);
                 return (
                   <tr key={uid}>
                     <td>{participantName}</td>
-                    {isShared ?  <td><button className="btn btn-light">Shared!</button></td>: <td><button className="btn btn-success" onClick={() => { giveShareAccess(uid, agora_id) }}>Share Report</button></td>}
+                    {isShared ? <td><button className="btn btn-light">Shared!</button></td> : <td><button className="btn btn-success" onClick={() => { giveShareAccess(uid, agora_id) }}>Share Report</button></td>}
                   </tr>
                 );
               })}
