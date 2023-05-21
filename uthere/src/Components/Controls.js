@@ -193,8 +193,10 @@ function Controls(props) {
 				cookies.remove("agora_uid");
 				cookies.remove("token");
 				cookies.remove("channel_name");
-				cookies.remove("channel_id");
-				cookies.remove("status");
+				if (trigger4 && !trigger5) {
+					cookies.remove("channel_id");
+					cookies.remove("status");
+				}
 
 
 				if (isRemoved) {
