@@ -9,6 +9,8 @@ import React from 'react';
 import { Cookies } from "react-cookie";
 import AttentionAnalysisPopup from "./AttentionAnalysisPopup";
 import API from "./API";
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function VideoCall(props) {
 	const ready = props.ready;
