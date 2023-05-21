@@ -167,11 +167,6 @@ function ProfilePage() {
 		position: toast.POSITION.TOP_CENTER,
 		autoClose: 5000 // Time in milliseconds
 	});
-
-      // Hide the alert after 3 seconds
-      setTimeout(() => {
-        document.body.removeChild(alertDiv);
-      }, 3000);
     }).catch((exception) => {
       window.location = "/Dashboard"
       console.log(exception);
