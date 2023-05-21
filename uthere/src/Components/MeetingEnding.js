@@ -47,7 +47,7 @@ function MeetingEnding() {
     try {
       const response = await API.get(`get_all_meeting_participants/${meetingId}/`, {
         headers: { Authorization: `Token ${token}` }
-      });3
+      });
       console.log(meetingId)
       console.log(response);
 
@@ -77,7 +77,7 @@ function MeetingEnding() {
                   name = name + " (Presenter)"
                   newData.push({ uid: current.user, participantName: name, agora_id: agora_uid });
                 }
-                setParticipants(newData)
+                setParticipants((participants) => [...participants, ...newData])
               }).catch((exception) => {
                 console.log(exception);
               });
