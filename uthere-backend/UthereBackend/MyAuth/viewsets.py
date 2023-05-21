@@ -571,11 +571,11 @@ class GetAttentionEmotionScoreViewSet(ModelViewSet):
         if not queryset.exists():
             return Response({'status': 'Attention score not found'})
         
-        for score in queryset:
-            user_id = score.user_id
-            user_meeting_queryset = MeetingUser.objects.filter(user_id=user_id, meeting_id=meeting_id)
-            if user_meeting_queryset.get().is_host or user_meeting_queryset.get().is_presenter:
-                score.delete()
+        #for score in queryset:
+        #    user_id = score.user_id
+        #    user_meeting_queryset = MeetingUser.objects.filter(user_id=user_id, meeting_id=meeting_id)
+        #    if user_meeting_queryset.get().is_host or user_meeting_queryset.get().is_presenter:
+        #        score.delete()
         attention_score = queryset.all()
         total = sum(at_score.attention_score for at_score in attention_score)
         avg_attention_score = 0
