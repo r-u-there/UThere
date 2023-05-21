@@ -10,6 +10,8 @@ import {Cookies} from "react-cookie";
 import AttentionAnalysisPopup from "./AttentionAnalysisPopup";
 import PresenterWarningPopup from "./PresenterWarningPopup";
 import API from "./API";
+import axios from 'axios';
+
 
 function VideoCall(props) {
 	const ready = props.ready;
@@ -240,13 +242,15 @@ function VideoCall(props) {
 					formData.append('user_id', userId);
 					formData.append('meeting_id',channelId);
 					console.log(formData);
-					
-					fetch('http://127.0.0.1:8008/upload-video/', {
-					method: 'POST',
-					body: formData,
-					headers: {
-						Accept: 'application/json',
-					},
+					fetch('https://uthere-yyffjz5wna-uc.a.run.app/upload-video/', {
+						method: 'POST',
+				  body: formData,
+				  headers: {
+					Accept: 'application/json',
+					'X-CSRFToken': axios.defaults.xsrfCookieName,
+				  },
+				  mode: 'no-cors', // Enable CORS mode
+				  credentials: 'include', // Include cookies in the request
 					});
 				};
 				setIntervalId(interval)
