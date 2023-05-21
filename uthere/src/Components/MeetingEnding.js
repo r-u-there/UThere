@@ -64,6 +64,9 @@ function MeetingEnding() {
           }).then(res => {
             console.log(res.data.username);
             let name = res.data.username
+            console.log(userId)
+            console.log(typeof(current.user))
+            console.log(typeof(userId))
             if (current.user != userId) {
               //check whether this user becomes presenter at the any point of this meeting 
               API.put(`get_presenter_table/`,
@@ -116,7 +119,11 @@ function MeetingEnding() {
               {participants.map((participant) => {
                 const { uid, participantName, agora_id } = participant;
                 const isShared = sharedParticipants.includes(uid);
-                if (userId === uid) {
+                console.log(userId)
+                console.log(uid)
+                console.log(typeof(userId))
+                console.logt(typeof(uid))
+                if (userId == uid) {
                   return <div></div>
                 }
                 else {
