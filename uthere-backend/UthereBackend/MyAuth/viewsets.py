@@ -46,6 +46,7 @@ from django.db import IntegrityError
 from django.contrib.auth.hashers import check_password
 from django.db import transaction
 import math
+import os
 
 class UserViewSet(viewsets.ModelViewSet):
     http_method_names = ['get']
@@ -1013,76 +1014,94 @@ class GetSpecificAnalysisReportViewSet(ModelViewSet):
             # create a new PDF document with ReportLab
             # write the reports to the PDF file
             y = 750
-            pdf.setFont("Helvetica", 14)
+            script_path = os.path.abspath(__file__)
+
+            # Get the directory path of the script
+            script_directory = os.path.dirname(script_path)
+
+            # Image filename
+            image_filename = "UThereIcon.png"
+
+            # Create the image path
+            image_path = os.path.join(script_directory, image_filename)
+            width = 50  # Width of the image
+            height = 50  # Height of the image
+            pdf.drawImage(image_path, 100, y, width, height)
+            y -= 30
+            pdf.setFont("Helvetica-Bold", 14)
             pdf.drawString(100, y, f"General Meeting Information")
             y -= 20
 
             start_time = meeting_report['start_time']
-            pdf.setFont("Helvetica", 12)
+            pdf.setFont("Helvetica-Bold", 12)
             new_date_format = "%d-%m-%Y %H:%M:%S"
             formatted_start_time = start_time.strftime(new_date_format)
-            pdf.drawString(100, y, f"Meeting start time: {formatted_start_time}")
+            pdf.drawString(100, y, f"Meeting start time: ")
+            pdf.setFont("Helvetica", 12)
+            pdf.drawString(100 + pdf.stringWidth("Meeting start time:   "), y, formatted_start_time)
             y -= 20
 
             end_time = meeting_report['end_time']
+            pdf.setFont("Helvetica-Bold", 12)
             formatted_end_time = end_time.strftime(new_date_format)
-            pdf.drawString(100, y, f"Meeting end time: {formatted_end_time}")
+            pdf.drawString(100, y, f"Meeting end time: ")
+            pdf.setFont("Helvetica", 12)
+            pdf.drawString(100 + pdf.stringWidth("Meeting end time:   "), y, formatted_start_time)
             y -= 20
 
             host_user_name = meeting_report['host_username']
             host_email = meeting_report['host_email']
-            pdf.drawString(100, y, f"Host of the meeting (name): {host_user_name}, (email): {host_email}")
+            pdf.setFont("Helvetica-Bold", 12)
+            pdf.drawString(100, y, f"Host of the meeting (name): ")
+            pdf.setFont("Helvetica", 12)
+            pdf.drawString(100 + pdf.stringWidth("Host of the meeting (name):   "), y, host_user_name)
+            pdf.setFont("Helvetica-Bold", 12)
+            pdf.drawString(100 + pdf.stringWidth("Host of the meeting (name):   " + host_user_name), y, f"(email): ")
+            pdf.setFont("Helvetica", 12)
+            pdf.drawString(100 + pdf.stringWidth("Host of the meeting (name):   " + host_user_name + "(email):    "), y, host_email)
             y -= 20
 
             join_time = meeting_report['join_time']
             formatted_join_time = join_time.strftime(new_date_format)
-            pdf.drawString(100, y, f"The time you join to the meeting: {formatted_join_time}")
+            pdf.setFont("Helvetica-Bold", 12)
+            pdf.drawString(100, y, f"The time you join to the meeting: ")
+            pdf.setFont("Helvetica", 12)
+            pdf.drawString(100 + pdf.stringWidth("The time you join to the meeting:    "), y, formatted_join_time)
             y -= 20
 
             left_time = meeting_report['user_left_time']
             formatted_left_time = left_time.strftime(new_date_format)
-            pdf.drawString(100, y, f"The time you left the meeting: {formatted_left_time}")
-            y -= 20
-
-            y-=40
-
-            pdf.setFont("Helvetica", 14)
-            pdf.drawString(100, y, f"Presenters")
-            y -= 20
-
+            pdf.setFont("Helvetica-Bold", 12)
+            pdf.drawString(100, y, f"The time you left the meeting: ")
             pdf.setFont("Helvetica", 12)
-            presenter_names = meeting_report['presenter_names']
-            presenter_emails = meeting_report['presenter_emails']
-            presenter_start_times = meeting_report['presenter_start_times']
-            presenter_end_times = meeting_report['presenter_end_times']
-            for name, email,start_time,end_time in zip(presenter_names,presenter_emails,presenter_start_times,presenter_end_times):
-                formatted_start_time = start_time.strftime(new_date_format)
-                formatted_end_time = end_time.strftime(new_date_format)
-                pdf.drawString(100, y, f"Presenter (name): {name}, (email): {email}")
-                y -= 20
-                pdf.drawString(100, y, f"Presenter start time: {formatted_start_time}, end time: {formatted_end_time}")
-                y -= 30
-            
+            pdf.drawString(100 + pdf.stringWidth("The time you left the meeting:     "), y, formatted_left_time)
+            y -= 20
+
             y-=40
-            pdf.setFont("Helvetica", 14)
+            pdf.setFont("Helvetica-Bold", 14)
             
             if show_atttention_anlaysis:
                 pdf.drawString(100, y, f"Attention and Emotion Scores")
                 y -= 20
 
-                pdf.setFont("Helvetica", 12)
+                pdf.setFont("Helvetica-Bold", 12)
                 total_avg_attention_score = meeting_report['average_attention']
-                pdf.drawString(100, y, f"The average attention score: {total_avg_attention_score}")
+                pdf.drawString(100, y, f"The average attention score: ")
+                pdf.setFont("Helvetica", 12)
+                pdf.drawString(100 + pdf.stringWidth("The average attention score:     "), y, str(total_avg_attention_score))
                 y -= 20
 
                 total_avg_emotion_score = meeting_report['average_emotion']
-                pdf.drawString(100, y, f"The most common emotion during the meeting: {total_avg_emotion_score}")
+                pdf.setFont("Helvetica-Bold", 12)
+                pdf.drawString(100, y, f"The most common emotion during the meeting: ")
+                pdf.setFont("Helvetica", 12)
+                pdf.drawString(100 + pdf.stringWidth("The most common emotion during the meeting:       "), y, str(total_avg_emotion_score))
                 
 
                 emotions=  meeting_report['emotions']
                 y-= 40
                 #draw attention graph
-                pdf.setFont("Helvetica", 14)
+                pdf.setFont("Helvetica-Bold", 14)
                 pdf.drawString(100, y, f"Attention Graph")
                 y -= 330
                 drawing = Drawing(width=500, height=300)
@@ -1126,9 +1145,11 @@ class GetSpecificAnalysisReportViewSet(ModelViewSet):
                 drawing.drawOn(pdf, 50, y,450)
                     
                 pdf.showPage()
-                y+=650
+                y+=600
+
+                
                 #emotion pie
-                pdf.setFont("Helvetica", 14)
+                pdf.setFont("Helvetica-Bold", 14)
                 pdf.drawString(100, y, f"Emotion Graph")
                 y-=300
                 d = Drawing(300, 200)
@@ -1155,9 +1176,41 @@ class GetSpecificAnalysisReportViewSet(ModelViewSet):
         
                 d.drawOn(pdf, 0, y,50)
                 y-=100
+
+            pdf.setFont("Helvetica-Bold", 14)
+            pdf.drawString(100, y, f"Presenters")
+            y -= 20
+
+            pdf.setFont("Helvetica", 12)
+            presenter_names = meeting_report['presenter_names']
+            presenter_emails = meeting_report['presenter_emails']
+            presenter_start_times = meeting_report['presenter_start_times']
+            presenter_end_times = meeting_report['presenter_end_times']
+            for name, email,start_time,end_time in zip(presenter_names,presenter_emails,presenter_start_times,presenter_end_times):
+                formatted_start_time = start_time.strftime(new_date_format)
+                formatted_end_time = end_time.strftime(new_date_format)
+                pdf.setFont("Helvetica-Bold", 12)
+                pdf.drawString(100, y, f"Presenter (name): ")
+                pdf.setFont("Helvetica", 12)
+                pdf.drawString(100 + pdf.stringWidth("Presenter (name):   "), y, name)
+                pdf.setFont("Helvetica-Bold", 12)
+                pdf.drawString(100 + pdf.stringWidth("Presenter (name):   " + name), y, f"(email): ")
+                pdf.setFont("Helvetica", 12)
+                pdf.drawString(100 + pdf.stringWidth("Presenter (name):   " + name + "(email):    "), y, email)
+                y -= 20
+                pdf.setFont("Helvetica-Bold", 12)
+                pdf.drawString(100, y, f"Presenter start time: ")
+                pdf.setFont("Helvetica", 12)
+                pdf.drawString(100 + pdf.stringWidth("Presenter start time:   "), y, formatted_start_time)
+                pdf.setFont("Helvetica-Bold", 12)
+                pdf.drawString(100 + pdf.stringWidth("Presenter start time:   " + formatted_start_time), y, f" Presenter end time: ")
+                pdf.setFont("Helvetica", 12)
+                pdf.drawString(100 + pdf.stringWidth("Presenter start time:   " + formatted_start_time + " Presenter end time:     "), y, formatted_end_time)
+                y -= 30
+            
            
             #more detailed informations (alerts, poll and results,all particapants)
-            pdf.setFont("Helvetica", 14)
+            pdf.setFont("Helvetica-Bold", 14)
             pdf.drawString(100, y, f"Participants")
             y -= 20
 
@@ -1170,27 +1223,56 @@ class GetSpecificAnalysisReportViewSet(ModelViewSet):
             for name, email,join_time,left_time,alert_num in zip(participant_names,participant_emails,participant_join_times,participant_left_times,participant_alert_nums):
                 formatted_join_time = join_time.strftime(new_date_format)
                 formatted_left_time = left_time.strftime(new_date_format)
-                pdf.drawString(100, y, f"Participant (name): {name}, (email): {email}")
+                pdf.setFont("Helvetica-Bold", 12)
+                pdf.drawString(100, y, f"Participant (name): ")
+                pdf.setFont("Helvetica", 12)
+                pdf.drawString(100 + pdf.stringWidth("Participant (name):     "), y, name)
+                pdf.setFont("Helvetica-Bold", 12)
+                pdf.drawString(100+pdf.stringWidth("Participant (name):     "+ name), y, f"  (email): ")
+                pdf.setFont("Helvetica", 12)
+                pdf.drawString(100+pdf.stringWidth("Participant (name):     "+ name + "  (email):   "), y, email)
                 y -= 20
-                pdf.drawString(100, y, f"Participant join time: {formatted_join_time}, left time: {formatted_left_time}")
+                pdf.setFont("Helvetica-Bold", 12)
+                pdf.drawString(100, y, f"Participant join time: ")
+                pdf.setFont("Helvetica", 12)
+                pdf.drawString(100 + pdf.stringWidth("Participant join time:     "), y, formatted_join_time)
+                pdf.setFont("Helvetica-Bold", 12)
+                pdf.drawString(100+pdf.stringWidth("Participant join time:      "+ formatted_join_time), y, f"  left time: ")
+                pdf.setFont("Helvetica", 12)
+                pdf.drawString(100+pdf.stringWidth("Participant join time:      "+ formatted_join_time + "  left time:     "), y, formatted_left_time)
                 y -= 20
                 if alert_num != 0:
-                    pdf.drawString(100, y, f"This participant is alerted {alert_num} times")
+                    pdf.setFont("Helvetica", 12)
+                    pdf.drawString(100, y, f"This participant is alerted ")
+                    pdf.setFont("Helvetica-Bold", 12)
+                    pdf.drawString(100+pdf.stringWidth("This participant is alerted  "), y, f"{alert_num}")
+                    pdf.setFont("Helvetica", 12)
+                    pdf.drawString(100+pdf.stringWidth("This participant is alerted  "+f"{alert_num}  "), y, f"  times")
                     y -= 30
             y-=20
             #poll related information
             poll_questions = meeting_report['poll_questions']
             if len(poll_questions)!=0:
-                pdf.setFont("Helvetica", 14)
+                pdf.setFont("Helvetica-Bold", 14)
                 pdf.drawString(100, y, f"Polls")
                 y -= 20
                 pdf.setFont("Helvetica", 12)
                 poll_options_and_counts = meeting_report['poll_options_and_counts']
                 for question, options_and_counts in zip(poll_questions,poll_options_and_counts):
-                    pdf.drawString(100, y, f"Poll question: {question}")
+                    pdf.setFont("Helvetica-Bold", 12)
+                    pdf.drawString(100, y, f"Poll question:  ")
+                    pdf.setFont("Helvetica", 12)
+                    pdf.drawString(100 + pdf.stringWidth("Poll question:     "), y, question)
                     y -= 20
                     for option,count in options_and_counts.items():
-                        pdf.drawString(100, y, f"*{option}, count: {count}")
+                        pdf.setFont("Helvetica-Bold", 12)
+                        pdf.drawString(100, y, f"Option: ")
+                        pdf.setFont("Helvetica", 12)
+                        pdf.drawString(100 + pdf.stringWidth("Option:     "), y, option)
+                        pdf.setFont("Helvetica-Bold", 12)
+                        pdf.drawString(100+pdf.stringWidth(f"Option:     {option}"), y, f"  Count:  ")
+                        pdf.setFont("Helvetica", 12)
+                        pdf.drawString(100+pdf.stringWidth(f"Option:     {option}  Count:  "), y, f"  {count}")
                         y -= 20
             # save the PDF file and return the response
             pdf.save()
