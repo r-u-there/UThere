@@ -44,14 +44,13 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'drf_registration',
+    'deepface',
 
 ]
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
-    "https://uthere.vercel.app",
-    "https://uthere-git-main-uthere.vercel.app",
-    "https://uthere-uthere.vercel.app"
+    "https://uthere-git-27-adding-ml-server-to-cloud-uthere.vercel.app"
 ]
 
 CORS_ALLOW_METHODS = [
@@ -169,5 +168,5 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-#CORS_ORIGIN_ALLOW_ALL= True
+CORS_ORIGIN_ALLOW_ALL= True
 CORS_ALLOW_CREDENTIALS = True
