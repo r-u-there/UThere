@@ -43,11 +43,11 @@ function MeetingEnding() {
 
   // Retrieves the meeting participants.
   async function getMeetingParticipants(meetingId) {
-    const newData = [];
+    let newData = [];
     try {
       const response = await API.get(`get_all_meeting_participants/${meetingId}/`, {
         headers: { Authorization: `Token ${token}` }
-      });
+      });3
       console.log(meetingId)
       console.log(response);
 
@@ -57,9 +57,9 @@ function MeetingEnding() {
         console.log(agora_uid)
         API.get(`get_user_info/${current.user}/`, {
           headers: { Authorization: `Token ${token}` }
-        }).then(response => {
-          console.log(response.data.username);
-          var name = response.data.username
+        }).then(res => {
+          console.log(res.data.username);
+          let name = res.data.username
           if (current.user != userId) {
             //check whether this user becomes presenter at the any point of this meeting 
             API.put(`get_presenter_table/`,
@@ -69,8 +69,8 @@ function MeetingEnding() {
               },
               {
                 headers: { Authorization: `Token ${token}` }
-              }).then(response => {
-                if (response.data.hasOwnProperty('status') && response.data.status === 'MeetingUser not found') {
+              }).then(resx => {
+                if (resx.data.hasOwnProperty('status') && resx.data.status === 'MeetingUser not found') {
                   newData.push({ uid: current.user, participantName: name, agora_id: agora_uid });
                 }
                 else {
