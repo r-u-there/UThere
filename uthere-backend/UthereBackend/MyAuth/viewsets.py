@@ -341,15 +341,10 @@ class SettingsViewSet(ModelViewSet):
     def update(self, request, *args, **kwargs):
         data = request.data
         serializer = self.serializer_class(data=data)
-
         if serializer.is_valid():
-            setting = Settings.objects.get(id=request.user.settings_id)
-            for key, value in data.items():
-                setattr(setting, key, value)
-            print(setting)
+            serializer.update()
             return Response(data=serializer.data, status=status.HTTP_204_NO_CONTENT)
         else:
-            print(serializer.errors,flush=True)
             return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
