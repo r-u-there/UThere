@@ -155,16 +155,28 @@ function ProfilePage() {
 		};
 
 		API.put(`settings/${userId}/`, data, {
-		  headers: {
-			'Authorization': `Token ${token}`
-		  },
-		}).then(response => {
-			setLoading(true);
-		}).catch((exception) => {
-			window.location = "/Dashboard"
-			console.log(exception);
-		});
-	  };
+      headers: {
+        'Authorization': `Token ${token}`
+      },
+    }).then(response => {
+      setLoading(true);
+      // Display the alert using Bootstrap styles
+      const alertDiv = document.createElement('div');
+      alertDiv.className = 'alert alert-success';
+      alertDiv.innerHTML = 'Info has been saved!';
+      document.body.appendChild(alertDiv);
+
+      // Hide the alert after 3 seconds
+      setTimeout(() => {
+        document.body.removeChild(alertDiv);
+      }, 3000);
+    }).catch((exception) => {
+      window.location = "/Dashboard"
+      console.log(exception);
+    });
+  };
+
+
 	function displayProfile() {
 		if (tabSelection == 0) {
 			return (
@@ -251,8 +263,11 @@ function ProfilePage() {
 							<td>&emsp;&emsp;{!toggle6 ? <MdToggleOff onClick={() => {setToggle6(!toggle6); }} size={40}/> : <MdToggleOn onClick={() => {setToggle6(!toggle6); }} size={40} color="green"/>}</td>
 						</tr>
 					</table>
-					      <button onClick={handleSubmit}>Submit</button>
-				</div>
+		<div className="form-group col-sm-10">
+        <center>
+          <button type="button" className="btn btn-primary rounded-pill" onClick={handleSubmit}>Save</button>
+        </center>
+      </div>				</div>
 			);
 		}
 	}
