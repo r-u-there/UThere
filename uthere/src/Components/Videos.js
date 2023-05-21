@@ -53,7 +53,7 @@ function Videos(props) {
 		  console.log(response);
 		  const participant_user_id = response.data.user;
 		  console.log(participant_user_id);
-		  const userResponse = await API.get(`http://127.0.0.1:8000/api/get_user_info/${participant_user_id}/`, {
+		  const userResponse = await API.get(`get_user_info/${participant_user_id}/`, {
 			headers: { Authorization: `Token ${token}` }
 		  })
 		  console.log(userResponse.data.username);
@@ -92,15 +92,18 @@ function Videos(props) {
 						const participantName = await getMeetingUser(user.uid);
 						console.log(user);
 						//api to check left or not
-						/*const response = await API.put(`is_user_left/`, {
+						API.put(`is_user_left/`, {
 							"channelId": channelId,
 							"agora_id": user.uid
 						}, {
 							headers: { Authorization: `Token ${token}` }
-						});
-						if(!response.data.status){*/
-							newData.push({ uid: user.uid, participantName: participantName, isScreenShare: false });
-						//}
+						}).then(response => {
+							console.log("denemee "+response)
+							if(!response.data.status){
+								newData.push({ uid: user.uid, participantName: participantName, isScreenShare: false });
+							}
+						})
+						
 	
 					} else {
 						newData.push({ uid: user.uid, participantName: "ScreenShare", isScreenShare:true});
@@ -168,6 +171,7 @@ function Videos(props) {
 						else {
 							if (!isScreenShare) {
 								console.log(3 +" "+ uid);
+
 								return (
 									<div key={uid} className='vid'>
 										<div className='video-label-container'>
