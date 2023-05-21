@@ -46,6 +46,7 @@ function CreatePollPopup(props) {
 
         API.post(`create_poll/`, JSON.stringify(request_data), { headers: { Authorization: `Token ${token}` } }).then(response => {
             console.log(response);
+            setButtonText('Share Poll')
             props.setTrigger(false);
         }).catch((exception) => {
             console.log(exception);
