@@ -18,7 +18,7 @@ function MeetingEnding() {
   const [triggerShareButton, setTriggerShareButton] = useState(true);
   
   useEffect(() => {
-    getMeetingParticipants(meetingId);
+    getMeetingParticipants();
 
     setTimeout(() => {
       setLoading(true);
@@ -42,9 +42,10 @@ function MeetingEnding() {
   }
 
   // Retrieves the meeting participants.
-  async function getMeetingParticipants(meetingId) {
+  async function getMeetingParticipants() {
     let newData = [];
     try {
+      console.log(meetingId)
       const response = await API.get(`get_all_meeting_participants/${meetingId}/`, {
         headers: { Authorization: `Token ${token}` }
       });
