@@ -11,6 +11,7 @@ function MeetingEnding() {
   const location = useLocation();
   const cookies = new Cookies();
   const meetingId = cookies.get("channel_id");
+  const agora_id = cookies.get("agora_uid")
   const userId = cookies.get("userId")
   const [participants, setParticipants] = useState([]);
   const token = localStorage.getItem('token');
@@ -38,7 +39,7 @@ function MeetingEnding() {
     }).catch((exception) => {
       console.log(exception);
     });
-    setSharedParticipants([...sharedParticipants, agora_id]);
+    setSharedParticipants([...sharedParticipants, id]);
   }
 
   // Retrieves the meeting participants.
@@ -56,6 +57,7 @@ function MeetingEnding() {
       response.data.forEach(function (current, index) {
         var agora_uid = current.agora_id
         console.log(agora_uid)
+        console.log(current.user)
         if (current.user != userId) {
           API.get(`get_user_info/${current.user}/`, {
             headers: { Authorization: `Token ${token}` }
@@ -114,12 +116,18 @@ function MeetingEnding() {
               {participants.map((participant) => {
                 const { uid, participantName, agora_id } = participant;
                 const isShared = sharedParticipants.includes(uid);
-                return (
-                  <tr key={uid}>
-                    <td>{participantName}</td>
-                    {isShared ? <td><button className="btn btn-light">Shared!</button></td> : <td><button className="btn btn-success" onClick={() => { giveShareAccess(uid, agora_id) }}>Share Report</button></td>}
-                  </tr>
-                );
+                if (userId === uid) {
+                  return <div></div>
+                }
+                else {
+                  return (
+                    <tr key={uid}>
+                      <td>{participantName}</td>
+                      {isShared ? <td><button className="btn btn-light">Shared!</button></td> : <td><button className="btn btn-success" onClick={() => { giveShareAccess(uid, agora_id) }}>Share Report</button></td>}
+                    </tr>
+                  );
+                }
+
               })}
             </table>
           </div>
