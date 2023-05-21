@@ -45,7 +45,7 @@ from reportlab.graphics.charts.piecharts import Pie
 from django.db import IntegrityError
 from django.contrib.auth.hashers import check_password
 from django.db import transaction
-
+import math
 
 class UserViewSet(viewsets.ModelViewSet):
     http_method_names = ['get']
@@ -899,9 +899,6 @@ class GetSpecificAnalysisReportViewSet(ModelViewSet):
         user_id = request.data.get("userId")
         channel_id = request.data.get("channelId")
         agora_id = request.data.get("agora_id")
-        print(user_id)
-        print(channel_id)
-        print(agora_id)
         user_meeting = MeetingUser.objects.get(id=meeting_user_id,user_id=user_id, meeting_id=channel_id,agora_id=agora_id)
         if user_meeting is not None:
             #create report
@@ -956,7 +953,6 @@ class GetSpecificAnalysisReportViewSet(ModelViewSet):
             show_atttention_anlaysis= True
             if len(total_avg_attention)==0 or len(points_for_attention_graph) == 0:
                 show_atttention_anlaysis =False
-                print(show_atttention_anlaysis)
             elif total_avg_attention and points_for_attention_graph is not None:
                 total = 0
                 attention_graph_points = []
@@ -972,7 +968,6 @@ class GetSpecificAnalysisReportViewSet(ModelViewSet):
                 max_index = emotions.index(max(emotions))
                 attention_graph_points = sorted(attention_graph_points, key=lambda point: point['time'])
                 attention_graph_points_average = sorted(attention_graph_points_average, key=lambda point: point['time_start'])
-                print(attention_graph_points_average)
                 average_attention=0
                 avg_emotion='Not available'
                 if len(total_avg_attention) != 0: 
@@ -1084,12 +1079,19 @@ class GetSpecificAnalysisReportViewSet(ModelViewSet):
                 drawing = Drawing(width=500, height=300)
                 # your existing code
                 x_values = [datetime.strptime(point['time_end'], '%Y-%m-%d %H:%M:%S.%f').timestamp() for point in attention_graph_points_average]
-                reverse_x_values = [datetime.fromtimestamp(timestamp) for timestamp in x_values]
-                x_labels = [dt.strftime("%Y-%m-%d %H:%M:%S") for dt in reverse_x_values]
-                y_values = [point['attention_score'] for point in attention_graph_points_average]   
-                print(x_values)
-                print(y_values)
+                #reverse_x_values = [datetime.fromtimestamp(timestamp) for timestamp in x_values]
+                #x_labels = [dt.strftime("%Y-%m-%d %H:%M:%S") for dt in reverse_x_values]
+                y_values = [point['attention_score'] for point in attention_graph_points_average]
 
+                # Filter out invalid data points and corresponding labels
+                valid_points = [(x, y) for x, y in zip(x_values, y_values) if not math.isnan(x) and not math.isnan(y)]
+                x_values, y_values = zip(*valid_points)  
+
+                # Convert timestamp values back to datetime objects
+                reverse_x_values = [datetime.fromtimestamp(timestamp) for timestamp in x_values]
+
+                # Format datetime objects as time strings
+                x_labels = [dt.strftime("%H:%M:%S") for dt in reverse_x_values]
                 lp = LinePlot()
                 lp.x = 50
                 lp.y = 50
@@ -1101,7 +1103,16 @@ class GetSpecificAnalysisReportViewSet(ModelViewSet):
                 lp.lines[0].strokeColor = colors.blue
                 lp.xValueAxis.labelTextFormat = '%2.1f'
                 
-                drawing.add(lp)
+                # Set x-axis labels as time strings
+                lp.xValueAxis.labels.boxAnchor = 'n'
+                lp.xValueAxis.labels.angle = 45
+                lp.xValueAxis.labels.dx = -10
+                lp.xValueAxis.labels.dy = -10
+                lp.xValueAxis.labels.textAnchor = 'start'
+                lp.xValueAxis.labels.fontName = 'Helvetica'
+                lp.xValueAxis.labels.fontSize = 10
+                lp.xValueAxis.labelTextFormat = x_labels
+                
                 drawing.add(lp)
                 drawing.drawOn(pdf, 50, y,450)
                     
@@ -1120,6 +1131,7 @@ class GetSpecificAnalysisReportViewSet(ModelViewSet):
                 pc.data = emotions
                 pc.labels = ['Sad','Angry','Surprise','Fear','Happy','Disgust','Neutral']
                 pc.slices[3].fontColor = colors.red
+                pc.sideLabels = True
                 d.add(pc)
                 d.drawOn(pdf, 0, y,50)
                 #legend part
@@ -1127,10 +1139,14 @@ class GetSpecificAnalysisReportViewSet(ModelViewSet):
                 legend.alignment = 'right'
                 legend.x = 100
                 legend.y = 0
-                legend.colorNamePairs = [(pc.slices[i].fillColor, pc.labels[i]) for i in range(len(pc.labels))]
+                total_emotion = sum(pc.data)
+                legend.colorNamePairs = [(pc.slices[i].fillColor, f"{pc.labels[i]} ({pc.data[i]*100/total_emotion:.2f}%)") for i in range(len(pc.labels))]
                 d.add(legend)
+                
+        
                 d.drawOn(pdf, 0, y,50)
                 y-=100
+           
             #more detailed informations (alerts, poll and results,all particapants)
             pdf.setFont("Helvetica", 14)
             pdf.drawString(100, y, f"Participants")
@@ -1154,8 +1170,6 @@ class GetSpecificAnalysisReportViewSet(ModelViewSet):
                     y -= 30
             y-=20
             #poll related information
-
-           
             poll_questions = meeting_report['poll_questions']
             if len(poll_questions)!=0:
                 pdf.setFont("Helvetica", 14)
@@ -1166,11 +1180,7 @@ class GetSpecificAnalysisReportViewSet(ModelViewSet):
                 for question, options_and_counts in zip(poll_questions,poll_options_and_counts):
                     pdf.drawString(100, y, f"Poll question: {question}")
                     y -= 20
-                    print(question)
-                    print(options_and_counts)
                     for option,count in options_and_counts.items():
-                        print(option)
-                        print(count)
                         pdf.drawString(100, y, f"*{option}, count: {count}")
                         y -= 20
             # save the PDF file and return the response
