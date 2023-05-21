@@ -9,6 +9,8 @@ function ParticipantsPopup(props) {
 	const [name, setName] = useState("");
 	const [participantName, setParticipantName] = useState("");
 	const cookies = new Cookies();
+	const [new_users, setNewUsers] = useState([]);
+	const [screenshare, setScreenshare] = useState(false);
 	const userId = cookies.get("userId");
 	const channelId = cookies.get("channel_id")
 	const status = cookies.get("status");
@@ -21,42 +23,63 @@ function ParticipantsPopup(props) {
 	const token = localStorage.getItem('token');
 	const presenter_id = cookies.get("presenter_id")
 
+	async function createNewUsers(){
+		users.map(async (user) => {
+			const response_screenshare = await API.put(`is_participant_screenshare/`, {
+				"agoraId": user.uid,
+				"channelId": channelId
+			}, { headers: { Authorization: `Token ${token}` } });
+			if(!response_screenshare.data.status){
+				setNewUsers(new_users => [...new_users, user])
+			}
+		})
+	}
+
 	async function getMeetingUser(arg) {
 		try {
-			const response = await API.get(`get_meeting_participant/${arg}/`, {
-				headers: { Authorization: `Token ${token}` }
-			});
-			let participant_user_id = response.data.user;
-			let participant_is_presenter = response.data.is_presenter;
-			let participant_is_host = response.data.is_host;
-			setIsParticipantPresenter(participant_is_presenter);
-			setIsParticipantHost(participant_is_host);
-			console.log(response)
-			console.log(participant_user_id)
-			API.get(`participant_user_info/${participant_user_id}/`, {
-				headers: { Authorization: `Token ${token}` }
-			}).then(response => {
-				console.log(participant_user_id)
-				console.log(response)
-				let name = response.data.username;
-				setparticipantUserId(participant_user_id)
-				console.log(participantUserId)
-				if (participant_is_host == 1 && participant_is_presenter == 1) {
-					name = name + " (Host)(Presenter)";
-				}
-				else if (participant_is_host == 1 && participant_is_presenter == 0) {
-					name = name + " (Host)";
-				}
-				else if (participant_is_host == 0 && participant_is_presenter == 1) {
-					name = name + " (Presenter)";
-				}
-				else if (participant_is_host == 0 && participant_is_presenter == 0) {
-					name = name
-				}
-				setParticipantName(name);
-			}).catch((exception) => {
-				console.log(exception);
-			});
+			const response_screenshare = await API.put(`is_participant_screenshare/`, {
+				"agoraId": arg,
+				"channelId": channelId
+			}, { headers: { Authorization: `Token ${token}` } });
+			if(!response_screenshare.data.status){
+				console.log(arg + " is not screenshare")
+				const response = await API.get(`get_meeting_participant/${arg}/`, {
+					headers: { Authorization: `Token ${token}` }
+				});
+				let participant_user_id = response.data.user;
+				let participant_is_presenter = response.data.is_presenter;
+				let participant_is_host = response.data.is_host;
+				setIsParticipantPresenter(participant_is_presenter);
+				setIsParticipantHost(participant_is_host);
+				API.get(`participant_user_info/${participant_user_id}/`, {
+					headers: { Authorization: `Token ${token}` }
+				}).then(response => {
+					let name = response.data.username;
+					setparticipantUserId(participant_user_id)
+					if (participant_is_host == 1 && participant_is_presenter == 1) {
+						name = name + " (Host)(Presenter)";
+					}
+					else if (participant_is_host == 1 && participant_is_presenter == 0) {
+						name = name + " (Host)";
+					}
+					else if (participant_is_host == 0 && participant_is_presenter == 1) {
+						name = name + " (Presenter)";
+					}
+					else if (participant_is_host == 0 && participant_is_presenter == 0) {
+						name = name
+					}
+					setParticipantName(name);
+					
+				}).catch((exception) => {
+					console.log(exception);
+				});
+				
+
+			}
+			else{
+				setParticipantName("Screen Share")
+				
+			}
 		} catch (error) {
 			console.log("error", error);
 		}
@@ -162,6 +185,11 @@ function ParticipantsPopup(props) {
 		setsetButton(false)
 	}
 	useEffect(() => {
+		setNewUsers([])
+		createNewUsers()
+	},[users])
+	
+	useEffect(() => {
 		API.get(`user/info/${userId}/`, {
 			headers: { Authorization: `Token ${token}` }
 		}).then(response => {
@@ -204,17 +232,18 @@ function ParticipantsPopup(props) {
 									<td>---</td>
 								</tr>
 
-								{users.map((user) => {
-									getMeetingUser(user.uid);
-									console.log("participant uid is " + user.uid)
-									return <tr>
-										<td>{participantName}</td>
-										{is_host == 1 ? <td><button id={user.uid + "-remove"} onClick={() => removeUser(user.uid)}>Remove</button></td> : <td>---</td>}
-										{is_host == 1 ? isParticipantPresenter ? <td><button id={user.uid + "-unset"} onClick={() => unsetPresenter(user.uid, 0)}>Unset Presenter</button></td> :
-											<td><button id={user.uid + "-set"} onClick={() => setPresenter(user.uid)}>Set Presenter</button></td> : <td>---</td>}
-										{status === "presenter" && !isParticipantPresenter ? <td><button onClick={() => alertUser(user.uid)}>Alert</button></td> : <td>---</td>}
-									</tr>
-								})}
+								{new_users.map((user) => {
+									    getMeetingUser(user.uid);
+											return <tr>
+											<td>{participantName}</td>
+											{is_host == 1 ? <td><button id={user.uid + "-remove"} onClick={() => removeUser(user.uid)}>Remove</button></td> : <td>---</td>}
+											{is_host == 1 ? isParticipantPresenter ? <td><button id={user.uid + "-unset"} onClick={() => unsetPresenter(user.uid, 0)}>Unset Presenter</button></td> :
+												<td><button id={user.uid + "-set"} onClick={() => setPresenter(user.uid)}>Set Presenter</button></td> : <td>---</td>}
+											{status === "presenter" && !isParticipantPresenter ? <td><button onClick={() => alertUser(user.uid)}>Alert</button></td> : <td>---</td>}
+										</tr>
+									
+
+								})} 
 							</table>
 							<button type="button" onClick={() => { setTrigger(false) }} className="close popup-close2" aria-label="Close"><span aria-hidden="true">&times;</span></button>
 						</center>

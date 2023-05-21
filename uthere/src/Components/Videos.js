@@ -2,6 +2,7 @@ import { AgoraVideoPlayer } from "agora-rtc-react";
 import React, {useEffect, useState} from 'react';
 import {Cookies} from "react-cookie";
 import API from "./API";
+import { toast } from 'react-toastify';
 
 function Videos(props) {
 	const users = props.users;
@@ -90,7 +91,16 @@ function Videos(props) {
 					if (!isScreenShare) {
 						const participantName = await getMeetingUser(user.uid);
 						console.log(user);
-						newData.push({ uid: user.uid, participantName: participantName, isScreenShare: false });
+						//api to check left or not
+						const response = await API.put(`is_user_left/`, {
+							"channelId": channelId,
+							"agora_id": user.uid
+						}, {
+							headers: { Authorization: `Token ${token}` }
+						});
+						if(!response.data.status){
+							newData.push({ uid: user.uid, participantName: participantName, isScreenShare: false });
+						}
 	
 					} else {
 						newData.push({ uid: user.uid, participantName: "ScreenShare", isScreenShare:true});
@@ -152,7 +162,6 @@ function Videos(props) {
 								return (
 									<div>
 										<AgoraVideoPlayer className="vid2" id = "play" videoTrack={video} key={uid}/>
-										
 									</div>
 								);	
 							}
