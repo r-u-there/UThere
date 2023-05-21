@@ -567,12 +567,21 @@ class GetAttentionEmotionScoreViewSet(ModelViewSet):
         time = request.data.get("time")
         time_curr = datetime.strptime(time,'%Y-%m-%dT%H:%M:%S.%fZ')
         one_minute_before = time_curr - timedelta(seconds=20)
+
         queryset = AttentionEmotionScore.objects.filter( meeting_id=meeting_id, time__gte=one_minute_before)
         if not queryset.exists():
             return Response({'status': 'Attention score not found'})
+        
+        for score in queryset:
+            user_id = score.user_id
+            user_meeting_queryset = MeetingUser.objects.filter(user_id=user_id, meeting_id=meeting_id)
+            if user_meeting_queryset.get().is_host or user_meeting_queryset.get().is_presenter:
+                score.delete()
         attention_score = queryset.all()
         total = sum(at_score.attention_score for at_score in attention_score)
-        avg_attention_score = total / len(attention_score)
+        avg_attention_score = 0
+        if len(attention_score) != 0:
+            avg_attention_score = total / len(attention_score)
         
         # Create and save the AttentionEmotionScoreAverage instance
         with transaction.atomic():
