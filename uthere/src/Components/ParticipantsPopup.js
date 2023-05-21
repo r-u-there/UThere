@@ -22,68 +22,7 @@ function ParticipantsPopup(props) {
 	const [setButton, setsetButton] = useState(true);
 	const token = localStorage.getItem('token');
 	const presenter_id = cookies.get("presenter_id")
-
-	async function createNewUsers(){
-		users.map(async (user) => {
-			const response_screenshare = await API.put(`is_participant_screenshare/`, {
-				"agoraId": user.uid,
-				"channelId": channelId
-			}, { headers: { Authorization: `Token ${token}` } });
-			if(!response_screenshare.data.status){
-				setNewUsers(new_users => [...new_users, user])
-			}
-		})
-	}
-
-	async function getMeetingUser(arg) {
-		try {
-			const response_screenshare = await API.put(`is_participant_screenshare/`, {
-				"agoraId": arg,
-				"channelId": channelId
-			}, { headers: { Authorization: `Token ${token}` } });
-			if(!response_screenshare.data.status){
-				console.log(arg + " is not screenshare")
-				const response = await API.get(`get_meeting_participant/${arg}/`, {
-					headers: { Authorization: `Token ${token}` }
-				});
-				let participant_user_id = response.data.user;
-				let participant_is_presenter = response.data.is_presenter;
-				let participant_is_host = response.data.is_host;
-				setIsParticipantPresenter(participant_is_presenter);
-				setIsParticipantHost(participant_is_host);
-				API.get(`participant_user_info/${participant_user_id}/`, {
-					headers: { Authorization: `Token ${token}` }
-				}).then(response => {
-					let name = response.data.username;
-					setparticipantUserId(participant_user_id)
-					if (participant_is_host == 1 && participant_is_presenter == 1) {
-						name = name + " (Host)(Presenter)";
-					}
-					else if (participant_is_host == 1 && participant_is_presenter == 0) {
-						name = name + " (Host)";
-					}
-					else if (participant_is_host == 0 && participant_is_presenter == 1) {
-						name = name + " (Presenter)";
-					}
-					else if (participant_is_host == 0 && participant_is_presenter == 0) {
-						name = name
-					}
-					setParticipantName(name);
-					
-				}).catch((exception) => {
-					console.log(exception);
-				});
-				
-
-			}
-			else{
-				setParticipantName("Screen Share")
-				
-			}
-		} catch (error) {
-			console.log("error", error);
-		}
-	}
+	const [participantsSet, setParticipantsSet] = useState([]);
 
 	function removeUser(removed_user_id) {
 		//force user to left
@@ -184,11 +123,8 @@ function ParticipantsPopup(props) {
 		}
 		setsetButton(false)
 	}
-	useEffect(() => {
-		setNewUsers([])
-		createNewUsers()
-	},[users])
-	
+
+
 	useEffect(() => {
 		API.get(`user/info/${userId}/`, {
 			headers: { Authorization: `Token ${token}` }
@@ -198,6 +134,63 @@ function ParticipantsPopup(props) {
 			console.log(exception);
 		});
 	}, [])
+
+	useEffect(() => {
+		users.forEach(async (user) => {
+			API.put(`is_participant_screenshare/`, {
+				"agoraId": user.uid,
+				"channelId": channelId
+			}, { headers: { Authorization: `Token ${token}` } }).then(response => {
+				if (!response.data.status && !participantsSet.includes(user)) {
+					API.get(`get_meeting_participant/${user.uid}/`, {
+						headers: { Authorization: `Token ${token}` }
+					}).then(res => {
+						let is_presenter = res.data.is_presenter;
+						let is_host = res.data.is_host;
+						let user_id= res.data.user;
+						API.get(`participant_user_info/${user_id}/`, {
+							headers: { Authorization: `Token ${token}` }
+						}).then(res2 => {
+							let name = res2.data.username;
+							if (is_host == 1 && is_presenter == 1) {
+								name = name + " (Host)(Presenter)";
+							}
+							else if (is_host == 1 && is_presenter == 0) {
+								name = name + " (Host)";
+							}
+							else if (is_host == 0 && is_presenter == 1) {
+								name = name + " (Presenter)";
+							}
+							else if (is_host == 0 && is_presenter == 0) {
+								name = name
+							}
+							setParticipantsSet((prevParticipantsSet) => [
+								...prevParticipantsSet,
+								{
+									agora_id: user.uid,
+									user_id: user_id,
+									is_presenter: is_presenter,
+									is_host: is_host,
+									name: name,
+								}
+							]);
+						}).catch((exception) => {
+							console.log(exception);
+						});
+						
+						
+					}
+					).catch((exception => {
+						console.log(exception)
+					}))
+					console.log("a" + response.data.status)
+					setParticipantsSet((participantsSet) => [...participantsSet, user]);
+				}
+			}).catch((exception) => {
+				console.log(exception);
+			});
+		});
+	}, [users])
 
 
 	function insidePopup() {
@@ -232,18 +225,21 @@ function ParticipantsPopup(props) {
 									<td>---</td>
 								</tr>
 
-								{new_users.map((user) => {
-									    getMeetingUser(user.uid);
-											return <tr>
-											<td>{participantName}</td>
-											{is_host == 1 ? <td><button id={user.uid + "-remove"} onClick={() => removeUser(user.uid)}>Remove</button></td> : <td>---</td>}
-											{is_host == 1 ? isParticipantPresenter ? <td><button id={user.uid + "-unset"} onClick={() => unsetPresenter(user.uid, 0)}>Unset Presenter</button></td> :
-												<td><button id={user.uid + "-set"} onClick={() => setPresenter(user.uid)}>Set Presenter</button></td> : <td>---</td>}
-											{status === "presenter" && !isParticipantPresenter ? <td><button onClick={() => alertUser(user.uid)}>Alert</button></td> : <td>---</td>}
-										</tr>
-									
+								{participantsSet.map((user) => {
+									if (user.name !== undefined) {
+									return <tr>
+										<td>{user.name}</td>
+										{is_host == 1 ? <td><button id={user.agora_id + "-remove"} onClick={() => removeUser(user.agora_id)}>Remove</button></td> : <td>---</td>}
+										{is_host == 1 ? user.is_presenter ? <td><button id={user.agora_id + "-unset"} onClick={() => unsetPresenter(user.agora_id, 0)}>Unset Presenter</button></td> :
+											<td><button id={user.agora_id + "-set"} onClick={() => setPresenter(user.agora_id)}>Set Presenter</button></td> : <td>---</td>}
+										{status === "presenter" && !user.is_presenter ? <td><button onClick={() => alertUser(user.agora_id)}>Alert</button></td> : <td>---</td>}
+									</tr>
 
-								})} 
+									}
+									else {
+										return <div></div>
+									}
+								})}
 							</table>
 							<button type="button" onClick={() => { setTrigger(false) }} className="close popup-close2" aria-label="Close"><span aria-hidden="true">&times;</span></button>
 						</center>
