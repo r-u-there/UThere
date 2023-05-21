@@ -188,13 +188,14 @@ function Controls(props) {
 					}).catch((exception) => {
 						console.log(exception);
 					});
-
+					window.location.href = "/Dashboard";
 				}
 				cookies.remove("agora_uid");
 				cookies.remove("token");
 				cookies.remove("channel_name");
 				cookies.remove("channel_id");
 				cookies.remove("status");
+
 
 				if (isRemoved) {
 					toast("The host has removed you from the meeting. Please wait until you are redirected to dashboard!", {
@@ -206,9 +207,7 @@ function Controls(props) {
 					});
 					
 				}
-				else {
-					window.location.href = "/Dashboard";
-				}
+				
 			}
 		};
 		if (trigger4 || trigger5) {

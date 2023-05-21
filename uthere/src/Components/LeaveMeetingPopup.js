@@ -40,7 +40,7 @@ function LeaveMeetingPopup(props) {
 			headers: { Authorization: `Token ${token}` }
 		}).then(response => {
 			console.log(response);
-			window.location="/MeetingEnding"
+			window.location.href="/MeetingEnding"
 			props.setTrigger5(true)
 		}).catch((exception) => {
 			console.log(exception);
