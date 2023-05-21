@@ -646,23 +646,6 @@ class EndScreenShareViewSet(ModelViewSet):
         screenshare_row.save()
         return Response({'status':'Ended Screenshare'})
     
-class EndMeetingViewSet(ModelViewSet):
-    serializer_class = MeetingSerializer
-    authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
-    http_method_names = ['put']
-    queryset = Meeting.objects.all()
-
-    def put(self, request, *args, **kwargs):
-        channel_id = request.data.get("channelId")
-        queryset = Meeting.objects.filter( id=channel_id, end_time__isnull=True)
-        if not queryset.exists():
-            return Response({'status':'Not Found Meeting'})
-        meeting_row = queryset.first()
-        meeting_row.end_time = datetime.now()
-        meeting_row.save()
-        return Response({'status':'Meeting Ended'})
-    
 class GetCountScreenShareViewSet(ModelViewSet):
     serializer_class = ScreenShareSerializer
     authentication_classes = [TokenAuthentication]
@@ -922,50 +905,39 @@ class GetSpecificAnalysisReportViewSet(ModelViewSet):
             emotion_name = ['Sad','Angry','Surprise','Fear','Happy','Disgust','Neutral']
             total_avg_attention = AttentionEmotionScore.objects.filter(meeting_id=channel_id)
             points_for_attention_graph = AttentionEmotionScoreAverage.objects.filter(meeting_id=channel_id)
-            show_atttention_anlaysis= True
-            if len(total_avg_attention)==0 or len(points_for_attention_graph) == 0:
-                show_atttention_anlaysis =False
-                print(show_atttention_anlaysis)
-            elif total_avg_attention and points_for_attention_graph is not None:
-                total = 0
-                attention_graph_points = []
-                attention_graph_points_average = []
-                for attention in total_avg_attention:
-                    total = total + attention.attention_score
-                    emotions[attention.emotion] = emotions[attention.emotion] +1
-                    point = {'attention_score': attention.attention_score, 'time': attention.time}
-                    attention_graph_points.append(point)
-                for points in points_for_attention_graph:
-                    point ={'attention_score':points.avg_attention_score,'time_start':points.time_start,'time_end':points.time_end}
-                    attention_graph_points_average.append(point)
-                max_index = emotions.index(max(emotions))
-                attention_graph_points = sorted(attention_graph_points, key=lambda point: point['time'])
-                attention_graph_points_average = sorted(attention_graph_points_average, key=lambda point: point['time_start'])
-                print(attention_graph_points_average)
-                average_attention=0
-                avg_emotion='Not available'
-                if len(total_avg_attention) != 0: 
-                    average_attention = total /len(total_avg_attention)
-                    avg_emotion = emotion_name[max_index]
-                    
-                avg_attention= average_attention * 100/3
-                #find total average emotion score
+            total = 0
+            attention_graph_points = []
+            attention_graph_points_average = []
+            for attention in total_avg_attention:
+                total = total + attention.attention_score
+                emotions[attention.emotion] = emotions[attention.emotion] +1
+                point = {'attention_score': attention.attention_score, 'time': attention.time}
+                attention_graph_points.append(point)
+            for points in points_for_attention_graph:
+                point ={'attention_score':points.avg_attention_score,'time_start':points.time_start,'time_end':points.time_end}
+                attention_graph_points_average.append(point)
+            max_index = emotions.index(max(emotions))
+            attention_graph_points = sorted(attention_graph_points, key=lambda point: point['time'])
+            attention_graph_points_average = sorted(attention_graph_points_average, key=lambda point: point['time_start'])
+            print(attention_graph_points_average)
+            average_attention=0
+            avg_emotion='Not available'
+            if len(total_avg_attention) != 0: 
+                average_attention = total /len(total_avg_attention)
+                avg_emotion = emotion_name[max_index]
+                   
+            avg_attention= average_attention * 100/3
+            #find total average emotion score
 
-                if len(total_avg_attention) != 0: 
-                    average_attention = total /len(total_avg_attention)
-                    avg_emotion = emotion_name[max_index]
-                    
-                avg_attention= average_attention * 100/3
-            if show_atttention_anlaysis:
-                meeting_report = {'start_time':meeting.first().start_time, 'end_time':meeting.first().end_time,'join_time': user_meeting.join_time,
-                                    'user_left_time':user_meeting.left_time, 'host_username':user_info_host.get().username, 'host_email':user_info_host.get().email,
-                                    'presenter_names': presenter_names, 'presenter_emails': presenter_emails,'average_attention':avg_attention, 'average_emotion': avg_emotion,
-                                        'attention_graph_points':attention_graph_points,'attention_graph_points_average':attention_graph_points_average,'emotions':emotions}
-            else:
-                meeting_report = {'start_time':meeting.first().start_time, 'end_time':meeting.first().end_time,'join_time': user_meeting.join_time,
-                                    'user_left_time':user_meeting.left_time, 'host_username':user_info_host.get().username, 'host_email':user_info_host.get().email,
-                                    'presenter_names': presenter_names, 'presenter_emails': presenter_emails}
-
+            if len(total_avg_attention) != 0: 
+                average_attention = total /len(total_avg_attention)
+                avg_emotion = emotion_name[max_index]
+                   
+            avg_attention= average_attention * 100/3
+            meeting_report = {'start_time':meeting.first().start_time, 'end_time':meeting.first().end_time,'join_time': user_meeting.join_time,
+                                  'user_left_time':user_meeting.left_time, 'host_username':user_info_host.get().username, 'host_email':user_info_host.get().email,
+                                   'presenter_names': presenter_names, 'presenter_emails': presenter_emails,'average_attention':avg_attention, 'average_emotion': avg_emotion,
+                                    'attention_graph_points':attention_graph_points,'attention_graph_points_average':attention_graph_points_average,'emotions':emotions}
             #find total average emotion score
             # create a new PDF file
             response = HttpResponse(content_type='application/pdf')
@@ -980,14 +952,11 @@ class GetSpecificAnalysisReportViewSet(ModelViewSet):
 
             start_time = meeting_report['start_time']
             pdf.setFont("Helvetica", 12)
-            new_date_format = "%d-%m-%Y %H:%M:%S"
-            formatted_start_time = start_time.strftime(new_date_format)
-            pdf.drawString(100, y, f"Meeting start time: {formatted_start_time}")
+            pdf.drawString(100, y, f"Meeting start time: {start_time}")
             y -= 20
 
             end_time = meeting_report['end_time']
-            formatted_end_time = end_time.strftime(new_date_format)
-            pdf.drawString(100, y, f"Meeting end time: {formatted_end_time}")
+            pdf.drawString(100, y, f"Meeting end time: {end_time}")
             y -= 20
 
             host_user_name = meeting_report['host_username']
@@ -996,13 +965,11 @@ class GetSpecificAnalysisReportViewSet(ModelViewSet):
             y -= 20
 
             join_time = meeting_report['join_time']
-            formatted_join_time = join_time.strftime(new_date_format)
-            pdf.drawString(100, y, f"The time you join to the meeting: {formatted_join_time}")
+            pdf.drawString(100, y, f"The time you join to the meeting: {join_time}")
             y -= 20
 
             left_time = meeting_report['user_left_time']
-            formatted_left_time = left_time.strftime(new_date_format)
-            pdf.drawString(100, y, f"The time you left the meeting: {formatted_left_time}")
+            pdf.drawString(100, y, f"The time you left the meeting: {left_time}")
             y -= 20
 
             y-=40
@@ -1020,75 +987,73 @@ class GetSpecificAnalysisReportViewSet(ModelViewSet):
             
             y-=40
             pdf.setFont("Helvetica", 14)
+            pdf.drawString(100, y, f"Attention and Emotion Scores")
+            y -= 20
+
+            pdf.setFont("Helvetica", 12)
+            total_avg_attention_score = meeting_report['average_attention']
+            pdf.drawString(100, y, f"The average attention score: {total_avg_attention_score}")
+            y -= 20
+
+            total_avg_emotion_score = meeting_report['average_emotion']
+            pdf.drawString(100, y, f"The most common emotion during the meeting: {total_avg_emotion_score}")
             
-            if show_atttention_anlaysis:
-                pdf.drawString(100, y, f"Attention and Emotion Scores")
-                y -= 20
 
-                pdf.setFont("Helvetica", 12)
-                total_avg_attention_score = meeting_report['average_attention']
-                pdf.drawString(100, y, f"The average attention score: {total_avg_attention_score}")
-                y -= 20
+            emotions=  meeting_report['emotions']
+            y-= 40
+            #draw attention graph
+            pdf.setFont("Helvetica", 14)
+            pdf.drawString(100, y, f"Attention Graph")
+            y -= 330
+            drawing = Drawing(width=500, height=300)
+            # your existing code
+            x_values = [datetime.strptime(point['time_end'], '%Y-%m-%d %H:%M:%S.%f').timestamp() for point in attention_graph_points_average]
+            reverse_x_values = [datetime.fromtimestamp(timestamp) for timestamp in x_values]
+            x_labels = [dt.strftime("%Y-%m-%d %H:%M:%S") for dt in reverse_x_values]
+            y_values = [point['attention_score'] for point in attention_graph_points_average]   
+            print(x_values)
+            print(y_values)
 
-                total_avg_emotion_score = meeting_report['average_emotion']
-                pdf.drawString(100, y, f"The most common emotion during the meeting: {total_avg_emotion_score}")
+            lp = LinePlot()
+            lp.x = 50
+            lp.y = 50
+            lp.width = 400
+            lp.height = 200
+            lp.data = [list(zip(x_values, y_values))]
+            lp.lines[0].symbol = makeMarker('FilledCircle')
+            lp.lines[0].strokeWidth = 2
+            lp.lines[0].strokeColor = colors.blue
+            lp.xValueAxis.labelTextFormat = '%2.1f'
+               
+            drawing.add(lp)
+            drawing.add(lp)
+            drawing.drawOn(pdf, 50, y,450)
                 
-
-                emotions=  meeting_report['emotions']
-                y-= 40
-                #draw attention graph
-                pdf.setFont("Helvetica", 14)
-                pdf.drawString(100, y, f"Attention Graph")
-                y -= 330
-                drawing = Drawing(width=500, height=300)
-                # your existing code
-                x_values = [datetime.strptime(point['time_end'], '%Y-%m-%d %H:%M:%S.%f').timestamp() for point in attention_graph_points_average]
-                reverse_x_values = [datetime.fromtimestamp(timestamp) for timestamp in x_values]
-                x_labels = [dt.strftime("%Y-%m-%d %H:%M:%S") for dt in reverse_x_values]
-                y_values = [point['attention_score'] for point in attention_graph_points_average]   
-                print(x_values)
-                print(y_values)
-
-                lp = LinePlot()
-                lp.x = 50
-                lp.y = 50
-                lp.width = 400
-                lp.height = 200
-                lp.data = [list(zip(x_values, y_values))]
-                lp.lines[0].symbol = makeMarker('FilledCircle')
-                lp.lines[0].strokeWidth = 2
-                lp.lines[0].strokeColor = colors.blue
-                lp.xValueAxis.labelTextFormat = '%2.1f'
-                
-                drawing.add(lp)
-                drawing.add(lp)
-                drawing.drawOn(pdf, 50, y,450)
-                    
-                pdf.showPage()
-                y+=650
-                #emotion pie
-                pdf.setFont("Helvetica", 14)
-                pdf.drawString(100, y, f"Emotion Graph")
-                y-=300
-                d = Drawing(300, 200)
-                pc = Pie()
-                pc.x = 200
-                pc.y = 15
-                pc.width = 200
-                pc.height = 200
-                pc.data = emotions
-                pc.labels = ['Sad','Angry','Surprise','Fear','Happy','Disgust','Neutral']
-                pc.slices[3].fontColor = colors.red
-                d.add(pc)
-                d.drawOn(pdf, 0, y,50)
-                #legend part
-                legend = Legend()
-                legend.alignment = 'right'
-                legend.x = 100
-                legend.y = 0
-                legend.colorNamePairs = [(pc.slices[i].fillColor, pc.labels[i]) for i in range(len(pc.labels))]
-                d.add(legend)
-                d.drawOn(pdf, 0, y,50)
+            pdf.showPage()
+            y+=650
+            #emotion pie
+            pdf.setFont("Helvetica", 14)
+            pdf.drawString(100, y, f"Emotion Graph")
+            y-=300
+            d = Drawing(300, 200)
+            pc = Pie()
+            pc.x = 200
+            pc.y = 15
+            pc.width = 200
+            pc.height = 200
+            pc.data = emotions
+            pc.labels = ['Sad','Angry','Surprise','Fear','Happy','Disgust','Neutral']
+            pc.slices[3].fontColor = colors.red
+            d.add(pc)
+            d.drawOn(pdf, 0, y,50)
+            #legend part
+            legend = Legend()
+            legend.alignment = 'right'
+            legend.x = 100
+            legend.y = 0
+            legend.colorNamePairs = [(pc.slices[i].fillColor, pc.labels[i]) for i in range(len(pc.labels))]
+            d.add(legend)
+            d.drawOn(pdf, 0, y,50)
             # save the PDF file and return the response
             pdf.save()
             return response

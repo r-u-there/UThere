@@ -5,17 +5,15 @@ import { Cookies } from "react-cookie";
 import { config } from "../settings";
 import axios from 'axios';
 import MeetingEnding from './MeetingEnding';
-import API from "./API";
 
 function LeaveMeetingPopup(props) {
 	const tracks = props.tracks
 	const trackState = props.trackState
 	const setTrackState = props.setTrackState
 	const navigate = useNavigate();
-	const token = localStorage.getItem('token');
+	const [token, setToken] = useState("");
 	const cookies = new Cookies();
 	const userId = cookies.get("userId");
-	const channelId = cookies.get("channel_id");
 	const is_Host = cookies.get("is_host")
 	console.log(is_Host)
 	const mute = async (type) => {
@@ -32,18 +30,6 @@ function LeaveMeetingPopup(props) {
 		}
 		props.setTrigger4(true)
 	};
-	//when end meeting for all, write end meeting time to the database
-	const endMeeting = async () => {
-		API.put(`end_meeting_table/`, {
-			"channelId": channelId,
-		}, {
-			headers: { Authorization: `Token ${token}` }
-		}).then(response => {
-			console.log(response);
-		}).catch((exception) => {
-			console.log(exception);
-		});
-	}
 
 	function insidePopup() {
 		return (
@@ -55,7 +41,7 @@ function LeaveMeetingPopup(props) {
 					</center>
 					<button type="button" onClick={() => props.setTrigger3(false)} className="popup-close3" aria-label="Close"><span aria-hidden="true">&times;</span></button>
 					<center>
-						{is_Host == 1? <button onClick={() => {endMeeting();props.setTrigger5(true);window.location="\MeetingEnding"}} className="btn btn-primary">End Meeting For All</button>: 
+						{is_Host == 1? <button onClick={() => {props.setTrigger5(true);window.location="\MeetingEnding"}} className="btn btn-primary">End Meeting For All</button>: 
 						 <button onClick={() => {mute("video") }} className="btn btn-primary">Leave</button>
 						 }
                         <button onClick={() => props.setTrigger3(false)} className="btn btn-primary"  style={{ marginLeft: '10px' }}>Return to Meeting</button>

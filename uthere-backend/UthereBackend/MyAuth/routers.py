@@ -7,8 +7,7 @@ from .viewsets import LoginViewSet, RegistrationViewSet, UserViewSet, ContactVie
     SetPresenterMeetingViewSet, UnsetPresenterMeetingViewSet, AlertUserMeetingViewSet, SignOutViewSet, \
     GetAllMeetingParticipantsViewSet, CreatePresenterViewSet,EndTimePresenterViewSet, GetParticipantUserInfoViewSet, UserLeftMeetingViewSet,RemoveAllUserMeetingViewSet, \
 CheckDeparturesViewSet, GetPresenterViewSet, GetAttentionEmotionScoreViewSet, CreateScreenShareViewSet, GetScreenShareViewSet, GetUserInfoViewSet, GiveAccessUserViewSet, \
-GetAnalysisReportsViewSet, GetAnalysisReportsNameViewSet, GetSpecificAnalysisReportViewSet, LeftUserInfoViewSet, CreatePollViewSet, GetPollViewSet, AnswerPollViewSet, \
-GetLatestPollViewSet, IsParticipantScreenshareViewSet, GetCountScreenShareViewSet, EndScreenShareViewSet, IsUserLeftViewSet, EndMeetingViewSet
+GetAnalysisReportsViewSet, GetAnalysisReportsNameViewSet, GetSpecificAnalysisReportViewSet, LeftUserInfoViewSet, CreatePollViewSet, GetPollViewSet, AnswerPollViewSet, GetLatestPollViewSet, IsParticipantScreenshareViewSet, GetCountScreenShareViewSet, EndScreenShareViewSet, IsUserLeftViewSet
 
 
 routes = SimpleRouter()
@@ -64,7 +63,6 @@ routes.register(r'is_participant_screenshare', IsParticipantScreenshareViewSet, 
 routes.register(r'count_screenshare', GetCountScreenShareViewSet, basename='get-count-screenshare')
 routes.register(r'end_screen_share', EndScreenShareViewSet, basename='end-screenshare')
 routes.register(r'is_user_left', IsUserLeftViewSet, basename='is-user-left')
-routes.register(r'end_meeting_table',EndMeetingViewSet, basename='end-meeting-table')
 
 
 urlpatterns = [
