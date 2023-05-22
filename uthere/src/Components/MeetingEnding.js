@@ -23,8 +23,9 @@ function MeetingEnding() {
 
     setTimeout(() => {
       setLoading(true);
+      window.location.reload();
     }, 6000); // Replace with your actual data fetching logic
-    window.location.reload();
+  
   }, []);
 
   function giveShareAccess(id, agora_id) {
