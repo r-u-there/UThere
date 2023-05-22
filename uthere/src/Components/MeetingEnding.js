@@ -23,7 +23,7 @@ function MeetingEnding() {
 
     setTimeout(() => {
       setLoading(true);
-    }, 12000); // Replace with your actual data fetching logic
+    }, 10000); // Replace with your actual data fetching logic
   
   }, []);
 

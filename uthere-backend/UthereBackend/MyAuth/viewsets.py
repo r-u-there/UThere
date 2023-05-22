@@ -563,7 +563,7 @@ class GetAttentionEmotionScoreViewSet(ModelViewSet):
         meeting_id = request.data.get("channelId")
         time = request.data.get("time")
         time_curr = datetime.strptime(time,'%Y-%m-%dT%H:%M:%S.%fZ')
-        one_minute_before = time_curr - timedelta(seconds=20)
+        one_minute_before = time_curr - timedelta(seconds=30)
 
         queryset = AttentionEmotionScore.objects.filter( meeting_id=meeting_id, time__gte=one_minute_before)
         if not queryset.exists():

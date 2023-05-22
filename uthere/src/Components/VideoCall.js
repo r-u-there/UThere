@@ -268,11 +268,11 @@ function VideoCall(props) {
 			}, 5000);
 		};
 
-		if (mediaStream == null && trackState.video) {
+		if (mediaStream == null && trackState.video && status !== "presenter") {
 			startMediaStream();
 			console.log("camera on");
 		}
-		if (mediaStream != null && !trackState.video) {
+		if (mediaStream != null && !trackState.video && status !== "presenter") {
 			stopMediaStream();
 			console.log("camera off");
 		}
