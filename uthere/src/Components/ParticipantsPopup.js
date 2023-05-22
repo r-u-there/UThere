@@ -35,10 +35,13 @@ function ParticipantsPopup(props) {
 			headers: { Authorization: `Token ${token}` }
 		}).then(response => {
 			console.log(response);
+			setParticipantsSet(prevState => prevState.filter(participant => participant.agora_id !== removed_user_id));
+
 		}).catch((exception) => {
 			console.log(exception);
 		});
 	}
+
 	function alertUser(alerted_user_id) {
 		API.put(`alert_user_meeting/`, {
 			"userId": alerted_user_id,
@@ -50,14 +53,14 @@ function ParticipantsPopup(props) {
 		});
 
 	}
-	function unsetPresenter(presenter_user_id, presenter_id_table) {
+	function unsetPresenter(presenter_user_id, presenter_id_table, currentUser) {
 		//make the user presenter
 		let presenter_agora_id = cookies.get("agora_uid")
 		//make the user presenter
 		if (presenter_user_id != userId) {
 			//get user id from agora token
 			presenter_agora_id = presenter_user_id
-			presenter_user_id = participantUserId
+			presenter_user_id = currentUser.user_id;
 
 		}
 		API.put(`unset_presenter_meeting/`, {
@@ -231,8 +234,8 @@ function ParticipantsPopup(props) {
 									return <tr>
 										<td>{user.name}</td>
 										{is_host == 1 ? <td><button id={user.agora_id + "-remove"} onClick={() => removeUser(user.agora_id)}>Remove</button></td> : <td>---</td>}
-										{is_host == 1 ? user.is_presenter ? <td><button id={user.agora_id + "-unset"} onClick={() => unsetPresenter(user.agora_id, 0)}>Unset Presenter</button></td> :
-											<td><button id={user.agora_id + "-set"} onClick={() => setPresenter(user.agora_id, user)}>Set Presenter</button></td> : <td>---</td>}
+										{is_host == 1 ? user.is_presenter ? <td><button onClick={() => unsetPresenter(user.agora_id, 0, user)}>Unset Presenter</button></td> :
+											<td><button onClick={() => setPresenter(user.agora_id, user)}>Set Presenter</button></td> : <td>---</td>}
 										{status === "presenter" && !user.is_presenter ? <td><button onClick={() => alertUser(user.agora_id)}>Alert</button></td> : <td>---</td>}
 									</tr>
 
