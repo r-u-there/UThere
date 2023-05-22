@@ -234,8 +234,8 @@ function ParticipantsPopup(props) {
 									return <tr>
 										<td>{user.name}</td>
 										{is_host == 1 ? <td><button id={user.agora_id + "-remove"} onClick={() => removeUser(user.agora_id)}>Remove</button></td> : <td>---</td>}
-										{is_host == 1 ? user.is_presenter ? <td><button onClick={() => unsetPresenter(user.agora_id, 0, user)}>Unset Presenter</button></td> :
-											<td><button onClick={() => setPresenter(user.agora_id, user)}>Set Presenter</button></td> : <td>---</td>}
+										{is_host == 1 ? user.is_presenter ? <td><button id={user.uid + "-unset"} onClick={() => unsetPresenter(user.agora_id, 0, user)}>Unset Presenter</button></td> :
+											<td><button id={user.uid + "-set"} onClick={() => setPresenter(user.agora_id, user)}>Set Presenter</button></td> : <td>---</td>}
 										{status === "presenter" && !user.is_presenter ? <td><button onClick={() => alertUser(user.agora_id)}>Alert</button></td> : <td>---</td>}
 									</tr>
 
