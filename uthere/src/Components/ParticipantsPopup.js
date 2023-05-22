@@ -60,7 +60,7 @@ function ParticipantsPopup(props) {
 		if (presenter_user_id != userId) {
 			//get user id from agora token
 			presenter_agora_id = presenter_user_id
-			presenter_user_id = currentUser.user_id;
+			presenter_user_id = currentUser;
 
 		}
 		API.put(`unset_presenter_meeting/`, {
@@ -99,7 +99,7 @@ function ParticipantsPopup(props) {
 		if (presenter_user_id != userId) {
 			//get user id from agora token
 			presenter_agora_id = presenter_user_id
-			presenter_user_id = currentUser.user_id
+			presenter_user_id = currentUser
 
 		}
 
@@ -194,7 +194,7 @@ function ParticipantsPopup(props) {
 				console.log(exception);
 			});
 		});
-	}, [users])
+	}, [users, participantsSet])
 
 
 	function insidePopup() {
@@ -225,7 +225,7 @@ function ParticipantsPopup(props) {
 										})()}
 									</td>
 									<td>---</td>
-									{is_host == 1 ? status === "presenter" ? <td><button onClick={() => unsetPresenter(userId, presenter_id)}>Unset Presenter</button></td> : <td><button onClick={() => setPresenter(userId)}>Set Presenter</button></td> : <td>---</td>}
+									{is_host == 1 ? status === "presenter" ? <td><button onClick={() => unsetPresenter(userId, presenter_id, userId)}>Unset Presenter</button></td> : <td><button onClick={() => setPresenter(userId, userId)}>Set Presenter</button></td> : <td>---</td>}
 									<td>---</td>
 								</tr>
 
@@ -234,8 +234,8 @@ function ParticipantsPopup(props) {
 									return <tr>
 										<td>{user.name}</td>
 										{is_host == 1 ? <td><button id={user.agora_id + "-remove"} onClick={() => removeUser(user.agora_id)}>Remove</button></td> : <td>---</td>}
-										{is_host == 1 ? user.is_presenter ? <td><button id={user.uid + "-unset"} onClick={() => unsetPresenter(user.agora_id, 0, user)}>Unset Presenter</button></td> :
-											<td><button id={user.uid + "-set"} onClick={() => setPresenter(user.agora_id, user)}>Set Presenter</button></td> : <td>---</td>}
+										{is_host == 1 ? user.is_presenter ? <td><button onClick={() => unsetPresenter(user.agora_id, 0, user.user_id)}>Unset Presenter</button></td> :
+											<td><button onClick={() => setPresenter(user.agora_id, user.user_id)}>Set Presenter</button></td> : <td>---</td>}
 										{status === "presenter" && !user.is_presenter ? <td><button onClick={() => alertUser(user.agora_id)}>Alert</button></td> : <td>---</td>}
 									</tr>
 
