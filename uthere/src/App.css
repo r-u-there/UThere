@@ -498,12 +498,12 @@ body {
 	top: 0;
 }
 .vid:nth-child(3) {
-	left: 552px;
-	top: 0;
+	left: 0;
+	top: 273px;
 }
 
 .vid:nth-child(4) {
-	left: 0;
+	left: 276px;
 	top: 273px;
 }
 

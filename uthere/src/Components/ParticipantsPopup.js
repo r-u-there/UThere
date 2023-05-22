@@ -229,8 +229,8 @@ function ParticipantsPopup(props) {
 									<td>---</td>
 								</tr>
 
-								{participantsSet.map((user) => {
-									if (user.name !== undefined) {
+								{participantsSet.map((user, index) => {
+									if (user.name !== undefined && index < 2) {
 									return <tr>
 										<td>{user.name}</td>
 										{is_host == 1 ? <td><button id={user.agora_id + "-remove"} onClick={() => removeUser(user.agora_id)}>Remove</button></td> : <td>---</td>}
