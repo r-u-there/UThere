@@ -23,8 +23,7 @@ function MeetingEnding() {
 
     setTimeout(() => {
       setLoading(true);
-      window.location.reload();
-    }, 6000); // Replace with your actual data fetching logic
+    }, 12000); // Replace with your actual data fetching logic
   
   }, []);
 
