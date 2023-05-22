@@ -89,16 +89,19 @@ function ParticipantsPopup(props) {
 		}
 		setsetButton(true)
 	}
-	async function setPresenter(currentUser) {
+
+	async function setPresenter(presenter_user_id, currentUser) {
 		let presenter_agora_id = cookies.get("agora_uid")
 		//make the user presenter
-		if (currentUser.user_uid != userId) {
+		if (presenter_user_id != userId) {
 			//get user id from agora token
-			presenter_agora_id = currentUser.user_uid
+			presenter_agora_id = presenter_user_id
+			presenter_user_id = currentUser.user_id
+
 		}
 
 		API.put(`set_presenter_meeting/`, {
-			"userId": currentUser.user_id,
+			"userId": presenter_user_id,
 			"channelId": channelId,
 			"agoraToken": presenter_agora_id
 		}, { headers: { Authorization: `Token ${token}` } }).then(response => {
@@ -108,13 +111,13 @@ function ParticipantsPopup(props) {
 		});
 		const createPresenterResponse = await API.post('create_presenter/', {
 			"meeting": channelId,
-			"user": currentUser.user_id,
+			"user": presenter_user_id,
 		},
 			{
 				headers: { Authorization: `Token ${token}` }
 			});
 		console.log(createPresenterResponse);
-		if (currentUser.user_id == userId) {
+		if (presenter_user_id == userId) {
 			cookies.set("status", "presenter")
 			console.log("current user status is set to presenter through set button")
 			cookies.set("presenter_id", createPresenterResponse.data.id)
@@ -229,7 +232,7 @@ function ParticipantsPopup(props) {
 										<td>{user.name}</td>
 										{is_host == 1 ? <td><button id={user.agora_id + "-remove"} onClick={() => removeUser(user.agora_id)}>Remove</button></td> : <td>---</td>}
 										{is_host == 1 ? user.is_presenter ? <td><button id={user.agora_id + "-unset"} onClick={() => unsetPresenter(user.agora_id, 0)}>Unset Presenter</button></td> :
-											<td><button id={user.agora_id + "-set"} onClick={() => setPresenter(user)}>Set Presenter</button></td> : <td>---</td>}
+											<td><button id={user.agora_id + "-set"} onClick={() => setPresenter(user.agora_id, user)}>Set Presenter</button></td> : <td>---</td>}
 										{status === "presenter" && !user.is_presenter ? <td><button onClick={() => alertUser(user.agora_id)}>Alert</button></td> : <td>---</td>}
 									</tr>
 
