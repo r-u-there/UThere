@@ -45,7 +45,7 @@ class Settings(models.Model):
     hide_real_time_attention_analysis = models.BooleanField(default=False)
     hide_real_time_analysis = models.BooleanField(default=False)
     hide_who_left = models.BooleanField(default=False)
-    hide_eye_tracking = models.BooleanField(default=False)
+    hide_eye_tracking = models.BooleanField(default=True)
 
 
 class User(AbstractBaseUser, PermissionsMixin):
