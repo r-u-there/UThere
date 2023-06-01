@@ -262,7 +262,7 @@ function ProfilePage() {
 						</tr>
 					</table>
 
-		<div className="form-group col-sm-10">
+		<div className="form-group col-sm-10 mt-1">
           <button type="button" className="btn btn-primary rounded-pill" onClick={handleSubmit}>Save</button>
 		</div>		</center>
 				</div>
