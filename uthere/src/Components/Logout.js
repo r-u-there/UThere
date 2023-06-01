@@ -23,7 +23,7 @@ function Logout() {
 				<table>
 					<tr>
 						<td><IoIosLogOut size={40} onClick={logout} /></td>
-						<td><label className='mt-2' onClick={logout} style={{ "font-size": "18px" }}>Sign Out</label></td>
+						<td><p className='mt-2' onClick={logout} style={{ "font-size": "18px" }}>Sign Out</p></td>
 					</tr>
 				</table>
 			</Link>

@@ -209,8 +209,8 @@ body {
 
 .logout-position {
 	position: absolute;
-	left: 91%;
-	top: 15%;
+	right: 5px;
+	top: 110px;
 }
 
 .profile {
@@ -542,7 +542,7 @@ body {
 
 .meeting-control {
 	margin: 0px auto;
-	grid-template-columns: repeat(4, 25%);
+	grid-template-columns: repeat(4, 1fr);
 	max-width: 95vw;
 	display: flex;
 	width: 100%;
@@ -552,6 +552,11 @@ body {
 	color: #555;
 	flex: 1;
 }
+@media (max-width: 480px) {
+	.meeting-control {
+	  grid-template-columns: repeat(2, 1fr);
+	}
+  }
 
 
 .meeting-control button {

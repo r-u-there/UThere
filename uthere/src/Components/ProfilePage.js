@@ -228,6 +228,7 @@ function ProfilePage() {
 		else if (tabSelection == 2) {
 			return (
 				<div>
+					<center>
 					<table>
 						<tr>
 							<td><BiChevronRightCircle size={30}/></td>
@@ -260,11 +261,11 @@ function ProfilePage() {
 							<td>&emsp;&emsp;{!toggle6 ? <MdToggleOff onClick={() => {setToggle6(!toggle6); }} size={40}/> : <MdToggleOn onClick={() => {setToggle6(!toggle6); }} size={40} color="green"/>}</td>
 						</tr>
 					</table>
+
 		<div className="form-group col-sm-10">
-        <center>
           <button type="button" className="btn btn-primary rounded-pill" onClick={handleSubmit}>Save</button>
-        </center>
-      </div>				</div>
+		</div>		</center>
+				</div>
 			);
 		}
 	}

@@ -128,7 +128,7 @@ DATABASES = {
         "NAME": "uthere",
         'USER': "postgres",
         'PASSWORD': 'uthere123',
-        'HOST': '34.159.136.113',
+        'HOST': '35.234.77.72',
         'PORT': '5432',
     }
 }
