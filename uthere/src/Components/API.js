@@ -7,7 +7,7 @@ export default axios.create({
     // CHANGE THE BASE URL TO TEST IN LOCAL ENVIRONMENT
     // baseURL: "http://127.0.0.1:8000/api/",
     
-    baseURL: "https://uthere-yyffjz5wna-uc.a.run.app/api/",
+    baseURL: "https://uthere-trf4j6iqpq-ey.a.run.app/api/",
     headers: {
         'Accept':'application/json',
         'Content-Type':'application/json',
